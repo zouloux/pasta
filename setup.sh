@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# Ask for root domain
+echo ""
+
+# Ask some questions
 read -p "On which root domain this server is installed ? Only DNS, no scheme. ( ex : google.com ) : " rootDomain
-
-# Ask for server name
 read -p "Which server name to use for this instance? It should be representative of its domain name, no dot, no ext, dash allowed. ( ex : google ) : " hostname
-
-# Ask for admin email
 read -p "Admin email address ( for acme ) : " adminEmail
 
 # Set the hostname
@@ -22,29 +20,17 @@ apt update && apt upgrade -y
 apt install git zsh logrotate figlet apache2-utils -y
 
 # Create ASCII banner
-banner=$(echo $hostname | figlet -w 120 -f small)
+banner=$(echo $hostname | figlet -w 120)
 echo "$banner" > /etc/motd
 
 # Enable banner for SSH login
 echo "PrintMotd yes" >> /etc/ssh/sshd_config
 systemctl restart sshd
 
-# Install and configure ohmyzsh
-# We change the theme to always show the hostname
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-cd ~/.oh-my-zsh/themes/
-mv robbyrussell.zsh-theme robbyrussell.zsh-theme.old
-cat <<EOF > ./robbyrussell.zsh-theme
-# https://stackoverflow.com/questions/24682876/change-oh-my-zsh-theme-when-ssh-is-run/50356080
-local hostname="%{\$fg_bold[black]%}%m"
-local ret_status="%(?:%{\$fg_bold[green]%}➜ :%{\$fg_bold[red]%}➜ %s)"
-PROMPT='${hostname} ${ret_status}%{\$fg_bold[green]%}%p %{\$fg[cyan]%}%c %{\$fg_bold[blue]%}$(git_prompt_info)%{\$fg_bold[blue]%} % %{\$reset_color%}'
-ZSH_THEME_GIT_PROMPT_PREFIX="git:(%{\$fg[red]%}"
-ZSH_THEME_GIT_PROMPT_SUFFIX="%{\$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY="%{\$fg[blue]%}) %{\$fg[yellow]%}✗%{\$reset_color%}"
-ZSH_THEME_GIT_PROMPT_CLEAN="%{\$fg[blue]%})"
-EOF
-cd -
+# Install ohmyzsh
+wget -qO install-ohmyzsh.sh https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+bash install-ohmyzsh.sh --unattended
+rm install-ohmyzsh.sh
 
 # Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -79,8 +65,12 @@ echo $hostname > config/hostname.txt
 echo $rootDomain > config/root-domain.txt
 echo $adminEmail > config/admin-email.txt
 
-# Import proxy config and scripts from git
+# Import zshtheme / proxy config / scripts from git
 git clone https://github.com/zouloux/halloumi.git /tmp/halloumi
+cd ~/.oh-my-zsh/themes/
+mv robbyrussell.zsh-theme robbyrussell.zsh-theme.old
+cp /tmp/halloumi/halloumi.zsh-theme ~/.oh-my-zsh/themes/robbyrussell.zsh-theme
+cd /root
 cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
 cp -r /tmp/halloumi/scripts/* /root/scripts/
 rm -rf /tmp/halloumi

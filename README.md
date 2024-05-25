@@ -1,13 +1,13 @@
 # Halloumi
 
+## Prepare your VPS
 
-## Prepare
-
-1. Login with SSH to your freshly booted VPS.
-2. Configure SSH ( add your public key, remove password access )
+1. Buy your VPS ( Ionos / Hostinger )
+2. [Prepare it](./vps-prepare)
 
 ## Setup
 
+First, login with SSH to your freshly booted VPS.
 Start the setup script on your VPS with this command and follow instructions.
 
 ```bash
