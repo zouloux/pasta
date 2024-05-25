@@ -11,5 +11,7 @@
 Start the setup script on your VPS with this command 
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/zouloux/halloumi/main/setup.sh | bash
+wget -qO- https://raw.githubusercontent.com/zouloux/halloumi/main/setup.sh
+bash setup.sh
+rm setup.sh
 ```
