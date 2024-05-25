@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # Ask for root domain
 read -p "On which root domain this server is installed ? Only DNS, no scheme. ( ex : google.com ) : " rootDomain
@@ -9,7 +8,6 @@ read -p "Which server name to use for this instance? It should be representative
 
 # Ask for admin email
 read -p "Admin email address ( for acme ) : " adminEmail
-
 
 # Set the hostname
 echo $hostname > /etc/hostname
