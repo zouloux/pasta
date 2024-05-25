@@ -16,8 +16,8 @@ services:
       - ./data/html/:/usr/share/nginx/html
       - ./data/passwords/:/etc/nginx/htpasswd
       - ./config/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro
-      - ./config/default-error.html:/usr/share/nginx/html/default-error.html:ro
-      - ./config/default-error.conf:/etc/nginx/conf.d/default-error.conf:ro
+#      - ./config/default-error.html:/usr/share/nginx/html/default-error.html:ro
+#      - ./config/default-error.conf:/etc/nginx/conf.d/default-error.conf:ro
     networks:
       - "halloumi"
 

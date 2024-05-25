@@ -1,11 +1,13 @@
 #!/bin/bash
 
+# TODO
+exit
+
 projectID=$1
 projectUser="project_$projectID"
 projectFolder=~/containers/projects/$projectID
 archiveFolder=~/archives
 keepFolder="${projectFolder}/_keep_"
-
 # Check for project ID
 if [ -z "$projectID" ]; then
     echo "No project ID provided."

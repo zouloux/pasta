@@ -65,13 +65,19 @@ echo $hostname > config/hostname.txt
 echo $rootDomain > config/root-domain.txt
 echo $adminEmail > config/admin-email.txt
 
-# Import zshtheme / proxy config / scripts from git
+# Clone Halloumi repo
 git clone https://github.com/zouloux/halloumi.git /tmp/halloumi
+
+# Configure oh my zsh
 cd ~/.oh-my-zsh/themes/
 mv robbyrussell.zsh-theme robbyrussell.zsh-theme.old
 cp /tmp/halloumi/halloumi.zsh-theme ~/.oh-my-zsh/themes/robbyrussell.zsh-theme
+chsh -s $(which zsh)
 cd /root
+
+# Copy proxy and scripts
 cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
+cp /tmp/halloumi/containers/services/proxy/config/ /root/containers/services/proxy/config/
 cp -r /tmp/halloumi/scripts/* /root/scripts/
 rm -rf /tmp/halloumi
 
@@ -83,7 +89,6 @@ docker network create halloumi
 
 # Start reverse proxy
 cd /root/containers/services/proxy/
-
 docker compose up -d
 
-echo "All done"
+echo "All done, exit and reconnect."
