@@ -1,1 +1,4 @@
 /.idea
+.env
+!.gitkeep
+.DS_Store
