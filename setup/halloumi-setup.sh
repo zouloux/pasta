@@ -89,6 +89,10 @@ cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/robbyrussell.zsh-t
 chsh -s $(which zsh)
 cd /root
 
+# Configure aliases
+echo 'alias lzd="$HOME/scripts/lazydocker.sh"' >> ~/.zshrc
+source ~/.zshrc
+
 # Copy proxy and scripts
 cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
 cp /tmp/halloumi/containers/services/proxy/config/ /root/containers/services/proxy/config/
