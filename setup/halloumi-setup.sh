@@ -43,7 +43,7 @@ echo "include /etc/logrotate.d" > /etc/logrotate.conf
 # Add a logrotate configuration for all logs
 cat <<EOF > /etc/logrotate.d/all_logs
 /var/log/*log {
-    size 64M
+    size 32M
     missingok
     notifempty
     copytruncate
@@ -51,6 +51,20 @@ cat <<EOF > /etc/logrotate.d/all_logs
     rotate 0
 }
 EOF
+
+# Configure journald for log max size
+cat <<EOF > /etc/systemd/journald.conf
+[Journal]
+Storage=persistent
+SystemMaxUse=256M
+SystemKeepFree=1G
+SystemMaxFileSize=32M
+MaxRetentionSec=1month
+RateLimitInterval=60s
+RateLimitBurst=1000
+Compress=yes
+EOF
+systemctl restart systemd-journald
 
 # Save config
 cd /root
@@ -71,7 +85,7 @@ git clone https://github.com/zouloux/halloumi.git /tmp/halloumi
 # Configure oh my zsh
 cd ~/.oh-my-zsh/themes/
 mv robbyrussell.zsh-theme robbyrussell.zsh-theme.old
-cp /tmp/halloumi/halloumi.zsh-theme ~/.oh-my-zsh/themes/robbyrussell.zsh-theme
+cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/robbyrussell.zsh-theme
 chsh -s $(which zsh)
 cd /root
 
