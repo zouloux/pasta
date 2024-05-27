@@ -10,11 +10,14 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 - docker
 - git
 - zsh and ohmyzsh
-- logrotate ( configured for 64mb log max everywhere )
-- figlet ( for ASCII SSH banner)
+- logrotate ( to minimize log file size )
 - apache2-utils ( for password management )
 
 > All other dependencies will be managed through docker applications
+
+#### Lazy Docker
+
+[Lazydocker](https://github.com/jesseduffield/lazydocker) ( in docker ) is available with the alias `lzd`.
 
 #### Features
 

@@ -12,32 +12,36 @@ echo $hostname > /etc/hostname
 hostnamectl set-hostname $hostname
 echo "127.0.0.1 $hostname" >> /etc/hosts
 
-# Confirm to install dependencies
-echo "Installing dependencies"
-
 # Update and install core dependencies
-apt update && apt upgrade -y
-apt install git zsh logrotate figlet apache2-utils -y
+echo "Installing core dependencies ..."
+apt update -qq && apt upgrade -y -qq
+apt install git zsh logrotate figlet apache2-utils -y -qq
+
 
 # Create ASCII banner
+echo "Creating login banner ..."
 banner=$(echo $hostname | figlet -w 120)
 echo "$banner" > /etc/motd
+apt remove figlet -y -qq # We remove figlet
 
 # Enable banner for SSH login
 echo "PrintMotd yes" >> /etc/ssh/sshd_config
 systemctl restart sshd
 
 # Install ohmyzsh
+echo "Installing ohmyzsh ..."
 wget -qO install-ohmyzsh.sh https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
 bash install-ohmyzsh.sh --unattended
 rm install-ohmyzsh.sh
 
 # Install Docker
+echo "Installing docker  ..."
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh -y
 rm get-docker.sh
 
 # Configure logrotate
+echo "Configuring logs ..."
 echo "include /etc/logrotate.d" > /etc/logrotate.conf
 
 # Add a logrotate configuration for all logs
@@ -67,22 +71,28 @@ EOF
 systemctl restart systemd-journald
 
 # Save config
+echo "Creating directories ..."
 cd /root
-mkdir config/
 mkdir scripts/
-mkdir -p containers/apps
-mkdir -p containers/services/proxy
-mkdir -p containers/projects
+mkdir -p containers/apps/
+mkdir -p containers/services/proxy/
+mkdir -p containers/projects/
 
 # Save config
-echo $hostname > config/hostname.txt
-echo $rootDomain > config/root-domain.txt
-echo $adminEmail > config/admin-email.txt
+echo "Saving config ..."
+mkdir -p .config/halloumi/
+cd .config/halloumi/
+echo $hostname > hostname.txt
+echo $rootDomain > root-domain.txt
+echo $adminEmail > admin-email.txt
+cd /root
 
 # Clone Halloumi repo
-git clone https://github.com/zouloux/halloumi.git /tmp/halloumi
+echo "Cloning Halloumi repo ..."
+git clone https://github.com/zouloux/halloumi.git /tmp/halloumi > /dev/null 2>&1
 
 # Configure oh my zsh
+echo "Configuring zsh ..."
 cd ~/.oh-my-zsh/themes/
 mv robbyrussell.zsh-theme robbyrussell.zsh-theme.old
 cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/robbyrussell.zsh-theme
@@ -91,9 +101,10 @@ cd /root
 
 # Configure aliases
 echo 'alias lzd="$HOME/scripts/lazydocker.sh"' >> ~/.zshrc
-source ~/.zshrc
+#source ~/.zshrc
 
 # Copy proxy and scripts
+echo "Setting up nginx proxy ..."
 cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
 cp /tmp/halloumi/containers/services/proxy/config/ /root/containers/services/proxy/config/
 cp -r /tmp/halloumi/scripts/* /root/scripts/
@@ -103,10 +114,19 @@ rm -rf /tmp/halloumi
 echo "EMAIL_ADDRESS=${adminEmail}" > /root/containers/services/proxy/.env
 
 # Create halloumi docker network
+echo "Creating Halloumi docker network ..."
 docker network create halloumi
 
 # Start reverse proxy
+echo "Starting proxy ..."
 cd /root/containers/services/proxy/
 docker compose up -d
+
+# Clean
+echo "Cleaning ..."
+rm -f .zcompdump-*
+rm -f .wget-hsts
+rm -f .viminfo
+rm -f .bash_history
 
 echo "All done, exit and reconnect."
