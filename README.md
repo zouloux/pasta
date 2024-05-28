@@ -9,7 +9,7 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 **The setup will install :**
 - docker
 - git
-- zsh and ohmyzsh
+- zsh
 - logrotate ( to minimize log file size )
 - apache2-utils ( for password management )
 

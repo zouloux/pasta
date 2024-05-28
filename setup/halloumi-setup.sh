@@ -85,8 +85,8 @@ echo "Saving config ..."
 mkdir -p .config/halloumi/
 cd .config/halloumi/
 echo $hostname > hostname.txt
-echo $rootDomain > root-domain.txt
-echo $adminEmail > admin-email.txt
+echo $rootDomain > domain.txt
+echo $adminEmail > email.txt
 cd /root
 
 # Clone Halloumi repo
@@ -96,23 +96,34 @@ git clone https://github.com/zouloux/halloumi.git /tmp/halloumi > /dev/null 2>&1
 # Configure oh my zsh
 echo "Configuring zsh ..."
 cd ~/.oh-my-zsh/themes/
-mv robbyrussell.zsh-theme robbyrussell.zsh-theme.old
-cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/robbyrussell.zsh-theme
+cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/halloumi.zsh-theme
 chsh -s $(which zsh)
 cd /root
 
-# Configure aliases
-echo 'alias lzd="$HOME/scripts/lazydocker.sh"' >> ~/.zshrc
+# Set zsh config
+cat <<EOF > ~/.zshrc
+# export PATH=\$HOME/bin:\$HOME/.local/bin:/usr/local/bin:\$PATH
+export ZSH="\$HOME/.oh-my-zsh"
+ZSH_THEME="halloumi"
+plugins=(git)
+source \$ZSH/oh-my-zsh.sh
+# Halloumi config
+export HALLOUMI_DOMAIN=\$(cat ~/.config/halloumi/domain.txt)
+export HALLOUMI_HOSTNAME=\$(cat ~/.config/halloumi/hostname.txt)
+export HALLOUMI_EMAIL=\$(cat ~/.config/halloumi/email.txt)
+# Aliases
+alias lazyd="\$HOME/scripts/lazydocker.sh"
+EOF
+
+# Load zsh config
+source ~/.zshrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
 cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
-cp /tmp/halloumi/containers/services/proxy/config/ /root/containers/services/proxy/config/
+cp -r /tmp/halloumi/containers/services/proxy/config/ /root/containers/services/proxy/config/
 cp -r /tmp/halloumi/scripts/* /root/scripts/
 rm -rf /tmp/halloumi
-
-# Create proxy dot env
-echo "EMAIL_ADDRESS=${adminEmail}" > /root/containers/services/proxy/.env
 
 # Create halloumi docker network
 echo "Creating Halloumi docker network ..."
@@ -124,6 +135,7 @@ cd /root/containers/services/proxy/
 docker compose up -d
 
 # Clean
+cd /root
 echo "Cleaning ..."
 rm -f .zcompdump-* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1

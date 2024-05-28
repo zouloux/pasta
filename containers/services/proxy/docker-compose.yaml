@@ -28,7 +28,7 @@ services:
     volumes_from:
       - "proxy-nginx"
     environment:
-      DEFAULT_EMAIL: "${EMAIL_ADDRESS}"
+      DEFAULT_EMAIL: "$HALLOUMI_EMAIL"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./data/acme:/etc/acme.sh
