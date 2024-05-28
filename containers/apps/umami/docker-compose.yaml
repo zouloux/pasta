@@ -1,0 +1,35 @@
+networks:
+  halloumi:
+    external: true
+
+services:
+  umami-core:
+    image: "ghcr.io/umami-software/umami:postgresql-v2.11.3"
+    container_name: "app_umami-core"
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@umami-db:5432/umami"
+      DATABASE_TYPE: "postgresql"
+      APP_SECRET: "$UMAMI_APP_SECRET"
+      VIRTUAL_HOST: "umami.$HALLOUMI_DOMAIN"
+      LETSENCRYPT_HOST: "umami.$HALLOUMI_DOMAIN"
+      VIRTUAL_PORT: 3000
+    depends_on:
+      - "umami-db"
+    restart: "always"
+    networks:
+      - "halloumi"
+
+  umami-db:
+    image: "postgres:15-alpine"
+    container_name: "app_umami-db"
+    environment:
+      POSTGRES_DB: "umami"
+      POSTGRES_USER: "$POSTGRES_USER"
+      POSTGRES_PASSWORD: "$POSTGRES_PASSWORD"
+    ports :
+      - "5432:5432"
+    volumes:
+      - ./data/umami-db:/var/lib/postgresql/data
+    restart: "always"
+    networks :
+      - "halloumi"
