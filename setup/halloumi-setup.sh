@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO : Install zsh without ohmyzsh ? Can we have the robbyrussel theme ?
+
 echo ""
 
 # Ask some questions
@@ -101,7 +103,6 @@ cd /root
 
 # Configure aliases
 echo 'alias lzd="$HOME/scripts/lazydocker.sh"' >> ~/.zshrc
-#source ~/.zshrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
@@ -124,9 +125,9 @@ docker compose up -d
 
 # Clean
 echo "Cleaning ..."
-rm -f .zcompdump-*
-rm -f .wget-hsts
-rm -f .viminfo
-rm -f .bash_history
+rm -f .zcompdump-* > /dev/null 2>&1
+rm -f .wget-hsts > /dev/null 2>&1
+rm -f .viminfo > /dev/null 2>&1
+rm -f .bash_history > /dev/null 2>&1
 
 echo "All done, exit and reconnect."
