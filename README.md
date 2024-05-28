@@ -17,7 +17,7 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 
 #### Lazy Docker
 
-[Lazydocker](https://github.com/jesseduffield/lazydocker) ( in docker ) is available with the alias `lzd`.
+[Lazydocker](https://github.com/jesseduffield/lazydocker) ( in docker ) is available with the alias `lazyd`.
 
 #### Features
 
