@@ -78,6 +78,13 @@ Buy your VPS and [prepare it](./doc/prepare-vps.md) install Halloumi.
 - [Outline](./containers/apps/outline) - Notion alternative
 - [Umami](./containers/apps/outline) - Googla Analytics alternative
 
+> Follow instruction to install them, by default no application is installed.
+
+But also, some no monitoring elements ( not documented ) :
+- [Portainer Admin](./containers/apps/portainer-admin) - Manage running containers
+- [Portainer Agent](./containers/apps/portainer-agent) - Agent to control other Halloumi Server
+- [Net-data](./containers/apps/netdata) - Host linux system monitoring
+
 > Follow Readme files to install those application on a **Master** or **Production** **Halloumi server**.
 
 ## How it works

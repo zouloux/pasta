@@ -1,0 +1,18 @@
+networks:
+  halloumi:
+    external: true
+
+services:
+  portainer-admin:
+    image: "portainer/portainer-ce:latest"
+    container_name: "app_portainer-admin"
+    restart: "always"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/portainer-admin:/data
+    environment:
+      VIRTUAL_HOST: "portainer.$HALLOUMI_DOMAIN"
+      LETSENCRYPT_HOST: "portainer.$HALLOUMI_DOMAIN"
+      VIRTUAL_PORT: 9000
+    networks:
+      - "halloumi"

@@ -1,0 +1,18 @@
+networks:
+  halloumi:
+    external: true
+
+services:
+  portainer_agent:
+    image: "portainer/agent:latest"
+    container_name: "app_portainer-agent"
+    restart: "always"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    environment:
+      VIRTUAL_HOST: "$PORTAINER_AGENT_URL.$HALLOUMI_DOMAIN"
+      LETSENCRYPT_HOST: "$PORTAINER_AGENT_URL.$HALLOUMI_DOMAIN"
+      VIRTUAL_PORT: 9001
+    networks:
+      - "halloumi"

@@ -5,7 +5,7 @@ networks:
 services:
   noco-core:
     image: "nocodb/nocodb:0.207.3"
-    container_name: "apps_noco-core"
+    container_name: "app_noco-core"
     volumes:
       - "./data/noco-core:/usr/app/data/"
     env_file: ".env"
