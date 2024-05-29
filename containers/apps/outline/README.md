@@ -13,9 +13,12 @@ POSTGRES_DB=outline
 ```
 - Create `.env.core` from `https://github.com/outline/outline/blob/main/.env.sample`
 - Change `DATABASE_URL` / `URL` / `PORT=80` / `SMTP` ...
-- Create slack app and set `.env.core`
+- Create slack app for login and set `.env.core`
 
-- `docker compose up -d`
+#### Start
+```bash
+docker compose up -d
+```
 
 ## How to upgrade
 

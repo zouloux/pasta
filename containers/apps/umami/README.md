@@ -9,7 +9,11 @@ POSTGRES_USER=
 POSTGRES_PASSWORD=
 UMAMI_APP_SECRET=
 ```
-- `docker compose up -d`
+
+#### Start
+```bash
+docker compose up -d
+```
 
 ## How to upgrade
 

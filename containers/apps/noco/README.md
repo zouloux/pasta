@@ -12,16 +12,20 @@ NC_ADMIN_EMAIL=
 NC_SMTP_FROM=
 NC_SMTP_HOST=
 NC_SMTP_PORT=
-NC_SMTP_USERNAME
+NC_SMTP_USERNAME=
 NC_SMTP_PASSWORD=
 NC_SMTP_SECURE=
 ```
 
-- `docker compose up -d`
+> The dot env file can be empty omitted and everything can be configured at first connexion. No recommended.
 
-> The dot env file can be omitted and everything can be configured at first connexion if needed.
+> Also, [Other envs are available](https://docs.nocodb.com/getting-started/self-hosted/environment-variables)
 
-[Other envs are available](https://docs.nocodb.com/getting-started/self-hosted/environment-variables)
+#### Start
+```bash
+docker compose up -d
+```
+
 
 ## How to upgrade
 

@@ -16,7 +16,12 @@ It manages Git repositories, and has it's own CI based on [Act](https://docs.git
 ```bash
 echo "GITEA_RUNNER_REGISTRATION_TOKEN={TOKEN}" >> .env
 ```
-- Restart with `docker compose up -d`
+
+#### Start
+```bash
+docker compose up -d
+```
+
 - Go to `/admin/actions/runners`, you should see your runner registered.
 
 ## How to update
