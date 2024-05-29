@@ -70,6 +70,16 @@ Buy your VPS and [prepare it](./doc/prepare-vps.md) install Halloumi.
 #### Update
 [Update Halloumi](./doc/update.md)
 
+#### Install apps
+
+**Halloumi** comes with some open-source self-hosted applications :
+- [Gitea](./containers/apps/gitea) - Github / Gitlab alternative
+- [Noco](./containers/apps/noco) - AirTable alternative
+- [Outline](./containers/apps/outline) - Notion alternative
+- [Umami](./containers/apps/outline) - Googla Analytics alternative
+
+> Follow Readme files to install those application on a **Master** or **Production** **Halloumi server**.
+
 ## How it works
 
 **TODO HOW IT WORKS DOC**
