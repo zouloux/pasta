@@ -1,0 +1,45 @@
+networks:
+  halloumi:
+    external: true
+
+services:
+  outline-core:
+    image: "docker.getoutline.com/outlinewiki/outline:latest"
+    container_name: "app_outline-core"
+    env_file: ".env.core"
+    environment:
+      VIRTUAL_HOST: "outline.$HALLOUMI_DOMAIN"
+      LETSENCRYPT_HOST: "outline.$HALLOUMI_DOMAIN"
+      VIRTUAL_PORT: 80
+    networks:
+      - "halloumi"
+    volumes:
+      - "./data/outline-core:/var/lib/outline/data"
+
+  outline-redis:
+    image: "redis"
+    container_name: "app_outline-redis"
+    volumes:
+      - "./data/outline-redis/redis.conf:/redis.conf"
+    command: ["redis-server", "/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      - "halloumi"
+
+  outline-postgres:
+    image: "postgres"
+    container_name: "app_outline-postgres"
+    volumes:
+      - "./data/outline-postgres:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    env_file: ".env.postgres"
+    networks:
+      - "halloumi"

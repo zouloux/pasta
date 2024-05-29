@@ -1,5 +1,8 @@
 # Gitea app on Halloumi server
 
+[Gitea](https://about.gitea.com/) is an open-source and self-hosted Github alternative.
+It manages Git repositories, and has it's own CI based on [Act](https://docs.gitea.com/usage/actions/act-runner), which is Github-actions compatible.
+
 ## How to install
 
 - Copy [docker-compose.yaml](./docker-compose.yaml) content on the VPS at `~/containers/apps/gitea/`
