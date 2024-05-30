@@ -1,4 +1,4 @@
-# Halloumi
+# Halloumi 🧀
 
 ## About
 
@@ -13,7 +13,7 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 - logrotate ( to minimize log file size )
 - apache2-utils ( for password management )
 - rsync ( for host <-> remote file transfer )
-- lazydocker
+- [lazydocker](https://github.com/jesseduffield/lazydocker)
 
 > All other dependencies will be managed through docker applications
 
@@ -21,14 +21,14 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 
 Some commands you can run when connect with SSH
 
-- `lazydocker` - Open [Lazydocker](https://github.com/jesseduffield/lazydocker)
+- `lazydocker` - Open lazydocker UI
 - `quick-download $file` - download a file from the current working directory through iterm2
 - `rsync-download $file` - create a rsync command to run on your host to download a remote file
 - `rsync-upload $file` - create a rsync command to run on your host to upload a local file
 
 #### SSH Login
 
-To avoid running a command on the wrong server, SSH Login will show the server name thanks to zshtheme
+To avoid running a command on the wrong server, SSH Login will show the server name thanks to zshtheme.
 
 #### Features
 
@@ -42,6 +42,7 @@ With those script and conventions, you will be able to :
 **But also :**
 - Sync files between servers ( for ex : from staging to local, from local to production )
 - Create secured user spaces for any project to work with other developers
+
 
 ## Typologies of servers and runtimes
 
@@ -69,19 +70,16 @@ This is not an Halloumi server, but some conventions are needed to run your dock
 **TODO DEV DOC**
 
 
-## Structure
+#### Structure
 
 [Check file structure](./doc/structure.md)
 
 ## Create a new Halloumi Server Instance
 
-#### Install
-Buy your VPS and [prepare it](./doc/prepare-vps.md) install Halloumi.
+- [Install Halloumi](./doc/prepare-vps.md)
+- [Update Halloumi](./doc/update.md)
 
-#### Update
-[Update Halloumi](./doc/update.md)
-
-#### Install apps
+## Install apps
 
 **Halloumi** comes with some open-source self-hosted applications :
 - [Gitea](./containers/apps/gitea) - Github / Gitlab alternative
