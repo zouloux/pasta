@@ -12,12 +12,18 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 - zsh
 - logrotate ( to minimize log file size )
 - apache2-utils ( for password management )
+- rsync ( for host <-> remote file transfer )
 
 > All other dependencies will be managed through docker applications
 
-#### Lazy Docker
+#### Aliases helpers
 
-[Lazydocker](https://github.com/jesseduffield/lazydocker) ( in docker ) is available with the alias `lazyd`.
+Some commands you can run when connect with SSH
+
+- `lazydocker` - Open [Lazydocker](https://github.com/jesseduffield/lazydocker) ( in docker, no install )
+- `quick-download $file` - download a file from the current working directory through iterm2
+- `rsync-download $file` - create a rsync command to run on your host to download a remote file
+- `rsync-upload $file` - create a rsync command to run on your host to upload a local file
 
 #### Features
 
@@ -78,7 +84,7 @@ Buy your VPS and [prepare it](./doc/prepare-vps.md) install Halloumi.
 - [Outline](./containers/apps/outline) - Notion alternative
 - [Umami](./containers/apps/outline) - Googla Analytics alternative
 
-> Follow instruction to install them, by default no application is installed.
+> By default no application is installed.
 
 But also, some no monitoring elements ( not documented ) :
 - [Portainer Admin](./containers/apps/portainer-admin) - Manage running containers

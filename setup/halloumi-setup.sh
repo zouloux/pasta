@@ -17,8 +17,7 @@ echo "127.0.0.1 $hostname" >> /etc/hosts
 # Update and install core dependencies
 echo "Installing core dependencies ..."
 apt update -qq && apt upgrade -y -qq
-apt install git zsh logrotate figlet apache2-utils -y -qq
-
+apt install git zsh logrotate figlet apache2-utils rsync -y -qq
 
 # Create ASCII banner
 echo "Creating login banner ..."
@@ -112,7 +111,10 @@ export HALLOUMI_DOMAIN=\$(cat ~/.config/halloumi/domain.txt)
 export HALLOUMI_HOSTNAME=\$(cat ~/.config/halloumi/hostname.txt)
 export HALLOUMI_EMAIL=\$(cat ~/.config/halloumi/email.txt)
 # Aliases
-alias lazyd="\$HOME/scripts/lazydocker.sh"
+alias lazydocker="\$HOME/scripts/lazydocker.sh"
+alias quick-download="\$HOME/scripts/quick-download-file.sh"
+alias rsync-download="\$HOME/scripts/rsync-download-file.sh"
+alias rsync-upload="\$HOME/scripts/rsync-upload-file.sh"
 EOF
 
 # Load zsh config
