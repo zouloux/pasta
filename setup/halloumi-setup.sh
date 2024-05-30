@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO : Install zsh without ohmyzsh ? Can we have the robbyrussel theme ?
-
 echo ""
 
 # Ask some questions
@@ -36,10 +34,18 @@ bash install-ohmyzsh.sh --unattended
 rm install-ohmyzsh.sh
 
 # Install Docker
-echo "Installing docker  ..."
+echo "Installing docker ..."
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh -y
 rm get-docker.sh
+
+# Install lazydocker
+echo "Installing lazydocker ..."
+curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh -o install-lazy-docker.sh
+bash install-lazy-docker.sh
+rm install-lazy-docker.sh
+mv .local/bin/lazydocker /usr/bin
+rm -rf .local
 
 # Configure logrotate
 echo "Configuring logs ..."
@@ -99,6 +105,7 @@ cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/halloumi.zsh-theme
 chsh -s $(which zsh)
 cd /root
 
+
 # Set zsh config
 cat <<EOF > ~/.zshrc
 # export PATH=\$HOME/bin:\$HOME/.local/bin:/usr/local/bin:\$PATH
@@ -111,7 +118,6 @@ export HALLOUMI_DOMAIN=\$(cat ~/.config/halloumi/domain.txt)
 export HALLOUMI_HOSTNAME=\$(cat ~/.config/halloumi/hostname.txt)
 export HALLOUMI_EMAIL=\$(cat ~/.config/halloumi/email.txt)
 # Aliases
-alias lazydocker="\$HOME/scripts/lazydocker.sh"
 alias quick-download="\$HOME/scripts/quick-download-file.sh"
 alias rsync-download="\$HOME/scripts/rsync-download-file.sh"
 alias rsync-upload="\$HOME/scripts/rsync-upload-file.sh"

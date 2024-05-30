@@ -13,6 +13,7 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 - logrotate ( to minimize log file size )
 - apache2-utils ( for password management )
 - rsync ( for host <-> remote file transfer )
+- lazydocker
 
 > All other dependencies will be managed through docker applications
 
@@ -20,10 +21,14 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 
 Some commands you can run when connect with SSH
 
-- `lazydocker` - Open [Lazydocker](https://github.com/jesseduffield/lazydocker) ( in docker, no install )
+- `lazydocker` - Open [Lazydocker](https://github.com/jesseduffield/lazydocker)
 - `quick-download $file` - download a file from the current working directory through iterm2
 - `rsync-download $file` - create a rsync command to run on your host to download a remote file
 - `rsync-upload $file` - create a rsync command to run on your host to upload a local file
+
+#### SSH Login
+
+To avoid running a command on the wrong server, SSH Login will show the server name thanks to zshtheme
 
 #### Features
 
