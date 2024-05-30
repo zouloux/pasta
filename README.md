@@ -89,7 +89,7 @@ This is not an Halloumi server, but some conventions are needed to run your dock
 
 > By default no application is installed.
 
-But also, some no monitoring elements ( not documented ) :
+But also, some monitoring elements ( not documented ) :
 - [Portainer Admin](./containers/apps/portainer-admin) - Manage running containers
 - [Portainer Agent](./containers/apps/portainer-agent) - Agent to control other Halloumi Server
 - [Net-data](./containers/apps/netdata) - Host linux system monitoring
