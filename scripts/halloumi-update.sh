@@ -54,6 +54,9 @@ cd /root
 
 echo "Cleaning ..."
 rm -rf /tmp/halloumi
+rm -f .zcompdump* > /dev/null 2>&1
+rm -f .wget-hsts > /dev/null 2>&1
+rm -f .viminfo > /dev/null 2>&1
 echo "" > .bash_history
 
 echo ""

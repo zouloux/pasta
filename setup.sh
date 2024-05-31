@@ -136,7 +136,6 @@ echo "Starting proxy ..."
 docker compose up -d > /dev/null 2>&1
 cd /root
 
-# Clean
 echo "Cleaning ..."
 rm -rf /tmp/halloumi
 rm -f .zcompdump* > /dev/null 2>&1
