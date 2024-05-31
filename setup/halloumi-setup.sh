@@ -141,6 +141,8 @@ export HALLOUMI_EMAIL=\$(cat ~/.config/halloumi/email.txt)
 alias quick-download="\$HOME/scripts/quick-download-file.sh"
 alias rsync-download="\$HOME/scripts/rsync-download-file.sh"
 alias rsync-upload="\$HOME/scripts/rsync-upload-file.sh"
+alias docker-restart="\$HOME/scripts/docker-restart.sh"
+alias docker-clean="\$HOME/scripts/docker-clean.sh"
 EOF
 
 # Load zsh

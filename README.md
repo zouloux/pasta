@@ -24,9 +24,11 @@ Some commands you can run when connect with SSH
 
 - `lazydocker` - Manage docker containers ( clickable interface )
 - `htop` - Check process and resources ( clickable interface )
-- `quick-download $file` - download a file from the current working directory through iterm2
-- `rsync-download $file` - create a rsync command to run on your host to download a remote file
-- `rsync-upload $file` - create a rsync command to run on your host to upload a local file
+- `quick-download $file` - Download a file from the current working directory through iterm2
+- `rsync-download $file` - Create a rsync command to run on your host to download a remote file
+- `rsync-upload $file` - Create a rsync command to run on your host to upload a local file
+- `docker-restart` - Restart docker compose project in cwd and follow logs
+- `docker-clean` - Prune docker system
 
 #### SSH Login
 
@@ -85,9 +87,10 @@ This is not an Halloumi server, but some conventions are needed to run your dock
 
 **Halloumi** comes with some open-source self-hosted applications :
 - [Gitea](./containers/apps/gitea) - Github / Gitlab alternative
+- [Umami](./containers/apps/umami) - Googla Analytics alternative
 - [Noco](./containers/apps/noco) - AirTable alternative
 - [Outline](./containers/apps/outline) - Notion alternative
-- [Umami](./containers/apps/outline) - Googla Analytics alternative
+- [Uptime Kuma](./containers/apps/kuma) - Uptime Robot alternative
 
 > By default no application is installed.
 

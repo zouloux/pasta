@@ -32,7 +32,7 @@ docker compose up -d
 Available versions and upgrade instructions are [available here](https://github.com/nocodb/nocodb/releases). 
 
 - `cd ~/containers/apps/noco` and `docker compose down`
-- Not mandatory, but you can safely copy the `data/` directory. Be careful, it can be huge ! `cp -r ./data ./data.old`
+- Not mandatory, but you can safely copy the `data/` directory.
 - `docker images | grep "nocodb/nocodb"` and get the image id
 - Remove the old image with `docker image rm {imageID}`
 - Restart the container with the new image `docker compose up -d`
