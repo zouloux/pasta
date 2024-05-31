@@ -9,9 +9,16 @@ echo "|_| |_|\__,_|_|_|\___/ \__,_|_| |_| |_|_|"
 echo ""
 
 # Ask some questions
-read -p "On which root domain this server is installed ? Only DNS, no scheme. ( ex : google.com ) : " rootDomain
-read -p "Which server name to use for this instance? It should be representative of its domain name, no dot, no ext, dash allowed. ( ex : google ) : " hostname
-read -p "Admin email address ( for acme ) : " adminEmail
+read -p "On which root domain this server is installed ?
+Only DNS, no scheme. ( ex : my-domain.com ) :
+" rootDomain
+echo ""
+read -p "Which server name to use for this instance ?
+It should be representative of its domain name, no special char [a-zA-Z0-9_-]. ( ex : my-domain ) :
+" hostname
+echo ""
+read -p "Admin email address :
+" adminEmail
 
 # Set the hostname
 echo $hostname > /etc/hostname
