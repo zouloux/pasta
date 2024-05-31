@@ -56,6 +56,7 @@ Halloumi comes with a nice [.bashrc](./.bashrc) which shows the current user and
 
 [Check file structure](./doc/10.file-structure.md)
 
+
 ## Install
 
 #### Create a new Halloumi Server Instance
@@ -77,22 +78,22 @@ bash <(wget -qO- https://raw.githubusercontent.com/zouloux/halloumi/main/setup.s
 
 > `wget` not available ? `apt update && apt install wget`
 
-#### Install dockerized apps
+#### How to update
+- [Update Halloumi](./doc/20.update.md)
 
-> By default no application is installed.
 
-**Halloumi** comes with some open-source self-hosted applications :
+## Install dockerized apps
+
+By default **no application is installed**, here are some open-source self-hosted applications you can install easily. 
+
 - [Gitea](./containers/apps/gitea) - Github / Gitlab alternative
 - [Umami](./containers/apps/umami) - Googla Analytics alternative
 - [Noco](./containers/apps/noco) - AirTable alternative
 - [Outline](./containers/apps/outline) - Notion alternative
+
+But also, some monitoring elements
 - [Uptime Kuma](./containers/apps/kuma) - Uptime Robot alternative
-
-But also, some monitoring elements ( not documented ) :
-- [Portainer Admin](./containers/apps/portainer-admin) - Manage running containers
-- [Portainer Agent](./containers/apps/portainer-agent) - Agent to control other Halloumi Server
-- [Net-data](./containers/apps/netdata) - Linux system monitoring platform
-- [Tianji](./containers/apps/tianji) - All in one analytics / monitoring / Uptime
-
-#### How to update
-- [Update Halloumi](./doc/20.update.md
+- [Portainer Admin](./containers/apps/portainer-admin) - Not documented - Manage running containers
+- [Portainer Agent](./containers/apps/portainer-agent) - Not documented - Agent to control other Halloumi Server
+- [Net-data](./containers/apps/netdata) - Not documented - Linux system monitoring platform
+- [Tianji](./containers/apps/tianji) - Not documented - All in one analytics / monitoring / Uptime
