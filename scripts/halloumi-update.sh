@@ -2,6 +2,14 @@
 
 proxyDir="/root/containers/services/proxy"
 
+clear
+echo " _           _ _                       _"
+echo "| |__   __ _| | | ___  _   _ _ __ ___ (_)"
+echo "| '_ \ / _\` | | |/ _ \| | | | '_ \` _ \| |"
+echo "| | | | (_| | | | (_) | |_| | | | | | | |"
+echo "|_| |_|\__,_|_|_|\___/ \__,_|_| |_| |_|_|"
+echo ""
+
 # Ask for confirmation
 read -p "This will update :
 - ~/scripts,
@@ -32,11 +40,11 @@ source ~/.bashrc
 # Copy the proxy config and scripts
 echo "Updating proxy ..."
 cd $proxyDir/
-cp docker-compose.yaml docker-compose.yaml.old
-cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml $proxyDir/
+cp -f docker-compose.yaml docker-compose.yaml.old
+cp -f /tmp/halloumi/containers/services/proxy/docker-compose.yaml $proxyDir/
 
 echo "Updating scripts ..."
-cp -r /tmp/halloumi/scripts/* /root/scripts/
+cp -f -r /tmp/halloumi/scripts/* /root/scripts/
 
 # Start the proxy
 echo "Starting proxy ..."
