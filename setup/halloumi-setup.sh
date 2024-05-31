@@ -101,9 +101,8 @@ git clone https://github.com/zouloux/halloumi.git /tmp/halloumi > /dev/null 2>&1
 echo "Configuring zsh ..."
 cd ~/.oh-my-zsh/themes/
 cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/halloumi.zsh-theme
-chsh -s $(which zsh)
 cd /root
-
+chsh -s $(which zsh)
 
 # Set zsh config
 cat <<EOF > ~/.zshrc
@@ -122,8 +121,9 @@ alias rsync-download="\$HOME/scripts/rsync-download-file.sh"
 alias rsync-upload="\$HOME/scripts/rsync-upload-file.sh"
 EOF
 
-# Load zsh config
-source ~/.zshrc
+# Load zsh
+exec zsh
+#source ~/.zshrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
@@ -134,12 +134,12 @@ rm -rf /tmp/halloumi
 
 # Create halloumi docker network
 echo "Creating Halloumi docker network ..."
-docker network create halloumi
+docker network create halloumi > /dev/null 2>&1
 
 # Start reverse proxy
-echo "Starting proxy ..."
+echo "Downloading proxy ..."
 cd /root/containers/services/proxy/
-docker compose up -d
+docker compose up -d > /dev/null 2>&1
 
 # Clean
 cd /root
@@ -149,4 +149,4 @@ rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
 rm -f .bash_history > /dev/null 2>&1
 
-echo "All done, exit and reconnect."
+echo "All done ✨"
