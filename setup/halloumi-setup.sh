@@ -8,6 +8,14 @@ echo "| | | | (_| | | | (_) | |_| | | | | | | |"
 echo "|_| |_|\__,_|_|_|\___/ \__,_|_| |_| |_|_|"
 echo ""
 
+# Check if already installed
+if [ -d "/root/containers" ]; then
+  read -p "/root/containers directory already exists. Do you want to continue? (y/n): " choice
+  if [ "$choice" != "y" ]; then
+    exit 1
+  fi
+fi
+
 # Ask some questions
 read -p "On which root domain this server is installed ?
 Only DNS, no scheme. ( ex : my-domain.com ) :
@@ -19,6 +27,7 @@ It should be representative of its domain name, no special char [a-zA-Z0-9_-]. (
 echo ""
 read -p "Admin email address :
 " adminEmail
+echo ""
 
 # Set the hostname
 echo $hostname > /etc/hostname
@@ -163,3 +172,6 @@ rm -f .viminfo > /dev/null 2>&1
 rm -f .bash_history > /dev/null 2>&1
 
 echo "All done ✨"
+echo ""
+echo "You can add this alias to your .profile or .zshrc :"
+./scripts/print-alias.sh
