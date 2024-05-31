@@ -1,6 +1,6 @@
 #!/bin/bash
 
-proxyDir="/root/containers/services/proxy"
+proxyDir="~/containers/services/proxy"
 
 clear
 echo " _           _ _                       _"
@@ -12,9 +12,9 @@ echo ""
 
 # Ask for confirmation
 read -p "This will update :
-- ~/scripts,
-- ~/.bashrc
-- the nginx proxy
+- ~/scripts ( override ),
+- ~/.bashrc ( with a .old backup )
+- ${proxyDir}/docker-compose.yaml ( with a .old backup )
 Are you sure to continue? (y) : " confirmation
 if [ "$confirmation" != "y" ]; then
   echo "Update aborted."
@@ -25,7 +25,7 @@ fi
 echo "Stopping proxy ..."
 cd $proxyDir
 docker compose stop > /dev/null 2>&1
-cd /root
+cd ~
 
 # Clone Halloumi repo
 echo "Cloning Halloumi repo ..."
@@ -44,13 +44,13 @@ cp -f docker-compose.yaml docker-compose.yaml.old
 cp -f /tmp/halloumi/containers/services/proxy/docker-compose.yaml $proxyDir/
 
 echo "Updating scripts ..."
-cp -f -r /tmp/halloumi/scripts/* /root/scripts/
+cp -f -r /tmp/halloumi/scripts/* ~/scripts/
 
 # Start the proxy
 echo "Starting proxy ..."
 cd $proxyDir
 docker compose up -d > /dev/null 2>&1
-cd /root
+cd ~
 
 echo "Cleaning ..."
 rm -rf /tmp/halloumi

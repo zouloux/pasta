@@ -9,8 +9,8 @@ echo "|_| |_|\__,_|_|_|\___/ \__,_|_| |_| |_|_|"
 echo ""
 
 # Check if already installed
-if [ -d "/root/containers" ]; then
-  read -p "/root/containers directory already exists. Do you want to continue? (y/n): " choice
+if [ -d "~/containers" ]; then
+  read -p "~/containers directory already exists. Do you want to continue? (y/n): " choice
   if [ "$choice" != "y" ]; then
     exit 1
   fi
@@ -94,7 +94,7 @@ systemctl restart systemd-journald > /dev/null 2>&1
 
 # Save config
 echo "Creating directories ..."
-cd /root
+cd ~
 mkdir scripts/
 mkdir -p containers/apps/
 mkdir -p containers/services/proxy/
@@ -107,7 +107,7 @@ cd .config/halloumi/
 echo $hostname > hostname.txt
 echo $rootDomain > domain.txt
 echo $adminEmail > email.txt
-cd /root
+cd ~
 
 # Clone Halloumi repo
 echo "Cloning Halloumi repo ..."
@@ -120,9 +120,9 @@ source ~/.bashrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
-cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
-cp -r /tmp/halloumi/containers/services/proxy/config/ /root/containers/services/proxy/config/
-cp -r /tmp/halloumi/scripts/* /root/scripts/
+cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
+cp -r /tmp/halloumi/containers/services/proxy/config/ ~/containers/services/proxy/config/
+cp -r /tmp/halloumi/scripts/* ~/scripts/
 
 # Create halloumi docker network
 echo "Creating Halloumi docker network ..."
@@ -130,11 +130,11 @@ docker network create halloumi > /dev/null 2>&1
 
 # Start reverse proxy
 echo "Downloading proxy ..."
-cd /root/containers/services/proxy/
+cd ~/containers/services/proxy/
 docker compose build > /dev/null 2>&1
 echo "Starting proxy ..."
 docker compose up -d > /dev/null 2>&1
-cd /root
+cd ~
 
 echo "Cleaning ..."
 rm -rf /tmp/halloumi
