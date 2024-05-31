@@ -7,8 +7,7 @@ read -p "This will update :
 - ~/scripts,
 - ~/.bashrc
 - the nginx proxy
-Are you sure to continue? (y) :
-" confirmation
+Are you sure to continue? (y) : " confirmation
 if [ "$confirmation" != "y" ]; then
   echo "Update aborted."
   exit 1

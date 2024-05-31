@@ -1,9 +1,9 @@
-# Prompt
+# Enhanced prompt with user, domain, and command status
 RED='\[\e[1;31m\]'
 GREEN='\[\e[1;32m\]'
 CYAN='\[\e[0;36m\]'
 RESET='\[\e[0m\]'
-PS1="${RED}$(whoami)@\h $(if [ $? == 0 ]; then echo '${GREEN}➜'; else echo '${RED}➜'; fi) ${CYAN}\w ${RESET}"
+PS1="${RED}$(whoami)@\h \$(if [ \$? == 0 ]; then echo '${GREEN}➜'; else echo '${RED}➜'; fi) ${CYAN}\w ${RESET}"
 
 # LS helpers
 export LS_OPTIONS='--color=auto'
