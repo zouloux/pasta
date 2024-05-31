@@ -39,9 +39,9 @@ source ~/.bashrc
 
 # Copy the proxy config and scripts
 echo "Updating proxy ..."
-cd $proxyDir/
+cd $proxyDir
 cp -f docker-compose.yaml docker-compose.yaml.old
-cp -f /tmp/halloumi/containers/services/proxy/docker-compose.yaml $proxyDir/
+cp -f /tmp/halloumi/containers/services/proxy/docker-compose.yaml $proxyDir
 
 echo "Updating scripts ..."
 cp -f -r /tmp/halloumi/scripts/* ~/scripts/
