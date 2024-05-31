@@ -2,9 +2,7 @@
 
 ## TLDR
 
-```shell
-bash <(wget -qO- https://raw.githubusercontent.com/zouloux/halloumi/main/setup.sh)
-```
+[Go to install script](#install-halloumi)
 
 ## About
 
