@@ -110,3 +110,5 @@ wget -qO halloumi-setup.sh https://raw.githubusercontent.com/zouloux/halloumi/ma
 bash halloumi-setup.sh
 rm halloumi-setup.sh
 ```
+
+> `wget` not available ? `apt update && apt install wget`

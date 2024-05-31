@@ -9,40 +9,41 @@ read -p "Admin email address ( for acme ) : " adminEmail
 
 # Set the hostname
 echo $hostname > /etc/hostname
-hostnamectl set-hostname $hostname
+hostnamectl set-hostname $hostname > /dev/null 2>&1
 echo "127.0.0.1 $hostname" >> /etc/hosts
 
 # Update and install core dependencies
 echo "Installing core dependencies ..."
-apt update -qq && apt upgrade -y -qq
-apt install git zsh logrotate figlet apache2-utils rsync -y -qq
+apt update -qq > /dev/null 2>&1
+apt upgrade -y -qq > /dev/null 2>&1
+apt install git zsh logrotate figlet apache2-utils rsync -y -qq > /dev/null 2>&1
 
-# Create ASCII banner
+# Create ASCII banner and remove figlet
 echo "Creating login banner ..."
 banner=$(echo $hostname | figlet -w 120)
 echo "$banner" > /etc/motd
-apt remove figlet -y -qq # We remove figlet
+apt remove figlet -y -qq > /dev/null 2>&1
 
 # Enable banner for SSH login
 echo "PrintMotd yes" >> /etc/ssh/sshd_config
-systemctl restart sshd
+systemctl restart sshd > /dev/null 2>&1
 
 # Install ohmyzsh
 echo "Installing ohmyzsh ..."
-wget -qO install-ohmyzsh.sh https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-bash install-ohmyzsh.sh --unattended
+curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o install-ohmyzsh.sh > /dev/null 2>&1
+bash install-ohmyzsh.sh --unattended > /dev/null 2>&1
 rm install-ohmyzsh.sh
 
 # Install Docker
 echo "Installing docker ..."
-curl -fsSL https://get.docker.com -o get-docker.sh
-sh get-docker.sh -y
+curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
+sh get-docker.sh -y > /dev/null 2>&1
 rm get-docker.sh
 
 # Install lazydocker
 echo "Installing lazydocker ..."
-curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh -o install-lazy-docker.sh
-bash install-lazy-docker.sh
+curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh -o install-lazy-docker.sh > /dev/null 2>&1
+bash install-lazy-docker.sh > /dev/null 2>&1
 rm install-lazy-docker.sh
 mv .local/bin/lazydocker /usr/bin
 rm -rf .local
@@ -50,7 +51,6 @@ rm -rf .local
 # Configure logrotate
 echo "Configuring logs ..."
 echo "include /etc/logrotate.d" > /etc/logrotate.conf
-
 # Add a logrotate configuration for all logs
 cat <<EOF > /etc/logrotate.d/all_logs
 /var/log/*log {
@@ -62,7 +62,6 @@ cat <<EOF > /etc/logrotate.d/all_logs
     rotate 0
 }
 EOF
-
 # Configure journald for log max size
 cat <<EOF > /etc/systemd/journald.conf
 [Journal]
@@ -75,7 +74,7 @@ RateLimitInterval=60s
 RateLimitBurst=1000
 Compress=yes
 EOF
-systemctl restart systemd-journald
+systemctl restart systemd-journald > /dev/null 2>&1
 
 # Save config
 echo "Creating directories ..."
