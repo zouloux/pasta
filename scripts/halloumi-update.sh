@@ -1,6 +1,6 @@
 #!/bin/bash
 
-proxyDir="~/containers/services/proxy"
+proxyDir="$HOME/containers/services/proxy"
 
 clear
 echo " _           _ _                       _"
