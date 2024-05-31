@@ -1,5 +1,11 @@
 #!/bin/bash
 
+clear
+echo " _           _ _                       _"
+echo "| |__   __ _| | | ___  _   _ _ __ ___ (_)"
+echo "| '_ \ / _\` | | |/ _ \| | | | '_ \` _ \| |"
+echo "| | | | (_| | | | (_) | |_| | | | | | | |"
+echo "|_| |_|\__,_|_|_|\___/ \__,_|_| |_| |_|_|"
 echo ""
 
 # Ask some questions
@@ -16,7 +22,7 @@ echo "127.0.0.1 $hostname" >> /etc/hosts
 echo "Installing core dependencies ..."
 apt update -qq > /dev/null 2>&1
 apt upgrade -y -qq > /dev/null 2>&1
-apt install git zsh logrotate figlet apache2-utils rsync -y -qq > /dev/null 2>&1
+apt install git zsh logrotate figlet apache2-utils rsync htop -y -qq > /dev/null 2>&1
 
 # Create ASCII banner and remove figlet
 echo "Creating login banner ..."
@@ -144,7 +150,7 @@ docker compose up -d > /dev/null 2>&1
 # Clean
 cd /root
 echo "Cleaning ..."
-rm -f .zcompdump-* > /dev/null 2>&1
+rm -f .zcompdump* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
 rm -f .bash_history > /dev/null 2>&1

@@ -2,10 +2,10 @@
 
 ## Buy your VPS
 
-First, buy your VPS server
-- [Ionos](https://www.ionos.fr/serveurs/vps)
-- Hostinger
-- ~~OVH~~
+First, buy your VPS server ( tested on )
+- [Ionos](https://www.ionos.fr/serveurs/vps) 👍👍👍
+- Hostinger 👍 ( good experience )
+- ~~OVH~~ 👎 ( works but experience is not good )
 
 ## Operating System
 
@@ -19,7 +19,7 @@ First, buy your VPS server
 - 2 or 4 cpus.
 
 #### For single or other composed project
-It can go from 1cpu + 1gb + 10gb, but select carefully depending on the installed applications. 
+It can start safely at 1cpu + 1gb + 10gb for basic websites, but select carefully depending on the installed applications. 
 
 
 ## Configure network
@@ -106,9 +106,7 @@ Login with SSH to your freshly booted VPS.
 Start the setup script on your VPS with this command and follow instructions.
 
 ```bash
-wget -qO halloumi-setup.sh https://raw.githubusercontent.com/zouloux/halloumi/main/setup/halloumi-setup.sh
-bash halloumi-setup.sh
-rm halloumi-setup.sh
+bash <(wget -qO- https://raw.githubusercontent.com/zouloux/halloumi/main/setup/halloumi-setup.sh)
 ```
 
 > `wget` not available ? `apt update && apt install wget`

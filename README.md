@@ -9,10 +9,11 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 **The setup will install :**
 - docker
 - git
-- zsh
-- logrotate ( to minimize log file size )
+- zsh - preconfigured
+- logrotate ( to minimize log file size ) - preconfigured
 - apache2-utils ( for password management )
 - rsync ( for host <-> remote file transfer )
+- [htop](https://github.com/htop-dev/htop?tab=readme-ov-file)
 - [lazydocker](https://github.com/jesseduffield/lazydocker)
 
 > All other dependencies will be managed through docker applications
@@ -21,7 +22,8 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 
 Some commands you can run when connect with SSH
 
-- `lazydocker` - Open lazydocker UI
+- `lazydocker` - Manage docker containers ( clickable interface )
+- `htop` - Check process and resources ( clickable interface )
 - `quick-download $file` - download a file from the current working directory through iterm2
 - `rsync-download $file` - create a rsync command to run on your host to download a remote file
 - `rsync-upload $file` - create a rsync command to run on your host to upload a local file
