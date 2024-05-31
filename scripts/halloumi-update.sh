@@ -13,8 +13,8 @@ echo ""
 # Ask for confirmation
 read -p "This will update :
 - ~/scripts ( override ),
-- ~/.bashrc ( with a .old backup )
-- ${proxyDir}/docker-compose.yaml ( with a .old backup )
+- ~/.bashrc ( with a .old backup if different )
+- ${proxyDir}/docker-compose.yaml ( with a .old backup if different )
 Are you sure to continue? (y) : " confirmation
 if [ "$confirmation" != "y" ]; then
   echo "Update aborted."
@@ -33,15 +33,17 @@ git clone https://github.com/zouloux/halloumi.git /tmp/halloumi > /dev/null 2>&1
 
 # Set bash profile
 echo "Updating .bashrc ..."
-mv ~/.bashrc ~/.bashrc.old
-cp /tmp/halloumi/.bashrc ~/.bashrc
-source ~/.bashrc
+mv .bashrc .bashrc.old
+cp /tmp/halloumi/.bashrc .bashrc
+if cmp -s .bashrc .bashrc.old; then rm .bashrc.old; fi
+source .bashrc
 
 # Copy the proxy config and scripts
 echo "Updating proxy ..."
 cd $proxyDir
 cp -f docker-compose.yaml docker-compose.yaml.old
 cp -f /tmp/halloumi/containers/services/proxy/docker-compose.yaml $proxyDir
+if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
 echo "Updating scripts ..."
 cp -f -r /tmp/halloumi/scripts/* ~/scripts/
