@@ -50,12 +50,6 @@ apt remove figlet -y -qq > /dev/null 2>&1
 echo "PrintMotd yes" >> /etc/ssh/sshd_config
 systemctl restart sshd > /dev/null 2>&1
 
-# Install ohmyzsh
-echo "Installing ohmyzsh ..."
-curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -o install-ohmyzsh.sh > /dev/null 2>&1
-bash install-ohmyzsh.sh --unattended > /dev/null 2>&1
-rm install-ohmyzsh.sh
-
 # Install Docker
 echo "Installing docker ..."
 curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
@@ -119,42 +113,16 @@ cd /root
 echo "Cloning Halloumi repo ..."
 git clone https://github.com/zouloux/halloumi.git /tmp/halloumi > /dev/null 2>&1
 
-# Configure oh my zsh
-echo "Configuring zsh ..."
-cd ~/.oh-my-zsh/themes/
-cp /tmp/halloumi/setup/halloumi.zsh-theme ~/.oh-my-zsh/themes/halloumi.zsh-theme
-cd /root
-chsh -s $(which zsh)
-
-# Set zsh config
-cat <<EOF > ~/.zshrc
-# export PATH=\$HOME/bin:\$HOME/.local/bin:/usr/local/bin:\$PATH
-export ZSH="\$HOME/.oh-my-zsh"
-ZSH_THEME="halloumi"
-plugins=(git)
-source \$ZSH/oh-my-zsh.sh
-# Halloumi config
-export HALLOUMI_DOMAIN=\$(cat ~/.config/halloumi/domain.txt)
-export HALLOUMI_HOSTNAME=\$(cat ~/.config/halloumi/hostname.txt)
-export HALLOUMI_EMAIL=\$(cat ~/.config/halloumi/email.txt)
-# Aliases
-alias quick-download="\$HOME/scripts/quick-download-file.sh"
-alias rsync-download="\$HOME/scripts/rsync-download-file.sh"
-alias rsync-upload="\$HOME/scripts/rsync-upload-file.sh"
-alias docker-restart="\$HOME/scripts/docker-restart.sh"
-alias docker-clean="\$HOME/scripts/docker-clean.sh"
-EOF
-
-# Load zsh
-exec zsh
-#source ~/.zshrc
+# Set bash profile
+rm ~/.bashrc
+cp /tmp/halloumi/.bashrc ~/.bashrc
+source ~/.bashrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
 cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
 cp -r /tmp/halloumi/containers/services/proxy/config/ /root/containers/services/proxy/config/
 cp -r /tmp/halloumi/scripts/* /root/scripts/
-rm -rf /tmp/halloumi
 
 # Create halloumi docker network
 echo "Creating Halloumi docker network ..."
@@ -163,17 +131,21 @@ docker network create halloumi > /dev/null 2>&1
 # Start reverse proxy
 echo "Downloading proxy ..."
 cd /root/containers/services/proxy/
+docker compose build > /dev/null 2>&1
+echo "Starting proxy ..."
 docker compose up -d > /dev/null 2>&1
+cd /root
 
 # Clean
-cd /root
 echo "Cleaning ..."
+rm -rf /tmp/halloumi
 rm -f .zcompdump* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
-rm -f .bash_history > /dev/null 2>&1
+echo "" > .bash_history
 
+echo ""
 echo "All done ✨"
 echo ""
-echo "You can add this alias to your .profile or .zshrc :"
+echo "You can add this alias to your .zshrc or .bashrc :"
 ./scripts/print-alias.sh

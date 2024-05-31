@@ -1,0 +1,38 @@
+networks:
+  halloumi:
+    external: true
+
+services:
+  tianji:
+    image: "moonrailgun/tianji"
+    container_name: "app_tianji-core"
+    environment:
+      DATABASE_URL: "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/tianji"
+      JWT_SECRET: "$TIANJI_JWT_SECRET"
+      ALLOW_REGISTER: "false"
+      ALLOW_OPENAPI: "true"
+      VIRTUAL_HOST: "tianji.$HALLOUMI_DOMAIN"
+      LETSENCRYPT_HOST: "tianji.$HALLOUMI_DOMAIN"
+      VIRTUAL_PORT: 12345
+    depends_on:
+      - postgres
+    restart: "always"
+    networks:
+      - "halloumi"
+
+  postgres:
+    image: "postgres:15.4-alpine"
+    container_name: "app_tianji-postgres"
+    dot_env: ".env"
+    environment:
+      POSTGRES_DB: "tianji"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    restart: "always"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - "halloumi"

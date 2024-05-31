@@ -1,5 +1,11 @@
 # Halloumi 🧀
 
+## TLDR
+
+```shell
+bash <(wget -qO- https://raw.githubusercontent.com/zouloux/halloumi/main/setup.sh)
+```
+
 ## About
 
 **Halloumi** is a set of scripts and conventions to host docker applications on **Debian 12 VPS servers**.
@@ -9,7 +15,6 @@ It manages automatically sud-domains routing and SSL generation thanks to [Nginx
 **The setup will install :**
 - docker
 - git
-- zsh - preconfigured
 - logrotate ( to minimize log file size ) - preconfigured
 - apache2-utils ( for password management )
 - rsync ( for host <-> remote file transfer )
@@ -97,7 +102,8 @@ This is not an Halloumi server, but some conventions are needed to run your dock
 But also, some monitoring elements ( not documented ) :
 - [Portainer Admin](./containers/apps/portainer-admin) - Manage running containers
 - [Portainer Agent](./containers/apps/portainer-agent) - Agent to control other Halloumi Server
-- [Net-data](./containers/apps/netdata) - Host linux system monitoring
+- [Net-data](./containers/apps/netdata) - Linux system monitoring platform
+- [Tianji](./containers/apps/Tianji) - All in one analytics / monitoring / Uptime
 
 > Follow Readme files to install those application on a **Master** or **Production** **Halloumi server**.
 

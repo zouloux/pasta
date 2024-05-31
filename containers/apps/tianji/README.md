@@ -1,0 +1,7 @@
+# Tianji
+
+```dotenv
+TIANJI_JWT_SECRET:
+POSTGRES_USER:
+POSTGRES_PASSWORD:
+```
