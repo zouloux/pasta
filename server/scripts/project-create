@@ -4,10 +4,11 @@ clear
 cd ~
 read -p "Enter the project name: " projectName
 username="$projectName"
-projectRoot="$HOME/containers/projects/$projectName"
+userProjectRoot="/home/$projectName"
+rootProjectRoot="$HOME/containers/projects/$projectName"
 
 # Check if this project or user already exists
-if [ -d "$projectRoot" ]; then
+if [ -d "$userProjectRoot" ]; then
   echo "Project $projectName already exists."
   exit 1
 fi
@@ -21,27 +22,22 @@ echo "Creating user $username ..."
 adduser --disabled-password --gecos "" $username > /dev/null 2>&1
 
 # Create the project directory structure
-echo "Creating project and user directory ..."
-mkdir -p $projectRoot/{builds,branches,data,keys}
-chown root:$username $projectRoot/{builds,branches,data}
-chmod 770 $projectRoot/{builds,branches,data}
-# Set permissions for the keys directory to be root-only
-chown root:root $projectRoot/keys
-chmod 700 $projectRoot/keys
-# Link workspace to user home
-mkdir -p /home/$username/.ssh
-mkdir -p /home/$username/containers/projects
-ln -s $projectRoot /home/$username/containers/projects/
-chown -h $username:$username /home/$username
+echo "Creating project directories ..."
+mkdir -p $userProjectRoot/{artifacts,builds,branches,data,.ssh}
+# Link workspace into root containers directory
+mkdir -p "$rootProjectRoot/keys"
 # Generate SSH key pair
 echo "Creating SSH keypair ..."
-ssh-keygen -t ed25519 -f $projectRoot/keys/${username} -N "" > /dev/null 2>&1
+ssh-keygen -t ed25519 -f "$rootProjectRoot/keys/id_ed25519" -N "" > /dev/null 2>&1
 # Add the public key to the user's authorized_keys
-cat $projectRoot/keys/${username}.pub >> /home/$username/.ssh/authorized_keys
-# Set appropriate permissions for the .ssh directory and authorized_keys file
-chown -R $username:$username /home/$username/.ssh
-chmod 700 /home/$username/.ssh
-chmod 600 /home/$username/.ssh/authorized_keys
+cat "$rootProjectRoot/keys/id_ed25519.pub" >> "$userProjectRoot/.ssh/authorized_keys"
+#
+chown -h -R $username:$username $userProjectRoot
+chmod 770 -R $userProjectRoot
+chmod 700 $userProjectRoot/.ssh
+chmod 600 $userProjectRoot/.ssh/authorized_keys
+
+ln -s "$userProjectRoot" "$rootProjectRoot/project"
 
 echo ""
 echo "Project $projectName created ✨"
