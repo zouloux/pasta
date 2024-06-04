@@ -1,8 +1,4 @@
-<h1 style="text-align: center">Pasta Devops 🍝</h1>
-
-## TLDR
-
-- [Go to server install script](#install-pasta-server)
+# Pasta Devops 🍝
 
 ## About
 
@@ -10,9 +6,13 @@
 
 It manages **sud-domains routing** and **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
 
-You can install **dockerized apps** and **deploy git based projects** effortlessly.
+You can install **dockerized applications** and **deploy git based projects** effortlessly through CI scripts.
 
 It's **SSH based** for admin, and comes with a **node package** to install globally for projects continuous integration.
+
+#### TLDR
+
+- [Go to server install script](#install-pasta-server)
 
 ## Features
 
