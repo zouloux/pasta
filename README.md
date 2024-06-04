@@ -73,15 +73,11 @@ With those script and conventions, you will be able to :
 
 Your VPS is now Ready 🎉
 
-Start the setup script on your VPS with this command and follow instructions.
-
 #### Install Pasta Server
 
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/setup.sh)
 ```
-
-> `wget` not available ? `apt update && apt install wget`
 
 #### Update Pasta server
 
@@ -89,6 +85,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/setup.sh)
 bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/update.sh)
 ```
 
+> `wget` is not available ? `apt update && apt install wget`
 
 ## Pasta Server Dockerized Applications
 
