@@ -50,7 +50,7 @@ With those script and conventions, you will be able to :
 
 #### Bash config
 
-**Pasta Server** comes with a nice [.bashrc](./.bashrc) which shows the current user and server to avoid critical mistakes when connected through SSH.
+**Pasta Server** comes with a nice [.bashrc](./server/.bashrc) which shows the current user and server to avoid critical mistakes when connected through SSH.
 
 #### Aliases helpers
 

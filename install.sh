@@ -140,7 +140,7 @@ echo "Cloning Pasta repo ..."
 git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
 # Set bash profile
-rm ~/.bashrc
+rm ~/.bashrc > /dev/null 2>&1
 cp /tmp/pasta/server/.bashrc ~/.bashrc
 source ~/.bashrc
 
@@ -163,7 +163,7 @@ docker compose up -d > /dev/null 2>&1
 cd ~
 
 echo "Cleaning ..."
-rm -rf /tmp/* > /dev/null 2>&1
+rm -rf /tmp/* /tmp/.* > /dev/null 2>&1
 rm -f .zcompdump* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
