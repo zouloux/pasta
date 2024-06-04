@@ -63,9 +63,9 @@ With those script and conventions, you will be able to :
 [Check server file structure](./doc/10.server-file-structure.md)
 
 
-#### Install Pasta Server
+## Install Pasta Server
 
-#### Create a new Pasta Server Instance
+#### Prepare your VPS
 
 - [Choose your VPS](./doc/00.choose-vps.md)
 - [Prepare network](./doc/01.prepare-vps-network.md)
@@ -75,13 +75,15 @@ Your VPS is now Ready 🎉
 
 Start the setup script on your VPS with this command and follow instructions.
 
+#### Install Pasta Server
+
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/setup.sh)
 ```
 
 > `wget` not available ? `apt update && apt install wget`
 
-#### How to update
+#### Update Pasta server
 
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/update.sh)
