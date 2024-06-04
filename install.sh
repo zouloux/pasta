@@ -123,7 +123,7 @@ echo "Creating directories ..."
 cd ~
 mkdir scripts/
 mkdir -p containers/apps/
-mkdir -p containers/proxy/
+mkdir -p containers/services/proxy/
 mkdir -p containers/projects/
 
 # Save config
@@ -146,8 +146,8 @@ source ~/.bashrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
-cp /tmp/pasta/server/containers/proxy/docker-compose.yaml ~/containers/proxy/
-cp -r /tmp/pasta/server/containers/proxy/config/ ~/containers/proxy/config/
+cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
+cp -r /tmp/pasta/server/containers/services/proxy/config/ ~/containers/services/proxy/config/
 cp -r /tmp/pasta/server/scripts/* ~/scripts/
 
 # Create pasta docker network
@@ -156,7 +156,7 @@ docker network create pasta > /dev/null 2>&1
 
 # Start reverse proxy
 echo "Downloading proxy ..."
-cd ~/containers/proxy/
+cd ~/containers/services/proxy/
 docker compose build > /dev/null 2>&1
 echo "Starting proxy ..."
 docker compose up -d > /dev/null 2>&1

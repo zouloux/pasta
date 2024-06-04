@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd ~/containers/proxy
+cd ~/containers/services/proxy
 docker compose exec proxy-nginx nginx -s reload

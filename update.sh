@@ -34,7 +34,7 @@ if [ "$confirmation" == "y" ]; then
   rm get-docker.sh
 fi
 
-proxyDir="$HOME/containers/proxy"
+proxyDir="$HOME/containers/services/proxy"
 
 # Stop proxy
 echo "Stopping proxy ..."
@@ -57,7 +57,7 @@ source .bashrc
 echo "Updating proxy ..."
 cd $proxyDir
 cp -f docker-compose.yaml docker-compose.yaml.old
-cp -f /tmp/pasta/server/containers/proxy/docker-compose.yaml $proxyDir
+cp -f /tmp/pasta/server/containers/services/proxy/docker-compose.yaml $proxyDir
 if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
 echo "Updating scripts ..."
@@ -70,7 +70,7 @@ docker compose up -d > /dev/null 2>&1
 cd ~
 
 echo "Cleaning ..."
-rm -rf /tmp/* > /dev/null 2>&1
+rm -rf /tmp/* /tmp/.* > /dev/null 2>&1
 rm -f .zcompdump* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
