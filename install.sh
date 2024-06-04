@@ -18,15 +18,17 @@ fi
 
 # Check if docker is present
 if command -v docker &> /dev/null; then
-  read -p "Docker seems already installed on this server. Docker installation will be skipped. Do you want to continue? (y/n): " choice
+  echo "Docker seems already installed on this server. Docker installation will be skipped."
+  read -p "Do you want to continue? (y/n): " choice
   if [ "$choice" != "y" ]; then
     exit 1
   fi
+  echo ""
 fi
 
 # Ask for confirmation
 read -p "This script will :
-- install core dependencies
+- install Pasta Server core dependencies
 - override .bashrc ( do a backup before )
 - create ~/containers/ directory
 - create ~/.config directory
@@ -34,6 +36,7 @@ Are you sure to continue? (y/n) : " confirmation
 if [ "$confirmation" != "y" ]; then
   exit 1
 fi
+echo ""
 
 # Ask some questions
 read -p "On which root domain this server is installed ?
