@@ -17,12 +17,5 @@ export PASTA_DOMAIN=$(cat ~/.config/pasta/domain.txt)
 export PASTA_HOSTNAME=$(cat ~/.config/pasta/hostname.txt)
 export PASTA_EMAIL=$(cat ~/.config/pasta/email.txt)
 
-# Pasta Server aliases
+# Pasta Server scripts aliases
 export PATH="$PATH:$HOME/scripts/"
-
-#alias download="$HOME/scripts/alias-download.sh"
-#alias rsync-download="$HOME/scripts/alias-rsync-download.sh"
-#alias rsync-upload="$HOME/scripts/alias-rsync-upload.sh"
-#alias docker-restart="$HOME/scripts/alias-docker-restart.sh"
-#alias docker-clean="$HOME/scripts/alias-docker-clean.sh"
-#alias nginx-reload="$HOME/scripts/alias-docker-clean.sh"
