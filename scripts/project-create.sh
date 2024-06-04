@@ -17,20 +17,21 @@ adduser --disabled-password --gecos "" $username > /dev/null 2>&1
 
 # Create the project directory structure
 echo "Creating project and user directory ..."
-mkdir -p containers/projects/$projectName/{branches,data,keys}
-chown root:$username containers/projects/$projectName/{branches,data}
-chmod 770 containers/projects/$projectName/{branches,data}
+mkdir -p containers/projects/$projectName/{builds,branches,data,keys}
+chown root:$username containers/projects/$projectName/{builds,branches,data}
+chmod 770 containers/projects/$projectName/{builds,branches,data}
 # Set permissions for the keys directory to be root-only
 chown root:root containers/projects/$projectName/keys
 chmod 700 containers/projects/$projectName/keys
 # Create the user's home directory
 mkdir -p /home/$username/{project,.ssh}
 # Link workspace to user home
+ln -s ~/containers/projects/$projectName/builds /home/$username/project/builds
 ln -s ~/containers/projects/$projectName/branches /home/$username/project/branches
 ln -s ~/containers/projects/$projectName/data /home/$username/project/data
 # Set ownership and permissions for the linked directories
-chown -h $username:$username /home/$username/project/{branches,data}
-chmod 770 /home/$username/project/{branches,data}
+chown -h $username:$username /home/$username/project/{builds,branches,data}
+chmod 770 /home/$username/project/{builds,branches,data}
 
 # Generate SSH key pair
 echo "Creating SSH keypair ..."

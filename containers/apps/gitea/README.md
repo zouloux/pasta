@@ -17,6 +17,18 @@ It manages Git repositories, and has it's own CI based on [Act](https://docs.git
 echo "GITEA_RUNNER_REGISTRATION_TOKEN={TOKEN}" >> .env
 ```
 
+#### Issue with act
+There is an issue on the official gitea act image [that prevent job containers to have the correct network](https://gitea.com/gitea/act_runner/issues/559#issuecomment-835954).
+So we use the image `vegardit/gitea-act-runner` which is not official but patch this with `GITEA_RUNNER_JOB_CONTAINER_NETWORK` env.
+
+#### Setup
+This is needed by `vegardit/gitea-act-runner` to be able to clone repositories.
+```
+mkdir -p ./data/gitea-runner/cache
+chmod 0777 -R ./data/gitea-runner
+```
+
+
 #### Start
 ```bash
 docker compose up -d

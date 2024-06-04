@@ -15,6 +15,7 @@ fi
 # Confirm
 echo "Are you sure you want to remove the project $projectName ?"
 echo "- All docker compose related to this project will be down"
+echo "- All data in /builds will be permanently removed"
 echo "- All data in /branches will be permanently removed"
 echo "- Directories /data and /keys will be archived into ~/archives"
 echo "This action cannot be undone."
@@ -24,19 +25,18 @@ if [ "$confirm" != "archive" ]; then
   exit 1
 fi
 
-# Browse for every docker-compose.yaml and docker-compose.yml file recursively in /branches and run docker compose down
+# Stop all running containers
 echo "Stopping all docker-compose services..."
-find "$projectPath/branches" \( -name "docker-compose.yaml" -o -name "docker-compose.yml" \) | while read -r file; do
+find "$projectPath/builds" \( -name "docker-compose.yaml" -o -name "docker-compose.yml" \) | while read -r file; do
   dir=$(dirname "$file")
   echo "- $dir ..."
   (cd "$dir" && docker compose down)
 done
 
-# Archive the data and keys directories within the project directory
+# Create archive with data and keys
 echo "Archiving project data and keys..."
 mkdir -p archives
 tar -czvf archives/${projectName}.tar.gz -C "$projectPath" data keys > /dev/null 2>&1
-
 if [ $? -ne 0 ]; then
   echo "Failed to archive project data and keys. Exiting."
   exit 1
