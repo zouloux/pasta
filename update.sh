@@ -26,6 +26,14 @@ if [ "$confirmation" != "y" ]; then
   exit 1
 fi
 
+read -p "Do you want to update Docker ? ( you will have to wait 20s ) (y/n)" confirmation
+if [ "$confirmation" == "y" ]; then
+  echo "Updating docker ..."
+  curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
+  sh get-docker.sh -y
+  rm get-docker.sh
+fi
+
 proxyDir="$HOME/containers/services/proxy"
 
 # Stop proxy

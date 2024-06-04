@@ -8,7 +8,7 @@ It manages **sud-domains routing** and **automatic SSL generation** thanks to [N
 
 You can install **dockerized applications** and **deploy git based projects** effortlessly through CI scripts.
 
-It's **SSH based** for admin, and comes with a **node package** to install globally for projects continuous integration.
+It's **SSH based** for admin, and comes with a **node package** for git projects CI management.
 
 #### TLDR
 
@@ -18,13 +18,20 @@ It's **SSH based** for admin, and comes with a **node package** to install globa
 
 With those script and conventions, you will be able to :
 - Host and run docker applications
-- Host your projects git repositories ( with Gitea )
+- Host your projects git repositories ( with Gitea or Gitlab )
 - Host and run staging project ( projects you are working on )
 - Deploy with CI to a production server
 
 **But also :**
-- Sync projects dynamic files between servers ( databases, user generated content )
-- Create secured user spaces for any project to work with other developers
+- Sync projects dynamic files between envs ( data files, user generated content )
+- Create secured workspaces for any project to work with other developers
+- Deploy specific branches of your git projects with 0s downtime
+
+## Elements
+
+- **Pasta Server** - Script and conventions to manage docker on any Debian VPS
+- **Pasta Node** - Node package to manage CI
+
 
 ## Pasta Server
 
@@ -76,7 +83,7 @@ Your VPS is now Ready 🎉
 #### Install Pasta Server
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/setup.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/install.sh)
 ```
 
 #### Update Pasta server
