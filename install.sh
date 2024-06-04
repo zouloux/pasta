@@ -138,14 +138,14 @@ git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
 # Set bash profile
 rm ~/.bashrc
-cp /tmp/pasta/.bashrc ~/.bashrc
+cp /tmp/pasta/server/.bashrc ~/.bashrc
 source ~/.bashrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
-cp /tmp/pasta/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
-cp -r /tmp/pasta/containers/services/proxy/config/ ~/containers/services/proxy/config/
-cp -r /tmp/pasta/scripts/* ~/scripts/
+cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
+cp -r /tmp/pasta/server/containers/services/proxy/config/ ~/containers/services/proxy/config/
+cp -r /tmp/pasta/server/scripts/* ~/scripts/
 
 # Create pasta docker network
 echo "Creating docker network ..."
@@ -160,7 +160,7 @@ docker compose up -d > /dev/null 2>&1
 cd ~
 
 echo "Cleaning ..."
-rm -rf /tmp/pasta
+rm -rf /tmp/* > /dev/null 2>&1
 rm -f .zcompdump* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
@@ -170,4 +170,4 @@ echo ""
 echo "All done ✨"
 echo ""
 echo "You can add this alias to your .zshrc or .bashrc to connect easily :"
-./scripts/print-alias.sh
+./scripts/print-alias

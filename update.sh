@@ -49,7 +49,7 @@ git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 # Set bash profile
 echo "Updating .bashrc ..."
 mv .bashrc .bashrc.old
-cp /tmp/pasta/.bashrc .bashrc
+cp /tmp/pasta/server/.bashrc .bashrc
 if cmp -s .bashrc .bashrc.old; then rm .bashrc.old; fi
 source .bashrc
 
@@ -57,11 +57,11 @@ source .bashrc
 echo "Updating proxy ..."
 cd $proxyDir
 cp -f docker-compose.yaml docker-compose.yaml.old
-cp -f /tmp/pasta/containers/services/proxy/docker-compose.yaml $proxyDir
+cp -f /tmp/pasta/server/containers/services/proxy/docker-compose.yaml $proxyDir
 if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
 echo "Updating scripts ..."
-cp -f -r /tmp/pasta/scripts/* ~/scripts/
+cp -f -r /tmp/pasta/server/scripts/* ~/scripts/
 
 # Start the proxy
 echo "Starting proxy ..."
@@ -70,7 +70,7 @@ docker compose up -d > /dev/null 2>&1
 cd ~
 
 echo "Cleaning ..."
-rm -rf /tmp/pasta
+rm -rf /tmp/* > /dev/null 2>&1
 rm -f .zcompdump* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
