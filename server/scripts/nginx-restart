@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd ~/containers/services/proxy
+cd ~/containers/proxy
 docker compose down && docker compose up -d

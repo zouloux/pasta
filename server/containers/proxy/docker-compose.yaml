@@ -1,7 +1,7 @@
 services:
   nginx:
     image: "nginxproxy/nginx-proxy:1.5.2"
-    container_name: "service_proxy-nginx"
+    container_name: "proxy-nginx"
     restart: always
     environment:
       HTTPS_METHOD: redirect
@@ -23,10 +23,10 @@ services:
 
   acme:
     image: "nginxproxy/acme-companion"
-    container_name: "service_proxy-acme"
+    container_name: "proxy-acme"
     restart: always
     volumes_from:
-      - "proxy-nginx"
+      - "nginx"
     environment:
       DEFAULT_EMAIL: "$PASTA_EMAIL"
     volumes:
