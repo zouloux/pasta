@@ -21,23 +21,37 @@ fi
 echo "Creating user $username ..."
 adduser --disabled-password --gecos "" $username > /dev/null 2>&1
 
-# Create the project directory structure
+# Allow this user to use Docker
+usermod -aG docker $username
+
 echo "Creating project directories ..."
-mkdir -p $userProjectRoot/{artifacts,builds,branches,data,.ssh}
-# Link workspace into root containers directory
-mkdir -p "$rootProjectRoot/keys"
-# Generate SSH key pair
+mkdir -p $userProjectRoot/{.config,artifacts,builds,branches,data,.ssh}
+
 echo "Creating SSH keypair ..."
+mkdir -p "$rootProjectRoot/keys"
 ssh-keygen -t ed25519 -f "$rootProjectRoot/keys/id_ed25519" -N "" > /dev/null 2>&1
-# Add the public key to the user's authorized_keys
 cat "$rootProjectRoot/keys/id_ed25519.pub" >> "$userProjectRoot/.ssh/authorized_keys"
-#
+
+echo "Copying pasta config into user directory ..."
+cp -r "$HOME/.config/pasta" "$userProjectRoot/.config/"
+
+echo "Configuring directories access ..."
 chown -h -R $username:$username $userProjectRoot
 chmod 770 -R $userProjectRoot
 chmod 700 $userProjectRoot/.ssh
 chmod 600 $userProjectRoot/.ssh/authorized_keys
 
+echo "Creating shortcut in containers directory ..."
 ln -s "$userProjectRoot" "$rootProjectRoot/project"
+
+echo "Create .bashrc for project user ..."
+rm -rf "$userProjectRoot/.bash_logout"
+echo '# Pasta Server config' > $userProjectRoot/.bashrc
+echo 'export PASTA_DOMAIN=$(cat ~/.config/pasta/domain.txt)' >> $userProjectRoot/.bashrc
+echo 'export PASTA_HOSTNAME=$(cat ~/.config/pasta/hostname.txt)' >> $userProjectRoot/.bashrc
+echo 'export PASTA_EMAIL=$(cat ~/.config/pasta/email.txt)' >> $userProjectRoot/.bashrc
 
 echo ""
 echo "Project $projectName created ✨"
+echo ""
+cat "$rootProjectRoot/keys/id_ed25519"

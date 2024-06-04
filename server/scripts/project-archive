@@ -4,10 +4,13 @@ clear
 cd ~
 read -p "Enter the project name: " projectName
 username="$projectName"
-projectPath="$HOME/containers/projects/$projectName"
+userProjectPath="/home/$username"
+rootProjectPath="$HOME/containers/projects/$projectName"
+currentDate=$(date +%F)
+archivePath="$HOME/archives/${projectName}-${currentDate}.tar.gz"
 
 # Check if this project exists
-if [ ! -d "$projectPath" ]; then
+if [ ! -d "$userProjectPath" ]; then
   echo "Project $projectName not found."
   exit 1
 fi
@@ -29,17 +32,17 @@ fi
 echo ""
 
 # Stop all running containers
-echo "Stopping all docker-compose services..."
-find "$projectPath/builds" \( -name "docker-compose.yaml" -o -name "docker-compose.yml" \) | while read -r file; do
+echo "Stopping all docker-compose services ..."
+find "$userProjectPath/builds" \( -name "docker-compose.yaml" -o -name "docker-compose.yml" \) | while read -r file; do
   dir=$(dirname "$file")
   echo "- $dir ..."
   (cd "$dir" && docker compose down)
 done
 
 # Create archive with data and keys
-echo "Archiving project data and keys..."
-mkdir -p archives
-tar -czvf archives/${projectName}.tar.gz -C "$projectPath" data keys > /dev/null 2>&1
+echo "Archiving project data and keys ..."
+mkdir -p "$HOME/archives"
+tar -czvf "$archivePath" -C "$userProjectPath" data -C "$rootProjectPath" keys > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "Failed to archive project data and keys. Exiting."
   exit 1
@@ -48,7 +51,7 @@ fi
 # Remove the user and the project directory
 echo "Removing user $username and project directory..."
 deluser --remove-home $username > /dev/null 2>&1
-rm -rf "$projectPath"
+rm -rf "$userProjectPath"
 
 if [ $? -ne 0 ]; then
   echo "Failed to remove user or project directory. Exiting."
@@ -57,3 +60,4 @@ fi
 
 echo ""
 echo "Project $projectName archived successfully."
+echo $archivePath

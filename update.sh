@@ -23,12 +23,12 @@ read -p "This script will update :
 - ~/scripts ( override )
 - ~/.bashrc ( will create a .old backup if different )
 - ${proxyDir}/docker-compose.yaml ( will create a .old backup if different )
-Are you sure to continue? (y/n) : " confirmation
+Are you sure to continue? (y/n) " confirmation
 if [ "$confirmation" != "y" ]; then
   exit 1
 fi
 
-read -p "Do you want to update Docker ? ( you will have to wait 20s ) (y/n)" confirmation
+read -p "Do you want to update Docker ? ( you will have to wait 20s ) (y/n) " confirmation
 if [ "$confirmation" == "y" ]; then
   echo "Updating docker ..."
   curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
