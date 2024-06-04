@@ -1,0 +1,38 @@
+networks:
+  pasta:
+    external: true
+
+services:
+  tianji:
+    image: "moonrailgun/tianji"
+    container_name: "app_tianji-core"
+    restart: "always"
+    depends_on:
+      - postgres
+    networks:
+      - "pasta"
+    environment:
+      DATABASE_URL: "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/tianji"
+      JWT_SECRET: "$TIANJI_JWT_SECRET"
+      ALLOW_REGISTER: "false"
+      ALLOW_OPENAPI: "true"
+      VIRTUAL_HOST: "tianji.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "tianji.$PASTA_DOMAIN"
+      VIRTUAL_PORT: 12345
+
+  postgres:
+    image: "postgres:15.4-alpine"
+    container_name: "app_tianji-postgres"
+    restart: "always"
+    networks:
+      - "pasta"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    dot_env: ".env"
+    environment:
+      POSTGRES_DB: "tianji"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

@@ -1,0 +1,49 @@
+networks:
+  pasta:
+    external: true
+
+services:
+
+  outline:
+    image: "docker.getoutline.com/outlinewiki/outline:latest"
+    container_name: "app_outline-core"
+    restart: "always"
+    networks:
+      - "pasta"
+    volumes:
+      - "./data/outline:/var/lib/outline/data"
+    env_file: ".env.core"
+    environment:
+      VIRTUAL_HOST: "outline.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "outline.$PASTA_DOMAIN"
+      VIRTUAL_PORT: 80
+
+  redis:
+    image: "redis"
+    container_name: "app_outline-redis"
+    command: ["redis-server", "/redis.conf"]
+    restart: "always"
+    networks:
+      - "pasta"
+    volumes:
+      - "./data/redis/redis.conf:/redis.conf"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  postgres:
+    image: "postgres"
+    container_name: "app_outline-postgres"
+    restart: "always"
+    networks:
+      - "pasta"
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
+    env_file: ".env.postgres"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
+      interval: 30s
+      timeout: 20s
+      retries: 3

@@ -1,0 +1,46 @@
+# Gitea on Pasta Server
+
+
+Gitlab is a open-source and self-hosted Github alternative.
+We prefer [Gitea](../gitea) because it's 10 times lighter and easier to update.
+
+## How to install
+
+- Copy [docker-compose.yaml](./docker-compose.yaml) content on your **Pasta Server** at `~/containers/apps/gitea/`
+- Create a complete this `.env` file
+```dotenv
+GITLAB_IMAGE_VERSION=
+
+# NGINX
+NGINX_CLIENT_MAX_BODY_SIZE=3g
+
+# GITLAB SMTP CONFIG
+GITLAB_SMTP_ADDRESS=
+GITLAB_SMTP_PORT=
+GITLAB_SMTP_USER_NAME=
+GITLAB_SMTP_PASSWORD=
+GITLAB_SMTP_DOMAIN=
+GITLAB_SMTP_AUTHENTICATION=login
+GITLAB_SMTP_STARTTLS_AUTO=
+GITLAB_SMTP_TLS=
+GITLAB_SMTP_OPENSSL_VERIFY_MODE=
+GITLAB_SMTP_EMAIL_FROM=
+GITLAB_SMTP_EMAIL_REPLY_TO=
+```
+
+> Then follow instructions on [Gitlab](https://docs.gitlab.com/ee) documentation.
+
+#### Start
+```bash
+docker compose up -d
+```
+
+## How to update
+
+**Gitlab** upgrades needs to follow some very specific rules
+- Please read : https://docs.gitlab.com/ee/update/
+- Published Gitlab versions : https://docs.gitlab.com/ee/update/#version-specific-upgrading-instructions
+- Latest version changelog : https://gitlab.com/gitlab-org/gitlab-foss/blob/master/CHANGELOG.md
+- Upgrade version paths : https://docs.gitlab.com/ee/update/#upgrade-paths
+- Always check this before upgrading : https://docs.gitlab.com/ee/update/#batched-background-migrations
+- INFO : Gitlab Runner is always upgraded to latest version

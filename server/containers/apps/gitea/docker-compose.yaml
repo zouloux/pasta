@@ -1,0 +1,46 @@
+networks:
+  gitea:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  pasta:
+    driver: bridge
+    external: true
+
+services:
+  gitea:
+    image: "gitea/gitea:1.22.0"
+    container_name: "app_gitea-core"
+    restart: "always"
+    ports:
+      - "22:22"
+    networks:
+      gitea:
+        ipv4_address: 172.20.0.2
+      pasta:
+    volumes:
+      - "./data/gitea:/data"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      VIRTUAL_HOST: "gitea.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "gitea.$PASTA_DOMAIN"
+      VIRTUAL_PORT: 3000
+
+  runner:
+    image: "vegardit/gitea-act-runner:latest"
+    container_name: "app_gitea-runner"
+    restart: "always"
+    networks:
+      gitea:
+        ipv4_address: 172.20.0.3
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./data/runner:/data"
+    environment:
+      GITEA_INSTANCE_URL: "http://172.20.0.2:3000"
+      GITEA_RUNNER_REGISTRATION_TOKEN: "$GITEA_RUNNER_REGISTRATION_TOKEN"
+      GITEA_RUNNER_JOB_CONTAINER_NETWORK: "host"

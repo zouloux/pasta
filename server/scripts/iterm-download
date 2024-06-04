@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# https://stackoverflow.com/questions/43453419/iterm2-quick-download-over-ssh-using-cmdclick
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 file ..."
+  exit 1
+fi
+for filename in "$@"
+do
+  if [ ! -r "$filename" ] ; then
+    echo File $filename does not exist or is not readable.
+    continue
+  fi
+  filename64=$(echo -n "$filename" | base64)
+  filesize=( $(wc -c "${filename}") )
+  printf "\033]1337;File=name=${filename64};size=${filesize[0]}:"
+  base64 < "$filename"
+  printf '\a'
+done

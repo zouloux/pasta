@@ -1,0 +1,18 @@
+networks:
+  pasta:
+    external: true
+
+services:
+  noco:
+    image: "nocodb/nocodb:0.207.3"
+    container_name: "app_noco-core"
+    env_file: ".env"
+    restart: "always"
+    networks:
+      - "pasta"
+    volumes:
+      - "./data/noco-core:/usr/app/data/"
+    environment:
+      VIRTUAL_HOST: "noco.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "noco.$PASTA_DOMAIN"
+      VIRTUAL_PORT: 8080

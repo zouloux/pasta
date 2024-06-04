@@ -1,0 +1,18 @@
+networks:
+  pasta:
+    external: true
+
+services:
+  kuma:
+    image: "louislam/uptime-kuma:latest"
+    container_name: "app_kuma"
+    restart: "always"
+    networks:
+      - "pasta"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/kuma:/app/data
+    environment:
+      VIRTUAL_HOST: "kuma.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "kuma.$PASTA_DOMAIN"
+      VIRTUAL_PORT: 3001

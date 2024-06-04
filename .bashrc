@@ -12,14 +12,17 @@ alias ls='ls $LS_OPTIONS'
 alias ll='ls $LS_OPTIONS -l'
 alias l='ls $LS_OPTIONS -lA'
 
-# Halloumi config
-export HALLOUMI_DOMAIN=$(cat ~/.config/halloumi/domain.txt)
-export HALLOUMI_HOSTNAME=$(cat ~/.config/halloumi/hostname.txt)
-export HALLOUMI_EMAIL=$(cat ~/.config/halloumi/email.txt)
+# Pasta Server config
+export PASTA_DOMAIN=$(cat ~/.config/pasta/domain.txt)
+export PASTA_HOSTNAME=$(cat ~/.config/pasta/hostname.txt)
+export PASTA_EMAIL=$(cat ~/.config/pasta/email.txt)
 
-# Halloumi aliases
-alias download="$HOME/scripts/download-file.sh"
-alias rsync-download="$HOME/scripts/rsync-download-file.sh"
-alias rsync-upload="$HOME/scripts/rsync-upload-file.sh"
-alias docker-restart="$HOME/scripts/docker-restart.sh"
-alias docker-clean="$HOME/scripts/docker-clean.sh"
+# Pasta Server aliases
+export PATH="$PATH:$HOME/scripts/"
+
+#alias download="$HOME/scripts/alias-download.sh"
+#alias rsync-download="$HOME/scripts/alias-rsync-download.sh"
+#alias rsync-upload="$HOME/scripts/alias-rsync-upload.sh"
+#alias docker-restart="$HOME/scripts/alias-docker-restart.sh"
+#alias docker-clean="$HOME/scripts/alias-docker-clean.sh"
+#alias nginx-reload="$HOME/scripts/alias-docker-clean.sh"

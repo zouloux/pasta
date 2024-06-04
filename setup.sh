@@ -1,19 +1,38 @@
 #!/bin/bash
 
 clear
-echo " _           _ _                       _"
-echo "| |__   __ _| | | ___  _   _ _ __ ___ (_)"
-echo "| '_ \ / _\` | | |/ _ \| | | | '_ \` _ \| |"
-echo "| | | | (_| | | | (_) | |_| | | | | | | |"
-echo "|_| |_|\__,_|_|_|\___/ \__,_|_| |_| |_|_|"
+echo "______         _          _____"
+echo "| ___ \       | |        /  ___|"
+echo "| |_/ /_ _ ___| |_ __ _  \ \`--.  ___ _ ____   _____ _ __"
+echo "|  __/ _\` / __| __/ _\` |  \`--. \/ _ \ '__\ \ / / _ \ '__|"
+echo "| | | (_| \__ \ || (_| | /\__/ /  __/ |   \ V /  __/ |"
+echo "\_|  \__,_|___/\__\__,_| \____/ \___|_|    \_/ \___|_|"
 echo ""
 
-# Check if already installed
-if [ -d "~/containers" ]; then
-  read -p "~/containers directory already exists. Do you want to continue? (y/n): " choice
+# Check if pasta exists
+if [ -d "$HOME/.config/pasta" ]; then
+  echo "Pasta Server seems to be already installed on this server."
+  echo "Please run update script."
+  exit 1
+fi
+
+# Check if docker is present
+if command -v docker &> /dev/null; then
+  read -p "Docker seems already installed on this server. Docker installation will be skipped. Do you want to continue? (y/n): " choice
   if [ "$choice" != "y" ]; then
     exit 1
   fi
+fi
+
+# Ask for confirmation
+read -p "This script will :
+- install core dependencies
+- override .bashrc ( do a backup before )
+- create ~/containers/ directory
+- create ~/.config directory
+Are you sure to continue? (y/n) : " confirmation
+if [ "$confirmation" != "y" ]; then
+  exit 1
 fi
 
 # Ask some questions
@@ -30,15 +49,17 @@ read -p "Admin email address :
 echo ""
 
 # Set the hostname
+echo "Configuring hosts ..."
 echo $hostname > /etc/hostname
 hostnamectl set-hostname $hostname > /dev/null 2>&1
+echo "" >> /etc/hosts
 echo "127.0.0.1 $hostname" >> /etc/hosts
 
 # Update and install core dependencies
 echo "Installing core dependencies ..."
 apt update -qq > /dev/null 2>&1
 apt upgrade -y -qq > /dev/null 2>&1
-apt install git zsh logrotate figlet apache2-utils rsync htop -y -qq > /dev/null 2>&1
+apt install git logrotate figlet apache2-utils rsync htop -y -qq > /dev/null 2>&1
 
 # Create ASCII banner and remove figlet
 echo "Creating login banner ..."
@@ -51,10 +72,12 @@ echo "PrintMotd yes" >> /etc/ssh/sshd_config
 systemctl restart sshd > /dev/null 2>&1
 
 # Install Docker
-echo "Installing docker ..."
-curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
-sh get-docker.sh -y > /dev/null 2>&1
-rm get-docker.sh
+if ! command -v docker &> /dev/null; then
+  echo "Installing docker ..."
+  curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
+  sh get-docker.sh -y > /dev/null 2>&1
+  rm get-docker.sh
+fi
 
 # Install lazydocker
 echo "Installing lazydocker ..."
@@ -64,7 +87,7 @@ rm install-lazy-docker.sh
 mv .local/bin/lazydocker /usr/bin
 rm -rf .local
 
-# Configure logrotate
+# Configure logs
 echo "Configuring logs ..."
 echo "include /etc/logrotate.d" > /etc/logrotate.conf
 # Add a logrotate configuration for all logs
@@ -102,31 +125,31 @@ mkdir -p containers/projects/
 
 # Save config
 echo "Saving config ..."
-mkdir -p .config/halloumi/
-cd .config/halloumi/
+mkdir -p .config/pasta/
+cd .config/pasta/
 echo $hostname > hostname.txt
 echo $rootDomain > domain.txt
 echo $adminEmail > email.txt
 cd ~
 
-# Clone Halloumi repo
-echo "Cloning Halloumi repo ..."
-git clone https://github.com/zouloux/halloumi.git /tmp/halloumi > /dev/null 2>&1
+# Clone repo
+echo "Cloning Pasta repo ..."
+git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
 # Set bash profile
 rm ~/.bashrc
-cp /tmp/halloumi/.bashrc ~/.bashrc
+cp /tmp/pasta/.bashrc ~/.bashrc
 source ~/.bashrc
 
 # Copy proxy and scripts
 echo "Setting up nginx proxy ..."
-cp /tmp/halloumi/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
-cp -r /tmp/halloumi/containers/services/proxy/config/ ~/containers/services/proxy/config/
-cp -r /tmp/halloumi/scripts/* ~/scripts/
+cp /tmp/pasta/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
+cp -r /tmp/pasta/containers/services/proxy/config/ ~/containers/services/proxy/config/
+cp -r /tmp/pasta/scripts/* ~/scripts/
 
-# Create halloumi docker network
-echo "Creating Halloumi docker network ..."
-docker network create halloumi > /dev/null 2>&1
+# Create pasta docker network
+echo "Creating docker network ..."
+docker network create pasta > /dev/null 2>&1
 
 # Start reverse proxy
 echo "Downloading proxy ..."
@@ -137,7 +160,7 @@ docker compose up -d > /dev/null 2>&1
 cd ~
 
 echo "Cleaning ..."
-rm -rf /tmp/halloumi
+rm -rf /tmp/pasta
 rm -f .zcompdump* > /dev/null 2>&1
 rm -f .wget-hsts > /dev/null 2>&1
 rm -f .viminfo > /dev/null 2>&1
@@ -146,5 +169,5 @@ echo "" > .bash_history
 echo ""
 echo "All done ✨"
 echo ""
-echo "You can add this alias to your .zshrc or .bashrc :"
+echo "You can add this alias to your .zshrc or .bashrc to connect easily :"
 ./scripts/print-alias.sh
