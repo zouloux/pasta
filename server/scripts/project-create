@@ -3,11 +3,16 @@
 clear
 cd ~
 read -p "Enter the project name: " projectName
-username="project_$projectName"
+username="$projectName"
+projectRoot="$HOME/containers/projects/$projectName"
 
-# Check if this project already exists
-if [ -d "containers/projects/$projectName" ]; then
+# Check if this project or user already exists
+if [ -d "$projectRoot" ]; then
   echo "Project $projectName already exists."
+  exit 1
+fi
+if id "$projectName" &>/dev/null; then
+  echo "User $projectName already exists."
   exit 1
 fi
 
@@ -17,27 +22,22 @@ adduser --disabled-password --gecos "" $username > /dev/null 2>&1
 
 # Create the project directory structure
 echo "Creating project and user directory ..."
-mkdir -p containers/projects/$projectName/{builds,branches,data,keys}
-chown root:$username containers/projects/$projectName/{builds,branches,data}
-chmod 770 containers/projects/$projectName/{builds,branches,data}
+mkdir -p $projectRoot/{builds,branches,data,keys}
+chown root:$username $projectRoot/{builds,branches,data}
+chmod 770 $projectRoot/{builds,branches,data}
 # Set permissions for the keys directory to be root-only
-chown root:root containers/projects/$projectName/keys
-chmod 700 containers/projects/$projectName/keys
-# Create the user's home directory
-mkdir -p /home/$username/{project,.ssh}
+chown root:root $projectRoot/keys
+chmod 700 $projectRoot/keys
 # Link workspace to user home
-ln -s ~/containers/projects/$projectName/builds /home/$username/project/builds
-ln -s ~/containers/projects/$projectName/branches /home/$username/project/branches
-ln -s ~/containers/projects/$projectName/data /home/$username/project/data
-# Set ownership and permissions for the linked directories
-chown -h $username:$username /home/$username/project/{builds,branches,data}
-chmod 770 /home/$username/project/{builds,branches,data}
-
+mkdir -p /home/$username/.ssh
+mkdir -p /home/$username/containers/projects
+ln -s $projectRoot /home/$username/containers/projects/
+chown -h $username:$username /home/$username
 # Generate SSH key pair
 echo "Creating SSH keypair ..."
-ssh-keygen -t ed25519 -f containers/projects/$projectName/keys/${username} -N "" > /dev/null 2>&1
+ssh-keygen -t ed25519 -f $projectRoot/keys/${username} -N "" > /dev/null 2>&1
 # Add the public key to the user's authorized_keys
-cat containers/projects/$projectName/keys/${username}.pub >> /home/$username/.ssh/authorized_keys
+cat $projectRoot/keys/${username}.pub >> /home/$username/.ssh/authorized_keys
 # Set appropriate permissions for the .ssh directory and authorized_keys file
 chown -R $username:$username /home/$username/.ssh
 chmod 700 /home/$username/.ssh

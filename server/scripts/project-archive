@@ -3,8 +3,8 @@
 clear
 cd ~
 read -p "Enter the project name: " projectName
-username="project_$projectName"
-projectPath="containers/projects/$projectName"
+username="$projectName"
+projectPath="$HOME/containers/projects/$projectName"
 
 # Check if this project exists
 if [ ! -d "$projectPath" ]; then
@@ -13,17 +13,20 @@ if [ ! -d "$projectPath" ]; then
 fi
 
 # Confirm
+echo ""
 echo "Are you sure you want to remove the project $projectName ?"
+echo "- User $username and its home directory will be removed"
 echo "- All docker compose related to this project will be down"
 echo "- All data in /builds will be permanently removed"
 echo "- All data in /branches will be permanently removed"
 echo "- Directories /data and /keys will be archived into ~/archives"
 echo "This action cannot be undone."
+echo ""
 read -p "Type 'archive' to confirm: " confirm
 if [ "$confirm" != "archive" ]; then
-  echo "Cancelled."
   exit 1
 fi
+echo ""
 
 # Stop all running containers
 echo "Stopping all docker-compose services..."
