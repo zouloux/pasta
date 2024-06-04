@@ -11,7 +11,7 @@ services:
     networks:
       - "pasta"
     volumes:
-      - "./data/noco-core:/usr/app/data/"
+      - "./data/noco:/usr/app/data/"
     environment:
       VIRTUAL_HOST: "noco.$PASTA_DOMAIN"
       LETSENCRYPT_HOST: "noco.$PASTA_DOMAIN"

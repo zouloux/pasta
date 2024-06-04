@@ -3,7 +3,6 @@ networks:
     external: true
 
 services:
-
   outline:
     image: "docker.getoutline.com/outlinewiki/outline:latest"
     container_name: "app_outline-core"
@@ -21,6 +20,7 @@ services:
   redis:
     image: "redis"
     container_name: "app_outline-redis"
+    hostname: "app_outline-redis"
     command: ["redis-server", "/redis.conf"]
     restart: "always"
     networks:
@@ -36,6 +36,7 @@ services:
   postgres:
     image: "postgres"
     container_name: "app_outline-postgres"
+    hostname: "app_outline-postgres"
     restart: "always"
     networks:
       - "pasta"
