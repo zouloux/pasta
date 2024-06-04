@@ -16,9 +16,11 @@ if [ ! -d "$HOME/.config/pasta" ]; then
   exit 1
 fi
 
+proxyDir="$HOME/containers/services/proxy"
+
 # Ask for confirmation
 read -p "This script will update :
-- ~/scripts ( override ),
+- ~/scripts ( override )
 - ~/.bashrc ( will create a .old backup if different )
 - ${proxyDir}/docker-compose.yaml ( will create a .old backup if different )
 Are you sure to continue? (y/n) : " confirmation
@@ -33,8 +35,6 @@ if [ "$confirmation" == "y" ]; then
   sh get-docker.sh -y
   rm get-docker.sh
 fi
-
-proxyDir="$HOME/containers/services/proxy"
 
 # Stop proxy
 echo "Stopping proxy ..."
@@ -61,7 +61,9 @@ cp -f /tmp/pasta/server/containers/services/proxy/docker-compose.yaml $proxyDir
 if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
 echo "Updating scripts ..."
-cp -f -r /tmp/pasta/server/scripts/* ~/scripts/
+rm -rf ~/scripts/ > /dev/null 2>&1
+mkdir -p ~/scripts/ > /dev/null 2>&1
+cp -f -r /tmp/pasta/server/scripts/* ~/scripts/ > /dev/null 2>&1
 
 # Start the proxy
 echo "Starting proxy ..."

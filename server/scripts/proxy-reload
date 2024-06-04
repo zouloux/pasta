@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd ~/containers/services/proxy
+docker compose exec nginx nginx -s reload
