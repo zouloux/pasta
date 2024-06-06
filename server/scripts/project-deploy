@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ] || [ $# -gt 3 ]; then
   echo "Usage:"
   echo "$0 <branch>"
   echo "$0 <branch> <sub-domain|full-domain>"
