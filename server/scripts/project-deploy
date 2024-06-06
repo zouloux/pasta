@@ -86,6 +86,10 @@ fi
 sed -i '/^PASTA_DATA=/d' $dotEnv
 echo "PASTA_DATA=../../data/$dataBucketName" >> $dotEnv
 
+# Inject branch
+sed -i '/^PASTA_BRANCH=/d' $dotEnv
+echo "PASTA_BRANCH=$branch" >> $dotEnv
+
 # Set the docker compose project name from the unique build number
 # With this, "docker compose" commands can be ran from the branch link and the build directory
 composeProjectName="${USER}_${branch}_${buildNumber}"
