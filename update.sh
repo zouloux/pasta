@@ -27,7 +27,7 @@ fi
 # Ask for confirmation
 read -p "This script will update :
 - /usr/local/pasta ( override )
-- ~/.bashrc ( will create a .old backup if different )
+- /root/.bashrc ( will create a .old backup if different )
 - ${proxyDir}/docker-compose.yaml ( will create a .old backup if different )
 Are you sure to continue? (y/n) " confirmation
 if [ "$confirmation" != "y" ]; then
@@ -46,7 +46,7 @@ fi
 echo "Stopping proxy ..."
 cd $proxyDir
 docker compose stop > /dev/null 2>&1
-cd ~
+cd /root
 
 # Clone repo
 echo "Cloning Pasta repo ..."
@@ -79,7 +79,7 @@ chmod 0755 "$pastaDir/proxy-reload"
 echo "Starting proxy ..."
 cd $proxyDir
 docker compose up -d > /dev/null 2>&1
-cd ~
+cd /root
 
 echo "Cleaning ..."
 rm -rf /tmp/* /tmp/.* > /dev/null 2>&1
