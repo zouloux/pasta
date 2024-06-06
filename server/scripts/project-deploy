@@ -66,12 +66,16 @@ echo "PASTA_BUILD=$buildNumber" >> $dotEnv
 if [ -n "$domain" ]; then
   sed -i '/^VIRTUAL_HOST=/d' $dotEnv
   if [[ "$domain" == *"."* ]]; then
+    # Has a dot, it's a full-domain
     echo "VIRTUAL_HOST=$domain" >> $dotEnv
   else
+    # No dot, it's a sub-domain
     echo "VIRTUAL_HOST=$domain.$PASTA_DOMAIN" >> $dotEnv
   fi
+  # Setup password ( or remove it ) and reload proxy
   if [ -n "$password" ]; then
     project-password $projectName $password
+    proxy-reload
   fi
 fi
 
