@@ -2,7 +2,7 @@
 
 # https://stackoverflow.com/questions/43453419/iterm2-quick-download-over-ssh-using-cmdclick
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 file ..."
+  echo "Usage: $0 <file> ..."
   exit 1
 fi
 for filename in "$@"
