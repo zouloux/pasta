@@ -1,22 +1,16 @@
 #!/bin/bash
 
-if [ $# -lt 1 ] || [ $# -gt 3 ]; then
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
   echo "Usage:"
   echo "$0 <branch>"
   echo "$0 <branch> <sub-domain|full-domain>"
-  echo "$0 <branch> <sub-domain|full-domain> <login:pass>"
   exit 1
 fi
 
 branch=$1
 domain=$2
-password=$3
 projectName=$USER
 userDir="/home/$USER"
-
-if [ -n "$password" ] && [ -z "$domain" ]; then
-  echo "Password option can only be set if domain is set."
-fi
 
 # Ensure script is run from a user directory
 if [[ $PWD != $userDir ]]; then
@@ -76,11 +70,6 @@ if [ -n "$domain" ]; then
   fi
   echo "Domain is $domain"
   echo "VIRTUAL_HOST=$domain" >> $dotEnv
-  # Setup password ( or remove it ) and reload proxy
-  if [ -n "$password" ]; then
-    project-password $domain $password
-    proxy-reload
-  fi
 # No domain to set, but no domain in dot env, use auto mode
 elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
   domain="$projectName-$branch.$PASTA_DOMAIN"

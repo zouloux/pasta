@@ -35,6 +35,13 @@ if [ "$(id -u)" -ne 0 ]; then
   echo "  Restart nginx container."
   echo "  All pending connexions will be lost !"
 fi
+if [ "$(id -u)" -ne 0 ]; then
+  echo ""
+  echo "${bold}proxy-password <branch> <domain?> <login:password?>${normal}"
+  echo "  Set an http password for a domain."
+  echo "  If no login:password pair is given, password will be removed."
+  echo "  Call proxy-reload to update changes."
+fi
 echo ""
 echo "${bold}--- PROJECTS ---${normal}"
 if [ "$(id -u)" -ne 0 ]; then
@@ -56,11 +63,6 @@ echo ""
 echo "${bold}project-deploy <branch> <domain?> <login:password?>${normal} [CI]"
 echo "  Deploy an uploaded archive for a project."
 echo "  Artifact should be available in ~/artifacts/ project's user directory as a tar.gz file."
-echo ""
-echo "${bold}project-password <branch> <domain?> <login:password?>${normal}"
-echo "  Set an http password for a domain."
-echo "  If no login:password pair is given, password will be removed."
-echo "  Call proxy-reload to update changes."
 echo ""
 echo "${bold}--- FILE TRANSFER ---${normal}"
 echo ""
