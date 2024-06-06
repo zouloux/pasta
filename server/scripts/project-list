@@ -1,2 +1,6 @@
 #!/bin/bash
 
+directory="/root/containers/projects"
+for entry in "$directory"/*; do
+  [ -d "$entry" ] && echo "- $(basename "$entry")"
+done

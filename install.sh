@@ -159,15 +159,11 @@ echo "Installing pasta scripts ..."
 pastaDir="/usr/local/pasta"
 mkdir -p $pastaDir > /dev/null 2>&1
 cp -r /tmp/pasta/server/scripts/* $pastaDir > /dev/null 2>&1
-chmod 0700 $pastaDir
-chmod 0755 "$pastaDir/pasta-help"
-chmod 0755 "$pastaDir/project-deploy"
-chmod 0755 "$pastaDir/proxy-reload"
 
 echo "Creating docker network ..."
 docker network create pasta > /dev/null 2>&1
 
-echo "Downloading proxy ..."
+echo "Downloading proxy image ..."
 cd ~/containers/services/proxy/
 docker compose build > /dev/null 2>&1
 
@@ -175,12 +171,8 @@ echo "Starting proxy ..."
 docker compose up -d > /dev/null 2>&1
 cd ~
 
-echo "Cleaning ..."
-rm -rf /tmp/* /tmp/.* > /dev/null 2>&1
-rm -f .zcompdump* > /dev/null 2>&1
-rm -f .wget-hsts > /dev/null 2>&1
-rm -f .viminfo > /dev/null 2>&1
-echo "" > .bash_history
+# After install script common
+/usr/local/pasta/after-install
 
 echo ""
 echo "All done ✨"

@@ -70,10 +70,6 @@ echo "Updating pasta scripts ..."
 rm -rf $pastaDir > /dev/null 2>&1
 mkdir -p $pastaDir > /dev/null 2>&1
 cp -f -r /tmp/pasta/server/scripts/* $pastaDir > /dev/null 2>&1
-chmod 0700 $pastaDir
-chmod 0755 "$pastaDir/pasta-help"
-chmod 0755 "$pastaDir/project-deploy"
-chmod 0755 "$pastaDir/proxy-reload"
 
 # Start the proxy
 echo "Starting proxy ..."
@@ -81,12 +77,8 @@ cd $proxyDir
 docker compose up -d > /dev/null 2>&1
 cd /root
 
-echo "Cleaning ..."
-rm -rf /tmp/* /tmp/.* > /dev/null 2>&1
-rm -f .zcompdump* > /dev/null 2>&1
-rm -f .wget-hsts > /dev/null 2>&1
-rm -f .viminfo > /dev/null 2>&1
-echo "" > .bash_history
+# After install script common
+/usr/local/pasta/after-install
 
 echo ""
 echo "All done ✨"

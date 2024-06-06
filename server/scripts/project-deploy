@@ -23,6 +23,10 @@ destinationBuildDir="$userDir/builds/$branch-$buildNumber"
 destinationBranchLink="$userDir/branches/$branch"
 
 # Extract tar.gz file
+if [ ! -f "$tarFile" ]; then
+  echo "File $tarFile not found"
+  exit 1
+fi
 mkdir -p $destinationBuildDir
 if ! tar -xzf $tarFile -C $destinationBuildDir; then
   echo "Failed to extract $tarFile"
