@@ -29,7 +29,7 @@ mkdir -p $userProjectRoot/{.config,artifacts,builds,branches,data,.ssh}
 
 echo "Creating SSH keypair ..."
 mkdir -p "$rootProjectRoot/keys"
-ssh-keygen -t ed25519 -f "$rootProjectRoot/keys/id_ed25519" -N "" > /dev/null 2>&1
+ssh-keygen -t ed25519 -f "$rootProjectRoot/keys/id_ed25519" -N -y "" > /dev/null 2>&1
 cat "$rootProjectRoot/keys/id_ed25519.pub" >> "$userProjectRoot/.ssh/authorized_keys"
 
 echo "Copying pasta config into user directory ..."
