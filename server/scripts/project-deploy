@@ -41,7 +41,7 @@ echo "PASTA_BUILD=$buildNumber" >> $dotEnv
 # Set the docker compose project name from the unique build number
 # With this, "docker compose" commands can be ran from the branch link and the build directory
 composeProjectName="$USER_$branch_$buildNumber"
-echo "COMPOSE_PROJECT_NAME=$destinationBuildDir" >> $dotEnv
+echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
 
 #echo "USER_ID=$(id -u $USER):$(id -g $USER)" >> $dotEnv
 
