@@ -1,1 +1,81 @@
 #!/bin/bash
+
+clear
+echo "______         _          _____"
+echo "| ___ \       | |        /  ___|"
+echo "| |_/ /_ _ ___| |_ __ _  \ \`--.  ___ _ ____   _____ _ __"
+echo "|  __/ _\` / __| __/ _\` |  \`--. \/ _ \ '__\ \ / / _ \ '__|"
+echo "| | | (_| \__ \ || (_| | /\__/ /  __/ |   \ V /  __/ |"
+echo "\_|  \__,_|___/\__\__,_| \____/ \___|_|    \_/ \___|_|"
+echo ""
+
+bold=$(tput bold)
+normal=$(tput sgr0)
+
+echo "${bold}--- DOCKER ---${normal}"
+if [ "$(id -u)" -ne 0 ]; then
+  echo ""
+  echo "${bold}docker-clean${normal} [ADMIN]"
+  echo "  Prune all docker containers, images, volumes, networks ..."
+fi
+echo ""
+echo "${bold}docker-restart${normal}"
+echo "  In a directory containing a docker-compose.yaml file."
+echo "  Will down, then up detached, and hook logs."
+echo "  ctrl + c to close logs and keep containers running."
+echo ""
+echo "${bold}--- PROXY ---${normal}"
+echo ""
+echo "${bold}proxy-reload${normal}"
+echo "  Reload nginx config without restarting proxy."
+echo "  All pending connexions will stay alive."
+if [ "$(id -u)" -ne 0 ]; then
+  echo ""
+  echo "${bold}proxy-restart${normal} [ADMIN]"
+  echo "  Restart nginx container."
+  echo "  All pending connexions will be lost !"
+fi
+echo ""
+echo "${bold}--- PROJECTS ---${normal}"
+if [ "$(id -u)" -ne 0 ]; then
+  echo ""
+  echo "${bold}project-list${normal} [ADMIN]"
+  echo "  List all existing project workspaces."
+fi
+if [ "$(id -u)" -ne 0 ]; then
+  echo ""
+  echo "${bold}project-create <project?>${normal} [ADMIN]"
+  echo "  Create a new project workspace."
+fi
+if [ "$(id -u)" -ne 0 ]; then
+  echo ""
+  echo "${bold}project-archive <project?>${normal} [ADMIN]"
+  echo "  Archive a project and save data and keys to a tar.gz file."
+fi
+echo ""
+echo "${bold}project-deploy <branch> <domain?> <login:password?>${normal} [CI]"
+echo "  Deploy an uploaded archive for a project."
+echo "  Artifact should be available in ~/artifacts/ project's user directory as a tar.gz file."
+echo ""
+echo "${bold}project-password <branch> <domain?> <login:password?>${normal}"
+echo "  Set an http password for a domain."
+echo "  If no login:password pair is given, password will be removed."
+echo "  Call proxy-reload to update changes."
+echo ""
+echo "${bold}--- FILE TRANSFER ---${normal}"
+echo ""
+echo "${bold}iterm-download${normal}"
+echo "  Download a file through iterm2 terminal."
+echo "  Use rsync-download for big files."
+echo ""
+echo "${bold}rsync-download${normal} <file>"
+echo "  Create an rsync command to download a file from your computer."
+echo ""
+echo "${bold}rsync-upload${normal} <file?>"
+echo "  Create an rsync command to upload a file from your computer."
+echo "  File override is disabled by default."
+echo ""
+echo "${bold}--- MISC ---${normal}"
+echo ""
+echo "${bold}print-alias${normal}"
+echo "  Print alias shortcut to connect to this machine."

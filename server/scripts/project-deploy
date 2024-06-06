@@ -74,6 +74,7 @@ if [ -n "$domain" ]; then
   if [[ "$domain" != *"."* ]]; then
     domain="$domain.$PASTA_DOMAIN"
   fi
+  echo "Domain is $domain"
   echo "VIRTUAL_HOST=$domain" >> $dotEnv
   # Setup password ( or remove it ) and reload proxy
   if [ -n "$password" ]; then
@@ -110,8 +111,8 @@ done
 # ADD : usermod -aG www-data $username
 # REMOVE : gpasswd -d $username www-data
 echo "Patching user on data ..."
-chown -R "$USER:$USER" $dataDir
-chmod -R 0777 $dataDir
+chown -R "$USER:$USER" $dataDir > /dev/null 2>&1
+chmod -R 0777 $dataDir > /dev/null 2>&1
 
 # Docker compose up
 echo "Starting containers ..."
