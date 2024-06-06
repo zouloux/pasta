@@ -88,7 +88,7 @@ echo "PASTA_DATA=../../data/$dataBucketName" >> $dotEnv
 
 # Set the docker compose project name from the unique build number
 # With this, "docker compose" commands can be ran from the branch link and the build directory
-composeProjectName="$USER_$branch_$buildNumber"
+composeProjectName="${USER}_${branch}_${buildNumber}"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
 
 # Preparing data directories
