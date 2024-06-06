@@ -46,10 +46,7 @@ ln -s "$userProjectRoot" "$rootProjectRoot/project"
 
 echo "Create .bashrc for project user ..."
 rm -rf "$userProjectRoot/.bash_logout"
-echo '# Pasta Server config' > $userProjectRoot/.bashrc
-echo 'export PASTA_DOMAIN=$(cat ~/.config/pasta/domain.txt)' >> $userProjectRoot/.bashrc
-echo 'export PASTA_HOSTNAME=$(cat ~/.config/pasta/hostname.txt)' >> $userProjectRoot/.bashrc
-echo 'export PASTA_EMAIL=$(cat ~/.config/pasta/email.txt)' >> $userProjectRoot/.bashrc
+cp "$HOME/.bashrc" > $userProjectRoot/.bashrc
 
 echo ""
 echo "Project $projectName created ✨"

@@ -9,8 +9,15 @@ echo "| | | (_| \__ \ || (_| | /\__/ /  __/ |   \ V /  __/ |"
 echo "\_|  \__,_|___/\__\__,_| \____/ \___|_|    \_/ \___|_|"
 echo ""
 
+pastaDir="/usr/local/pasta"
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit 1
+fi
+
 # Check if pasta exists
-if [ -d "$HOME/.config/pasta" ]; then
+if [ -d "/usr/local/pasta/" ]; then
   echo "Pasta Server seems to be already installed on this server."
   echo "Please run update script."
   exit 1
@@ -31,6 +38,7 @@ read -p "This script will :
 - install Pasta Server core dependencies
 - override .bashrc ( do a backup before )
 - create ~/containers/ directory
+- create $pastaDir directory
 - create ~/.config directory
 Are you sure to continue? (y/n) : " confirmation
 if [ "$confirmation" != "y" ]; then
@@ -121,7 +129,6 @@ systemctl restart systemd-journald > /dev/null 2>&1
 # Save config
 echo "Creating directories ..."
 cd ~
-mkdir scripts/
 mkdir -p containers/apps/
 mkdir -p containers/services/proxy/
 mkdir -p containers/projects/
@@ -144,20 +151,26 @@ rm ~/.bashrc > /dev/null 2>&1
 cp /tmp/pasta/server/.bashrc ~/.bashrc
 source ~/.bashrc
 
-# Copy proxy and scripts
 echo "Setting up nginx proxy ..."
 cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
 cp -r /tmp/pasta/server/containers/services/proxy/config/ ~/containers/services/proxy/config/
-cp -r /tmp/pasta/server/scripts/* ~/scripts/
 
-# Create pasta docker network
+echo "Installing pasta scripts ..."
+pastaDir="/usr/local/pasta"
+mkdir -p $pastaDir > /dev/null 2>&1
+cp -r /tmp/pasta/server/scripts/* $pastaDir > /dev/null 2>&1
+chmod 0700 $pastaDir
+chmod 0755 "$pastaDir/pasta-help"
+chmod 0755 "$pastaDir/project-deploy"
+chmod 0755 "$pastaDir/proxy-reload"
+
 echo "Creating docker network ..."
 docker network create pasta > /dev/null 2>&1
 
-# Start reverse proxy
 echo "Downloading proxy ..."
 cd ~/containers/services/proxy/
 docker compose build > /dev/null 2>&1
+
 echo "Starting proxy ..."
 docker compose up -d > /dev/null 2>&1
 cd ~
@@ -173,4 +186,4 @@ echo ""
 echo "All done ✨"
 echo ""
 echo "You can add this alias to your .zshrc or .bashrc to connect easily :"
-./scripts/print-alias
+/usr/local/pasta/print-alias

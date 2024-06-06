@@ -9,18 +9,24 @@ echo "| | | (_| \__ \ || (_| | /\__/ /  __/ |   \ V /  __/ |"
 echo "\_|  \__,_|___/\__\__,_| \____/ \___|_|    \_/ \___|_|"
 echo ""
 
-# Check if pasta exists
-if [ ! -d "$HOME/.config/pasta" ]; then
-  echo "Pasta Server does not seems to be installed on this server."
-    echo "Please run install script."
+pastaDir="/usr/local/pasta"
+proxyDir="/root/containers/services/proxy"
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
   exit 1
 fi
 
-proxyDir="$HOME/containers/services/proxy"
+# Check if pasta exists
+if [ ! -d "$pastaDir" ]; then
+  echo "Pasta Server does not seems to be installed on this server."
+  echo "Please run install script."
+  exit 1
+fi
 
 # Ask for confirmation
 read -p "This script will update :
-- ~/scripts ( override )
+- /usr/local/pasta ( override )
 - ~/.bashrc ( will create a .old backup if different )
 - ${proxyDir}/docker-compose.yaml ( will create a .old backup if different )
 Are you sure to continue? (y/n) " confirmation
@@ -60,10 +66,14 @@ cp -f docker-compose.yaml docker-compose.yaml.old
 cp -f /tmp/pasta/server/containers/services/proxy/docker-compose.yaml $proxyDir
 if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
-echo "Updating scripts ..."
-rm -rf ~/scripts/ > /dev/null 2>&1
-mkdir -p ~/scripts/ > /dev/null 2>&1
-cp -f -r /tmp/pasta/server/scripts/* ~/scripts/ > /dev/null 2>&1
+echo "Updating pasta scripts ..."
+rm -rf $pastaDir > /dev/null 2>&1
+mkdir -p $pastaDir > /dev/null 2>&1
+cp -f -r /tmp/pasta/server/scripts/* $pastaDir > /dev/null 2>&1
+chmod 0700 $pastaDir
+chmod 0755 "$pastaDir/pasta-help"
+chmod 0755 "$pastaDir/project-deploy"
+chmod 0755 "$pastaDir/proxy-reload"
 
 # Start the proxy
 echo "Starting proxy ..."
