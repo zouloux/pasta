@@ -8,7 +8,7 @@ chmod 0755 "$pastaDir/docker-restart"
 chmod 0755 "$pastaDir/iterm-download"
 chmod 0755 "$pastaDir/pasta-help"
 chmod 0755 "$pastaDir/project-deploy"
-chmod 0755 "$pastaDir/proxy-password"
+chmod 0755 "$pastaDir/project-password"
 chmod 0755 "$pastaDir/proxy-reload"
 
 echo "Cleaning ..."
