@@ -2,12 +2,17 @@
 
 clear
 cd ~
-read -p "Enter the project name: " projectName
+if [ -z "$1" ]; then
+  read -p "Enter the project name: " projectName
+else
+  projectName=$1
+fi
+
 username="$projectName"
 userProjectPath="/home/$username"
-rootProjectPath="$HOME/containers/projects/$projectName"
+rootProjectPath="/root/containers/projects/$projectName"
 currentDate=$(date +%F)
-archivePath="$HOME/archives/${projectName}-${currentDate}.tar.gz"
+archivePath="/root/archives/${projectName}-${currentDate}.tar.gz"
 
 # Check if this project exists
 if [ ! -d "$userProjectPath" ]; then
@@ -38,7 +43,7 @@ find "$userProjectPath/builds" \( -name "docker-compose.yaml" -o -name "docker-c
 done
 
 echo "Archiving project data and keys ..."
-mkdir -p "$HOME/archives"
+mkdir -p "/root/archives"
 tar -czvf "$archivePath" -C "$userProjectPath" data -C "$rootProjectPath" keys > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "Failed to archive project data and keys. Exiting."
