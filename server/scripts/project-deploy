@@ -3,25 +3,16 @@
 if [ $# -ne 1 ]; then
   echo "Usage:"
   echo "$0 <branch>"
-  echo "$0 <branch> --domain <sub-domain|full-domain>"
-  echo "$0 <branch> --domain <sub-domain|full-domain> --password <login:pass>"
+  echo "$0 <branch> <sub-domain|full-domain>"
+  echo "$0 <branch> <sub-domain|full-domain> <login:pass>"
   exit 1
 fi
 
 branch=$1
+domain=$2
+password=$3
+projectName=$USER
 userDir="/home/$USER"
-domain=""
-password=""
-
-shift
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        --domain) domain="$2"; shift ;;
-        --password) password="$2"; shift ;;
-        *) echo "Unknown parameter passed: $1"; exit 1 ;;
-    esac
-    shift
-done
 
 if [ -n "$password" ] && [ -z "$domain" ]; then
   echo "Password option can only be set if domain is set."
@@ -52,39 +43,55 @@ if ! tar -xzf $tarFile -C $destinationBuildDir; then
   exit 1
 fi
 
+# Move pasta docker compose file
+if [ -f "$destinationBuildDir/docker-compose.pasta.yaml" ]; then
+  mv "$destinationBuildDir/docker-compose.pasta.yaml" "$destinationBuildDir/docker-compose.yaml"
+fi
+
+# No docker compose file
+if [ ! -f "$destinationBuildDir/docker-compose.yaml" ]; then
+  echo "No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
+  exit 1
+fi
+
+# Dot env
 dotEnv="$destinationBuildDir/.env"
 echo "" >> $dotEnv
 
 # Force pasta project name
 sed -i '/^PASTA_PROJECT_NAME=/d' $dotEnv
-echo "PASTA_PROJECT_NAME=$USER" >> $dotEnv
+echo "PASTA_PROJECT_NAME=$projectName" >> $dotEnv
 
 # Inject build number
 echo "PASTA_BUILD=$buildNumber" >> $dotEnv
 
-# Remove virtual host from dot env and force it
+# If we have a domain to set
 if [ -n "$domain" ]; then
+  # Remove virtual host from dot env
   sed -i '/^VIRTUAL_HOST=/d' $dotEnv
-  if [[ "$domain" == *"."* ]]; then
-    # Has a dot, it's a full-domain
-    echo "VIRTUAL_HOST=$domain" >> $dotEnv
-  else
-    # No dot, it's a sub-domain
-    echo "VIRTUAL_HOST=$domain.$PASTA_DOMAIN" >> $dotEnv
+  # Has a dot, it's a full-domain
+  # No dot, it's a sub-domain
+  if [[ "$domain" != *"."* ]]; then
+    domain="$domain.$PASTA_DOMAIN"
   fi
+  echo "VIRTUAL_HOST=$domain" >> $dotEnv
   # Setup password ( or remove it ) and reload proxy
   if [ -n "$password" ]; then
-    project-password $projectName $password
+    project-password $domain $password
     proxy-reload
   fi
+# No domain to set, but no domain in dot env, use auto mode
+elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
+  domain="$projectName-$branch.$PASTA_DOMAIN"
+  echo "Missing VIRTUAL_HOST from .env file. Setting domain to $domain"
+  echo "VIRTUAL_HOST=$domain" >> $dotEnv
+  exit 1
 fi
 
 # Set the docker compose project name from the unique build number
 # With this, "docker compose" commands can be ran from the branch link and the build directory
 composeProjectName="$USER_$branch_$buildNumber"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
-
-#echo "USER_ID=$(id -u $USER):$(id -g $USER)" >> $dotEnv
 
 # Preparing data directories
 echo "Extracting data directories ..."
@@ -99,6 +106,7 @@ done
 
 # FIXME : Maybe find something else than 777 ?
 # FIXME : Adding user to the group is not enough for 776, why ?
+#echo "USER_ID=$(id -u $USER):$(id -g $USER)" >> $dotEnv
 # ADD : usermod -aG www-data $username
 # REMOVE : gpasswd -d $username www-data
 echo "Patching user on data ..."
