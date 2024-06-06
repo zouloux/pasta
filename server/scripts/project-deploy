@@ -119,6 +119,7 @@ chmod -R 0777 $baseDataDir > /dev/null 2>&1
 echo "Starting containers ..."
 if ! (cd $destinationBuildDir && docker compose build && docker compose up -d); then
   echo "⚠ Unable to start docker stack"
+  docker compose down > /dev/null 2>&1
   rm -rf $destinationBuildDir
   rm -f $tarFile
   exit 1
@@ -128,7 +129,7 @@ echo ""
 # TODO : Wait enough time to have the new container ready before stopping the old one
 # TODO : Maybe having a heartbeat call or something ?
 # TODO : If more than 60s, docker compose down and fail
-sleep 3
+sleep 2
 
 echo "Stopping and removing old containers ..."
 if [ -d $destinationBranchLink ]; then
