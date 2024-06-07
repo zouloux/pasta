@@ -38,7 +38,7 @@ commands.add("deploy", async () => {
 
 commands.add("sync", async () => {
 	const { config, branch } = await targetEnvConfig( commands.parsedArgs.arguments[1] )
-	syncCommand( config, branch )
+	syncCommand( config, branch, commands.parsedArgs.arguments[2] )
 })
 
 commands.add("help", async () => {
@@ -60,12 +60,12 @@ commands.add("help", async () => {
 	`)
 	newLine()
 	nicePrint(`
-		{b}pasta deploy $branch
+		{b}pasta deploy <branch>
 		{d}Deploy pasta project to server following {b}pasta.yaml{/d} file.
 	`)
 	newLine()
 	nicePrint(`
-		{b}pasta sync $branch
+		{b}pasta sync <branch> <direction>
 		{d}Sync data from a specific branch.
 		{d}Will ask if pull or push method 
 	`)

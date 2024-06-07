@@ -1,11 +1,12 @@
 {
 	"name": "@zouloux/pasta-cli",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Command line helper to manage Pasta Devops projects.",
 	"author": "Alexis Bouhet - ZoulouX",
 	"main": "./pasta-cli.js",
 	"module": "./pasta-cli.js",
 	"type": "module",
+	"private": false,
 	"bin": {
 		"pasta": "./pasta-cli.js"
 	},

@@ -48,10 +48,12 @@ export async function initCommand () {
 		  preview:
 		    domain: ${projectName}-preview
 		    data: preview
+		    sync: "pull"
 
 		  main:
 		    domain: ${projectName}
 		    data: main
+		    sync: "pull"
 	`))
 	await pastaConfigFile.save()
 

@@ -44,4 +44,5 @@ git commit -m"$commitMessage"
 # Push commit and tags
 git push
 # Publish to npm
+npm config set access public
 npm publish
