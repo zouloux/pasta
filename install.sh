@@ -70,7 +70,7 @@ echo "127.0.0.1 $hostname" >> /etc/hosts
 echo "Installing core dependencies ..."
 apt update -qq > /dev/null 2>&1
 apt upgrade -y -qq > /dev/null 2>&1
-apt install git logrotate figlet apache2-utils rsync htop -y -qq > /dev/null 2>&1
+apt install git logrotate figlet apache2-utils rsync htop acl -y -qq > /dev/null 2>&1
 
 # Create ASCII banner and remove figlet
 echo "Creating login banner ..."
