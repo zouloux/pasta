@@ -155,10 +155,9 @@ echo "Setting up nginx proxy ..."
 cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
 cp -r /tmp/pasta/server/containers/services/proxy/config/ ~/containers/services/proxy/config/
 
-echo "Installing pasta scripts ..."
-pastaDir="/usr/local/pasta"
+echo "Installing pasta bin ..."
 mkdir -p $pastaDir > /dev/null 2>&1
-cp -r /tmp/pasta/server/scripts/* $pastaDir > /dev/null 2>&1
+cp -r /tmp/pasta/server/pasta/* $pastaDir > /dev/null 2>&1
 
 echo "Creating docker network ..."
 docker network create pasta > /dev/null 2>&1
@@ -172,10 +171,10 @@ docker compose up -d > /dev/null 2>&1
 cd ~
 
 # After install script common
-/usr/local/pasta/after-install
+/usr/local/pasta/bin/after-install
 
 echo ""
 echo "All done ✨"
 echo ""
 echo "You can add this alias to your .zshrc or .bashrc to connect easily :"
-/usr/local/pasta/print-alias
+/usr/local/pasta/bin/print-alias

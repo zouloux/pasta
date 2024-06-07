@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "Patching pasta bin ..."
+pastaBinDir="/usr/local/pasta/bin"
+chmod -R 0700 $pastaBinDir
+chmod 0755 $pastaBinDir
+chmod 0755 "$pastaBinDir/docker-restart"
+chmod 0755 "$pastaBinDir/project-deploy"
+chmod 0755 "$pastaBinDir/proxy-password"
+chmod 0755 "$pastaBinDir/iterm-download"
+chmod 0755 "$pastaBinDir/rsync-download"
+chmod 0755 "$pastaBinDir/rsync-upload"
+chmod 0755 "$pastaBinDir/print-alias"
+chmod 0755 "$pastaBinDir/pasta-help"
+
+echo "Cleaning ..."
+rm -rf /tmp/* /tmp/.* > /dev/null 2>&1
+rm -f .zcompdump* > /dev/null 2>&1
+rm -f .wget-hsts > /dev/null 2>&1
+rm -f .viminfo > /dev/null 2>&1
+echo "" > .bash_history

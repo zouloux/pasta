@@ -66,10 +66,10 @@ cp -f docker-compose.yaml docker-compose.yaml.old
 cp -f /tmp/pasta/server/containers/services/proxy/docker-compose.yaml $proxyDir
 if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
-echo "Updating pasta scripts ..."
-rm -rf $pastaDir > /dev/null 2>&1
+echo "Updating pasta bin ..."
+rm -rf "$pastaDir/bin" > /dev/null 2>&1
 mkdir -p $pastaDir > /dev/null 2>&1
-cp -f -r /tmp/pasta/server/scripts/* $pastaDir > /dev/null 2>&1
+cp -f -r /tmp/pasta/server/pasta/* $pastaDir > /dev/null 2>&1
 
 # Start the proxy
 echo "Starting proxy ..."
@@ -78,7 +78,7 @@ docker compose up -d > /dev/null 2>&1
 cd /root
 
 # After install script common
-/usr/local/pasta/after-install
+/usr/local/pasta/bin/after-install
 
 echo ""
 echo "All done ✨"

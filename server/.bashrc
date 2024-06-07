@@ -18,4 +18,4 @@ export PASTA_HOSTNAME=$(cat ~/.config/pasta/hostname.txt)
 export PASTA_EMAIL=$(cat ~/.config/pasta/email.txt)
 
 # Pasta Server scripts aliases
-export PATH="$PATH:/usr/local/pasta"
+export PATH="$PATH:/usr/local/pasta/bin"

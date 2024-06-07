@@ -34,11 +34,11 @@ if [ "$(id -u)" -eq 0 ]; then
   echo "${bold}proxy-restart${normal} [ADMIN]"
   echo "  Restart nginx container."
   echo "  All pending connexions will be lost !"
-  echo ""
-  echo "${bold}proxy-password <branch> <domain?> <login:password?>${normal} [ADMIN]"
-  echo "  Set an http password for a domain."
-  echo "  If no login:password pair is given, password will be removed."
 fi
+echo ""
+echo "${bold}proxy-password <branch> <domain?> <login:password?>${normal}"
+echo "  Set an http password for a domain."
+echo "  If no login:password pair is given, password will be removed."
 echo ""
 echo "${bold}--- PROJECTS ---${normal}"
 if [ "$(id -u)" -eq 0 ]; then
