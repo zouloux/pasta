@@ -7,6 +7,7 @@ chmod 0755 $pastaBinDir
 chmod 0755 "$pastaBinDir/docker-restart"
 chmod 0755 "$pastaBinDir/project-deploy"
 chmod 0755 "$pastaBinDir/proxy-password"
+chmod 0755 "$pastaBinDir/proxy-reload"
 chmod 0755 "$pastaBinDir/iterm-download"
 chmod 0755 "$pastaBinDir/rsync-download"
 chmod 0755 "$pastaBinDir/rsync-upload"

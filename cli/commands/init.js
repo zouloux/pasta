@@ -44,12 +44,11 @@ export async function initCommand () {
 		      - docker-compose.pasta.yaml
 		      - .env
 		      - dist/
-
 		  preview:
 		    domain: ${projectName}-preview
+		    password: "login:pass"
 		    data: preview
 		    sync: "pull"
-
 		  main:
 		    domain: ${projectName}
 		    data: main
