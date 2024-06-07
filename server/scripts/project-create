@@ -50,6 +50,8 @@ chmod 700 $userProjectRoot/.ssh
 chmod 600 $userProjectRoot/.ssh/authorized_keys
 
 # Data is from root for everybody
+# FIXME : 777 is too opened but this is the only way to have
+# FIXME : docker users and scp users having access in read / write
 chown root:root "$userProjectRoot/data"
 chmod 0777 "$userProjectRoot/data"
 setfacl -d -m u::rwx "$userProjectRoot/data"

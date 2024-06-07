@@ -1,21 +1,23 @@
 #!/bin/bash
 
-if [ $# -lt 1 ] || [ $# -gt 3 ]; then
+if [ $# -lt 2 ] || [ $# -gt 4 ]; then
   echo "Usage:"
-  echo "$0 <branch> <data-bucket?> <sub-domain|full-domain?>"
+  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?>"
   exit 1
 fi
 
-branch=$1
-dataBucketName=${2:-$branch}
-domain=$3
-projectName=$USER
-userDir="/home/$USER"
+projectName=$1
+branch=$2
+dataBucketName=${3:-$branch}
+domain=$4
+userDir="/home/$projectName"
 
-if [[ $PWD != $userDir ]]; then
-  echo "Script must be run from a project user root."
+if [[ ! -d $userDir ]]; then
+  echo "Project $projectName does not exist."
   exit 1
 fi
+
+cd $userDir
 
 if [[ "dataBucketName" =~ [^a-zA-Z0-9_-] ]]; then
   echo "Bucket name cannot contain special chars."
@@ -112,7 +114,8 @@ done
 # ADD : usermod -aG www-data $username
 # REMOVE : gpasswd -d $username www-data
 echo "Patching user on data ..."
-chown -R "$USER:$USER" $baseDataDir > /dev/null 2>&1
+user=$projectName
+chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
 chmod -R 0777 $baseDataDir > /dev/null 2>&1
 
 # Docker compose up
