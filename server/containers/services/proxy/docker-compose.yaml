@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: "nginxproxy/nginx-proxy:1.5.2"
+    image: "nginxproxy/nginx-proxy:1.6.0"
     container_name: "proxy-nginx"
     restart: always
     environment:
