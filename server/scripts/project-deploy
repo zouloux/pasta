@@ -10,7 +10,8 @@ projectName=$1
 branch=$2
 dataBucketName=${3:-$branch}
 domain=$4
-userDir="/home/$projectName"
+user=$projectName
+userDir="/home/$user"
 
 if [[ ! -d $userDir ]]; then
   echo "Project $projectName does not exist."
@@ -42,6 +43,9 @@ if ! tar -xzf $tarFile -C $destinationBuildDir; then
   rm -f $tarFile
   exit 1
 fi
+
+# Patch destination directory
+chown -R "$user:$user" $destinationBuildDir > /dev/null 2>&1
 
 # Move pasta docker compose file
 if [ -f "$destinationBuildDir/docker-compose.pasta.yaml" ]; then
@@ -94,7 +98,7 @@ echo "PASTA_BRANCH=$branch" >> $dotEnv
 
 # Set the docker compose project name from the unique build number
 # With this, "docker compose" commands can be ran from the branch link and the build directory
-composeProjectName="${USER}_${branch}_${buildNumber}"
+composeProjectName="${projectName}_${branch}_${buildNumber}"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
 
 # Preparing data directories
@@ -114,7 +118,6 @@ done
 # ADD : usermod -aG www-data $username
 # REMOVE : gpasswd -d $username www-data
 echo "Patching user on data ..."
-user=$projectName
 chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
 chmod -R 0777 $baseDataDir > /dev/null 2>&1
 

@@ -53,9 +53,9 @@ if [ "$(id -u)" -eq 0 ]; then
   echo "  Archive a project and save data and keys to a tar.gz file."
 fi
 echo ""
-echo "${bold}project-deploy <branch> <data-bucket?> <sub-domain|full-domain?>${normal} [CI]"
+echo "${bold}project-deploy <project> <branch> <data-bucket?> <sub-domain|full-domain?>${normal} [CI]"
 echo "  Deploy an uploaded archive for a project."
-echo "  Artifact should be available in ~/artifacts/ project's user directory as a tar.gz file."
+echo "  Artifact should be available in /home/\$project/artifacts/\$branch.tar.gz"
 echo ""
 echo "${bold}--- FILE TRANSFER ---${normal}"
 echo ""
