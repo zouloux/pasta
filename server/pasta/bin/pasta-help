@@ -36,9 +36,9 @@ if [ "$(id -u)" -eq 0 ]; then
   echo "  All pending connexions will be lost !"
 fi
 echo ""
-echo "${bold}proxy-password <branch> <domain?> <login:password?>${normal}"
+echo "${bold}proxy-password <branch> <domain?> <login?> <password?>${normal}"
 echo "  Set an http password for a domain."
-echo "  If no login:password pair is given, password will be removed."
+echo "  If no login and password pair is given, password will be removed."
 echo ""
 echo "${bold}--- PROJECTS ---${normal}"
 if [ "$(id -u)" -eq 0 ]; then

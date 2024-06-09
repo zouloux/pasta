@@ -2,7 +2,7 @@
 
 if [ $# -lt 2 ] || [ $# -gt 4 ]; then
   echo "Usage:"
-  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?>"
+  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <login:password?>"
   exit 1
 fi
 
@@ -10,6 +10,7 @@ projectName=$1
 branch=$2
 dataBucketName=${3:-$branch}
 domain=$4
+password=$5
 user=$projectName
 userDir="/home/$user"
 
@@ -120,6 +121,10 @@ done
 echo "Patching user on data ..."
 chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
 chmod -R 0777 $baseDataDir > /dev/null 2>&1
+
+# Setting password
+echo "Setting password ...."
+proxy-password $domain $password
 
 # Docker compose up
 echo "Starting containers ..."

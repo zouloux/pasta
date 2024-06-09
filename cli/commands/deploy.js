@@ -12,6 +12,7 @@ export async function deployCommand ( config, branchName ) {
 	const dataBucket = config.data ?? branchName
 	const domain = config.domain ?? ""
 	const user = config.user ?? project
+	const password = config.password ?? ""
 
 	if ( host.length === 0 )
 		nicePrint(`{r}Invalid {b}host{/r} in pasta config.`, { code: 1 })
@@ -63,7 +64,7 @@ export async function deployCommand ( config, branchName ) {
 	newLine()
 	nicePrint(`{b}Deploying branch ${branchName} ...`)
 	try {
-		const command = `ssh -p ${port} ${user}@${host} "project-deploy ${project} ${branchName} ${dataBucket} ${domain}"`
+		const command = `ssh -p ${port} ${user}@${host} "project-deploy '${project}' '${branchName}' '${dataBucket}' '${domain}' '${password}'"`
 		nicePrint(`{d}$ ${command}`)
 		await execAsync(command, 3)
 	}
