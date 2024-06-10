@@ -6,6 +6,8 @@ chmod -R 0700 $pastaBinDir
 chmod 0755 $pastaBinDir
 chmod 0755 "$pastaBinDir/docker-restart"
 chmod 0755 "$pastaBinDir/project-deploy"
+chmod 0755 "$pastaBinDir/project-clean"
+chmod 0755 "$pastaBinDir/project-remove-branch"
 chmod 0755 "$pastaBinDir/proxy-password"
 chmod 0755 "$pastaBinDir/proxy-reload"
 chmod 0755 "$pastaBinDir/iterm-download"

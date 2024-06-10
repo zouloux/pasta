@@ -36,10 +36,9 @@ fi
 # Ask for confirmation
 read -p "This script will :
 - install Pasta Server core dependencies
-- override .bashrc ( do a backup before )
-- create ~/containers/ directory
+- override /root/.bashrc ( you should do a backup before if needed )
+- create /root/containers/ directory
 - create $pastaDir directory
-- create ~/.config directory
 Are you sure to continue? (y/n) : " confirmation
 if [ "$confirmation" != "y" ]; then
   exit 1
@@ -70,7 +69,7 @@ echo "127.0.0.1 $hostname" >> /etc/hosts
 echo "Installing core dependencies ..."
 apt update -qq > /dev/null 2>&1
 apt upgrade -y -qq > /dev/null 2>&1
-apt install git logrotate figlet apache2-utils rsync htop acl -y -qq > /dev/null 2>&1
+apt install git logrotate figlet openssl rsync htop acl -y -qq > /dev/null 2>&1
 
 # Create ASCII banner and remove figlet
 echo "Creating login banner ..."
@@ -128,32 +127,32 @@ systemctl restart systemd-journald > /dev/null 2>&1
 
 # Save config
 echo "Creating directories ..."
-cd ~
+cd /root
 mkdir -p containers/apps/
 mkdir -p containers/services/proxy/
 mkdir -p containers/projects/
 
 # Save config
 echo "Saving config ..."
-mkdir -p .config/pasta/
-cd .config/pasta/
+mkdir -p "$pastaDir/config"
+cd "$pastaDir/config"
 echo $hostname > hostname.txt
 echo $rootDomain > domain.txt
 echo $adminEmail > email.txt
-cd ~
+cd /root
 
 # Clone repo
 echo "Cloning Pasta repo ..."
 git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
 # Set bash profile
-rm ~/.bashrc > /dev/null 2>&1
-cp /tmp/pasta/server/.bashrc ~/.bashrc
-source ~/.bashrc
+rm /root/.bashrc > /dev/null 2>&1
+cp /tmp/pasta/server/.bashrc /root/.bashrc
+source /root/.bashrc
 
 echo "Setting up nginx proxy ..."
-cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml ~/containers/services/proxy/
-cp -r /tmp/pasta/server/containers/services/proxy/config/ ~/containers/services/proxy/config/
+cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
+cp -r /tmp/pasta/server/containers/services/proxy/config/ /root/containers/services/proxy/config/
 
 echo "Installing pasta bin ..."
 mkdir -p $pastaDir > /dev/null 2>&1
@@ -163,12 +162,12 @@ echo "Creating docker network ..."
 docker network create pasta > /dev/null 2>&1
 
 echo "Downloading proxy image ..."
-cd ~/containers/services/proxy/
+cd /root/containers/services/proxy/
 docker compose build > /dev/null 2>&1
 
 echo "Starting proxy ..."
 docker compose up -d > /dev/null 2>&1
-cd ~
+cd /root
 
 # After install script common
 /usr/local/pasta/bin/after-install

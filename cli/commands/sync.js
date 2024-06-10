@@ -1,15 +1,16 @@
-import { askInput, askList, execAsync, execSync, nicePrint, oraTask } from "@zouloux/cli";
-import { loadDotEnv } from "./_config.js";
+import { askInput, askList, execAsync, newLine, nicePrint, oraTask } from "@zouloux/cli";
+import { getKeyCommand, loadDotEnv } from "./_common.js";
 
 
 export async function syncCommand ( config, branch, direction ) {
+	const { sync, host, project, port, user, data, key } = config
 	// Get direction
 	const directions = ["pull", "push"]
 	if ( !directions.includes(direction) )
 		direction = await askList("Direction", [ "pull", "push" ], { returnType: "value" })
 	// Check if direction allowed in config
-	if ( !!config.sync && config.sync !== "both" ) {
-		if ( config.sync !== direction )
+	if ( !!sync && sync !== "both" ) {
+		if ( sync !== direction )
 			nicePrint(`{r}Sync direction {b/r}${direction}{r} is disabled for branch {b/r}${branch}`, { code: 1 })
 	}
 	// Ask confirmation for main branch push
@@ -19,19 +20,15 @@ export async function syncCommand ( config, branch, direction ) {
 		if ( confirm !== "production" )
 			process.exit(0)
 	}
-	// Extract config
-	const host = config.host
-	const project = config.project
-	const port = config.port ?? 22
-	const user = config.user ?? project
-	const data = config.data ?? branch
 	// Get local data directory
 	const { dotEnvContent } = await loadDotEnv()
 	const localData = dotEnvContent.PASTA_DATA
 	if ( !localData )
 		nicePrint(`{r}Unable to read {b}PASTA_DATA{/r} from {b}.env{/r} file`, { code: 1 })
+	// Load key
+	const keyCommand = await getKeyCommand( key )
 	// Generate rsync command
-	let command = `rsync -az --delete --no-perms -e 'ssh -p ${port}' `
+	let command = `rsync -az --delete --no-perms -e 'ssh${keyCommand} -p ${port}' `
 	const remote = `"${user}@${host}:/home/${project}/data/${data}/"`
 	const local = `"${localData}"`
 	if ( direction === "pull" )
@@ -46,6 +43,9 @@ export async function syncCommand ( config, branch, direction ) {
 		}
 		catch ( e ) {
 			console.error( e )
+			newLine()
+			nicePrint(`ℹ️ {c}If this looks like  a key issue, run {b/w}$ pasta patch-key ${branch}`, { code: 1 })
 		}
 	})
+	nicePrint(`{b/g}Done ✨`)
 }

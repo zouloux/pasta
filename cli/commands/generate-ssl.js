@@ -1,7 +1,7 @@
 import { execSync, nicePrint } from "@zouloux/cli";
 import { untab } from "@zouloux/ecma-core";
 import { Directory } from "@zouloux/files";
-import { loadDotEnv } from "./_config.js";
+import { loadDotEnv } from "./_common.js";
 
 export async function generateSSLCommand ( projectName ) {
 	// Test if mkcert is installed

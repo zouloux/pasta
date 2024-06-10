@@ -13,9 +13,9 @@ alias ll='ls $LS_OPTIONS -l'
 alias l='ls $LS_OPTIONS -lA'
 
 # Pasta Server config
-export PASTA_DOMAIN=$(cat ~/.config/pasta/domain.txt)
-export PASTA_HOSTNAME=$(cat ~/.config/pasta/hostname.txt)
-export PASTA_EMAIL=$(cat ~/.config/pasta/email.txt)
+export PASTA_DOMAIN=$(cat /usr/local/pasta/config/domain.txt)
+export PASTA_HOSTNAME=$(cat /usr/local/pasta/config/hostname.txt)
+export PASTA_EMAIL=$(cat /usr/local/pasta/config/email.txt)
 
 # Pasta Server scripts aliases
 export PATH="$PATH:/usr/local/pasta/bin"

@@ -123,14 +123,14 @@ chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
 chmod -R 0777 $baseDataDir > /dev/null 2>&1
 
 # Setting password
-echo "Setting password ...."
+echo "Setting password ..."
 proxy-password $domain $password
 
 # Docker compose up
 echo "Starting containers ..."
 if ! (cd $destinationBuildDir && docker compose build && docker compose up -d); then
   echo "⚠ Unable to start docker stack"
-  docker compose down > /dev/null 2>&1
+  docker compose down --volumes --remove-orphans > /dev/null 2>&1
   rm -rf $destinationBuildDir
   rm -f $tarFile
   exit 1
@@ -140,12 +140,12 @@ echo ""
 # TODO : Wait enough time to have the new container ready before stopping the old one
 # TODO : Maybe having a heartbeat call or something ?
 # TODO : If more than 60s, docker compose down and fail
-sleep 2
+sleep 1
 
 echo "Stopping and removing old containers ..."
 if [ -d $destinationBranchLink ]; then
   oldBranchDir=$(readlink -f $destinationBranchLink)
-  (cd $oldBranchDir && docker compose down && docker container prune -f)
+  (cd $oldBranchDir && docker compose down --volumes --remove-orphans && docker container prune -f)
   rm -rf $oldBranchDir
 fi
 echo ""
@@ -155,4 +155,4 @@ ln -sf $destinationBuildDir $destinationBranchLink
 rm -f $tarFile
 
 echo ""
-echo "Done"
+echo "Branch $branch of $projectName deployed to $domain"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clear
-cd ~
+cd /root
 if [ -z "$1" ]; then
   read -p "Enter the project name: " projectName
 else
@@ -26,7 +26,7 @@ echo "- User $username and its home directory will be removed"
 echo "- All docker compose related to this project will be down"
 echo "- All data in /builds will be permanently removed"
 echo "- All data in /branches will be permanently removed"
-echo "- Directories /data and /keys will be archived into ~/archives"
+echo "- Directories /data and /keys will be archived into /root/archives"
 echo "This action cannot be undone."
 echo ""
 read -p "Type 'archive' to confirm: " confirm

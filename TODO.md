@@ -8,17 +8,15 @@
 ## Server
 
 #### General
+- Script to check resources on VPS + send emails ( which platform to use ? )
 - Patch 0777 issue on data
 - Is package acl really necessary ?
-- Add a way to manage public keys easily for projects ( bucket -> add / remove by project )
-- Create a script to clean all builds that are not a branch ( maybe run it periodicaly ? )
-- Script to check resources on VPS + send emails ( which platform to use ? )
-
-#### Deploy
-- Find a way to generate login / password from non root accounts ( from pasta.yaml )
 
 #### Prepare SSH script
 - allow to keep password login
+
+#### Config
+- Move `/root/.config/pasta` to `/usr/local/pasta` ? or `/etc/pasta` ?
 
 
 ## CLI

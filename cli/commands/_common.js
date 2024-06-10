@@ -5,6 +5,8 @@ import { parse } from "yaml"
 const dotEnvFileName = ".env"
 const configFileName = "pasta.yaml"
 
+// ----------------------------------------------------------------------------- DOT ENV
+
 export async function loadDotEnv () {
 	const dotEnvFile = await File.create( dotEnvFileName )
 	if ( !await dotEnvFile.exists() )
@@ -26,6 +28,8 @@ export async function getProjectNameFromDotEnv () {
 		nicePrint(`{r}Missing {b/r}PASTA_PROJECT_NAME{/r} property in {b/r}.env{/r} file.`, { code: 1 })
 	return dotEnvContent.PASTA_PROJECT_NAME
 }
+
+// ----------------------------------------------------------------------------- CONFIG
 
 export async function hasConfig () {
 	const configFile = await File.create( configFileName )
@@ -81,9 +85,34 @@ export async function getPastaEnvNameFromCLI ( config, branch ) {
 	return branch
 }
 
-export async function targetEnvConfig ( branchName ) {
+export async function targetBranchConfig ( branchName ) {
 	const config = await loadConfig()
 	branchName = await getPastaEnvNameFromCLI( config, branchName )
 	const branchConfig = await processConfigBranch( config, branchName )
-	return { branch: branchName, config: branchConfig }
+	return {
+		branch: branchName,
+		config: {
+			domain: "",
+			port: 22,
+			data: branchName,
+			user: branchConfig.project,
+			password: "",
+			...branchConfig,
+		}
+	}
+}
+
+// ----------------------------------------------------------------------------- KEY
+
+export async function getKeyCommand ( keyPath ) {
+	if ( !keyPath )
+		return ""
+	const keyFile = await File.create( keyPath )
+	const keyExists = await keyFile.exists()
+	if ( !keyExists ) {
+		// nicePrint(`{r}Key {b/r}${keyPath}{/}{r} not found.`, { code: 1 })
+		nicePrint(`{o}Key {b/r}${keyPath}{/}{o} not found, falling back to ssh-agent.`)
+		return ""
+	}
+	return ` -i ${keyFile.path} -o IdentitiesOnly=yes`
 }

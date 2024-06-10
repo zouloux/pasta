@@ -1,47 +1,42 @@
 import { execAsync, newLine, nicePrint } from "@zouloux/cli";
 import { File } from "@zouloux/files"
 import { filesize } from "filesize";
+import { getKeyCommand } from "./_common.js";
 
 export async function deployCommand ( config, branchName ) {
-
+	// ------------------------------------------------------------------------- INIT
+	// Config and defaults
 	const archiveName = `${branchName}.tar.gz`
 	const files = (config.files ?? []).join(" ")
-	const project = config.project
-	const host = config.host
-	const port = config.port ?? 22
-	const dataBucket = config.data ?? branchName
-	const domain = config.domain ?? ""
-	const user = config.user ?? project
-	const password = config.password ?? ""
-
+	const { project, host, port, domain, user, password, data, key } = config
+	// Checks
 	if ( host.length === 0 )
-		nicePrint(`{r}Invalid {b}host{/r} in pasta config.`, { code: 1 })
+		nicePrint(`{r}Invalid {b/r}host{/}{r} in pasta config.`, { code: 1 })
 	if ( files.length === 0 )
-		nicePrint(`{r}Missing {b}files{/r} list in pasta config.`, { code: 1 })
+		nicePrint(`{r}Missing {b/r}files{/}{r} list in pasta config.`, { code: 1 })
 	if ( project.length === 0 )
-		nicePrint(`{r}Invalid {b}project{/r} name in pasta config.`, { code: 1 })
+		nicePrint(`{r}Invalid {b/r}project{/}{r} name in pasta config.`, { code: 1 })
+	// Try to load pasta key
+	const keyCommand = await getKeyCommand( key )
 
-	newLine()
-	nicePrint(`{b}Adding ${host}:${port} to known hosts ...`)
-	try {
-		await execAsync(`ssh-keyscan -p ${port} ${host} >> ~/.ssh/known_hosts`, 0)
-	}
-	catch ( e ) {
-		nicePrint(`{b/r}${e}`, { code: 1 })
-	}
-
+	// ------------------------------------------------------------------------- CONNECTING
 	newLine()
 	nicePrint(`{b}Connecting to ${user}@${host}:${port}/${project} ...`)
 	try {
-		const command = `ssh -p ${port} ${user}@${host} "cd /home/${project}"`
+		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "cd /home/${project}"`
 		nicePrint(`{d}$ ${command}`)
 		await execAsync(command, 3)
 	}
 	catch ( e ) {
-		await archiveFile.delete()
-		nicePrint(`{b/r}${e}`, { code: 1 })
+		nicePrint(`{b/r}Unable to connect.`)
+		if ( keyCommand ) {
+			newLine()
+			nicePrint(`ℹ️ {c}If this looks like  a key issue, run {b/w}$ pasta patch-key ${branchName}`)
+		}
+		process.exit(1)
 	}
 
+	// ------------------------------------------------------------------------- CREATING ARTIFACT
 	newLine()
 	nicePrint(`{b}Creating artifact ${archiveName} ...`)
 	await execAsync(`tar -czf ${archiveName} ${files}`, 3)
@@ -49,10 +44,11 @@ export async function deployCommand ( config, branchName ) {
 	const byteCount = await archiveFile.size()
 	nicePrint(`{d}Artifact size {b}${filesize(byteCount ?? 0)}`)
 
+	// ------------------------------------------------------------------------- SENDING ARTIFACT
 	newLine()
 	nicePrint(`{b}Sending artifact ${archiveName} ...`)
 	try {
-		const command = `scp -P ${port} ${archiveName} ${user}@${config.host}:/home/${project}/artifacts/`
+		const command = `scp${keyCommand} -o StrictHostKeyChecking=no -P ${port} ${archiveName} ${user}@${host}:/home/${project}/artifacts/`
 		nicePrint(`{d}$ ${command}`)
 		await execAsync(command, 3)
 	}
@@ -61,10 +57,11 @@ export async function deployCommand ( config, branchName ) {
 		nicePrint(`{b/r}${e}`, { code: 1 })
 	}
 
+	// ------------------------------------------------------------------------- DEPLOY
 	newLine()
 	nicePrint(`{b}Deploying branch ${branchName} ...`)
 	try {
-		const command = `ssh -p ${port} ${user}@${host} "project-deploy '${project}' '${branchName}' '${dataBucket}' '${domain}' '${password}'"`
+		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "project-deploy '${project}' '${branchName}' '${data}' '${domain}' '${password}'"`
 		nicePrint(`{d}$ ${command}`)
 		await execAsync(command, 3)
 	}
@@ -73,5 +70,7 @@ export async function deployCommand ( config, branchName ) {
 		nicePrint(`{b/r}${e}`, { code: 1 })
 	}
 
+	// ------------------------------------------------------------------------- CLEAN
 	await archiveFile.delete()
+	nicePrint(`{b/g}Done ✨`)
 }

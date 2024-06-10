@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <project> <branch>"
+  exit 1
+fi
+
+$projectName=$1
+branch=$2
+buildsDir="builds"
+branchesDir="branches"
+user=$projectName
+userDir="/home/$user"
+
+if [[ ! -d $userDir ]]; then
+  echo "Project $projectName does not exist."
+  exit 1
+fi
+
+cd $userDir
+
+# Collect all build IDs for the specified branch
+allBuilds=()
+for build in $buildsDir/${branch}-*; do
+  [ -d "$build" ] && allBuilds+=( "$(basename "$build")" )
+done
+
+# Collect the linked build ID for the specified branch
+linkedBuild=$(basename "$(readlink "$branchesDir/$branch")" 2>/dev/null | sed 's/^.*-//')
+
+# Remove unlinked builds
+for build in "${allBuilds[@]}"; do
+  buildId=$(echo "$build" | sed 's/^.*-//')
+  if [ "$buildId" != "$linkedBuild" ]; then
+    echo "Stopping and removing build $build"
+    ( cd $buildsDir/$build && docker compose down --volumes --remove-orphans && docker container prune -f )
+    rm -rf $buildsDir/$build
+  fi
+done
+
+echo "Cleanup complete."

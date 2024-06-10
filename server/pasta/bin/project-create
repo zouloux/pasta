@@ -34,7 +34,7 @@ mkdir -p $userProjectRoot/{.config,artifacts,builds,branches,data,.ssh}
 
 echo "Creating SSH keypair ..."
 mkdir -p "$rootProjectRoot/keys"
-ssh-keygen -t ed25519 -f "$rootProjectRoot/keys/id_ed25519" -N "" -q
+ssh-keygen -t ed25519 -f "$rootProjectRoot/keys/id_ed25519" -C "$username@$PASTA_HOSNAME" -N "" -q
 
 echo "Setting up SSH authorized keys ..."
 cat "$rootProjectRoot/keys/id_ed25519.pub" >> "$userProjectRoot/.ssh/authorized_keys"

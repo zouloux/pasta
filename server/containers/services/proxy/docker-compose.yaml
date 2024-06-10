@@ -20,7 +20,7 @@ services:
       - "pasta"
 
   acme:
-    image: "nginxproxy/acme-companion"
+    image: "nginxproxy/acme-companion:2.4.0"
     container_name: "proxy-acme"
     restart: always
     volumes_from:

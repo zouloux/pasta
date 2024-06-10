@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import { CLICommands, askList, nicePrint, newLine } from "@zouloux/cli"
-import { hasConfig, targetEnvConfig, getProjectNameFromDotEnv } from "./commands/_config.js";
+import { hasConfig, targetBranchConfig, getProjectNameFromDotEnv } from "./commands/_common.js";
 import { initCommand } from "./commands/init.js";
 import { deployCommand } from "./commands/deploy.js";
 import { generateSSLCommand } from "./commands/generate-ssl.js";
 import { openCommand } from "./commands/open.js";
 import { syncCommand } from "./commands/sync.js";
+import { patchKey } from "./commands/patch-key.js";
 
 const commands = new CLICommands({})
 
@@ -30,53 +31,72 @@ commands.add("generate-ssl", async () => {
 	const projectName = await getProjectNameFromDotEnv()
 	await generateSSLCommand( projectName )
 })
+commands.add("patch-key", async () => {
+	const { config } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
+	await patchKey( config )
+})
 
 commands.add("deploy", async () => {
-	const { config, branch } = await targetEnvConfig( commands.parsedArgs.arguments[1] )
+	const { config, branch } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
 	await deployCommand( config, branch )
 })
 
 commands.add("sync", async () => {
-	const { config, branch } = await targetEnvConfig( commands.parsedArgs.arguments[1] )
+	const { config, branch } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
 	syncCommand( config, branch, commands.parsedArgs.arguments[2] )
 })
 
-commands.add("help", async () => {
-	newLine()
-	nicePrint(`
-		{b}pasta init
-		{d}Create a new Pasta project in the current directory.
-	`)
-	newLine()
-	nicePrint(`
-		{b}pasta open
-		{d}Show links to open the project in current directory.
-	`)
-	newLine()
-	nicePrint(`
-		{b}pasta generate-ssl
-		{d}Generate or regenerate SSL certificates for localhost.
-		{d}Will also patch {b}PASTA_HOSTNAME{/d} in {b}.env
-	`)
-	newLine()
-	nicePrint(`
-		{b}pasta deploy <branch>
-		{d}Deploy pasta project to server following {b}pasta.yaml{/d} file.
-	`)
-	newLine()
-	nicePrint(`
-		{b}pasta sync <branch> <direction>
-		{d}Sync data from a specific branch.
-		{d}Will ask if pull or push method 
-	`)
-})
+// commands.add("help", async () => {
+// 	newLine()
+// 	nicePrint(`
+// 		{b}pasta init
+// 		{d}Create a new Pasta project in the current directory.
+// 	`)
+// 	newLine()
+// 	nicePrint(`
+// 		{b}pasta open
+// 		{d}Show links to open the project in current directory.
+// 	`)
+// 	newLine()
+// 	nicePrint(`
+// 		{b}pasta generate-ssl
+// 		{d}Generate or regenerate SSL certificates for localhost.
+// 		{d}Will also patch {b}PASTA_HOSTNAME{/d} in {b}.env
+// 	`)
+// 	newLine()
+// 	nicePrint(`
+// 		{b}pasta deploy <branch>
+// 		{d}Deploy pasta project to server following {b}pasta.yaml{/d} file.
+// 	`)
+// 	newLine()
+// 	nicePrint(`
+// 		{b}pasta sync <branch> <direction>
+// 		{d}Sync data from a specific branch.
+// 		{d}Will ask if pull or push method
+// 	`)
+// })
 
-commands.before( () => nicePrint(`{d}Pasta Devops - CLI`) )
+commands.before( () => nicePrint(`{c/b}Pasta Devops{d} - CLI`) )
 
 commands.start( async (commandName) => {
 	if ( !commands.exists(commandName) ) {
-		const actions = commands.list()
-		const choice = await askList("Choose action", actions, { returnType: "value" })
+		const helps = {
+			init: "Create a new Pasta project in current directory.",
+			open: "Show links to open current project on local or mobile device.",
+			'generate-ssl': "Re-generate SSL keys for local https.",
+			'patch-key': "Try to patch deployment key.",
+			deploy: "Deploy project branch to server.",
+			sync: "Synchronize branch data between server and local.",
+		}
+		const choices = {}
+		commands.list().forEach( a => {
+			choices[a] = (
+				( a in helps )
+				? nicePrint(`${a}{d} - ${helps[a]}`, { output: "return" }).trim()
+				: a
+			)
+		})
+		const choice = await askList("Choose action", choices, { returnType: "key" })
 		commands.run( choice )
 	}
 })

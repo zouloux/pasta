@@ -39,6 +39,8 @@ export async function initCommand () {
 		    host: ${hostDomain}
 		    port: ${hostPort}
 		    project: ${projectName}
+		    #key: pasta.key
+		    #user: root
 		    files:
 		      - docker-compose.common.yaml
 		      - docker-compose.pasta.yaml

@@ -40,10 +40,10 @@ With those script and conventions, you will be able to :
 **The setup will install :**
 - **docker**
 - **git** - for updates
+- **openssl** - for password and key management
+- **acl** - for linux user roles management
 - **logrotate** - to minimize log file size - preconfigured
-- **apache2-utils** - for password management
 - **rsync** - for host <-> remote file transfer
-- **acl** - for user roles management
 - [htop](https://github.com/htop-dev/htop?tab=readme-ov-file) - to check server resources
 - [lazydocker](https://github.com/jesseduffield/lazydocker) - to manage running containers easily
 
