@@ -80,23 +80,30 @@ commands.before( () => nicePrint(`{c/b}Pasta Devops{d} - CLI`) )
 
 commands.start( async (commandName) => {
 	if ( !commands.exists(commandName) ) {
-		const helps = {
+		const choices = {
 			init: "Create a new Pasta project in current directory.",
+			// "---0": "---",
 			open: "Show links to open current project on local or mobile device.",
 			'generate-ssl': "Re-generate SSL keys for local https.",
 			'patch-key': "Try to patch deployment key.",
 			deploy: "Deploy project branch to server.",
 			sync: "Synchronize branch data between server and local.",
+			// "---1": "---",
+			//server: "Manage servers"
 		}
-		const choices = {}
-		commands.list().forEach( a => {
+		// commands.list().forEach( a => {
+		const actions = Object.keys(choices)
+		actions.forEach( a => {
 			choices[a] = (
-				( a in helps )
-				? nicePrint(`${a}{d} - ${helps[a]}`, { output: "return" }).trim()
-				: a
+				( choices[a] !== "---" )
+				? nicePrint(`${a}{d} - ${choices[a]}`, { output: "return" }).trim()
+				: choices[a]
 			)
 		})
 		const choice = await askList("Choose action", choices, { returnType: "key" })
+		// const choiceIndex = choice[0]
+		// const action = actions[ choiceIndex ]
+		// console.log( actions, choiceIndex );
 		commands.run( choice )
 	}
 })

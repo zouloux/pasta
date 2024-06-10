@@ -3,7 +3,7 @@ import { untab } from "@zouloux/ecma-core";
 import { Directory } from "@zouloux/files";
 import { loadDotEnv } from "./_common.js";
 
-export async function generateSSLCommand ( projectName ) {
+export async function generateSSLCommand ( projectName, printSuccessMessage = true ) {
 	// Test if mkcert is installed
 	if ( !execSync(`mkcert --version`, 0) ) {
 		nicePrint(untab(`
@@ -34,5 +34,6 @@ export async function generateSSLCommand ( projectName ) {
 	dotEnvContent = dotEnvContent.replace(/^PASTA_HOSTNAME=.*$/gm, `PASTA_HOSTNAME=${hostName}`);
 	dotEnvFile.content(dotEnvContent)
 	await dotEnvFile.save()
-	nicePrint(`{b/g}SSL certificates saved in ${certsPath}`)
+	if ( printSuccessMessage )
+		nicePrint(`{b/g}SSL certificates saved in ${certsPath}`)
 }

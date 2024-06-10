@@ -12,7 +12,7 @@ echo ""
 echo "This script will :"
 echo "- Install your ssh public key"
 echo "- Disable SSH password access (optional)"
-echo "- Change SSH default port"
+echo "- Change SSH default port (optional)"
 echo ""
 read -p "Do you want to continue ? (y/n) " choice
 if [ "$choice" != "y" ]; then
@@ -23,7 +23,7 @@ fi
 read -p "Enter your public SSH key: " sshKey
 
 # Ask for the new SSH port
-read -p "Enter a new SSH port (between 2000 and 3000): " sshPort
+read -p "Enter a new SSH port (between 2000 and 3000, empty to keep 22): " sshPort
 if [[ $sshPort -le 2000 || $sshPort -ge 3000 ]]; then
   echo "$sshPort is invalid"
   read -p "$sshPort will be set to default port 22. Do you want to continue ? (y/n) " choice

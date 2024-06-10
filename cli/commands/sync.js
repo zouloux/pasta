@@ -9,10 +9,8 @@ export async function syncCommand ( config, branch, direction ) {
 	if ( !directions.includes(direction) )
 		direction = await askList("Direction", [ "pull", "push" ], { returnType: "value" })
 	// Check if direction allowed in config
-	if ( !!sync && sync !== "both" ) {
-		if ( sync !== direction )
-			nicePrint(`{r}Sync direction {b/r}${direction}{r} is disabled for branch {b/r}${branch}`, { code: 1 })
-	}
+	if ( sync !== "both" && direction !== sync )
+		nicePrint(`{r}Sync direction {b/r}${direction}{r} is disabled for branch {b/r}${branch}`, { code: 1 })
 	// Ask confirmation for main branch push
 	if ( branch === "main" && direction === "push" ) {
 		nicePrint(`{b/r}You are going to erase production data. Are you sure ?`)

@@ -12,9 +12,9 @@ const __dirname = dirname(__filename);
 
 export async function initCommand () {
 	clearScreen()
-	const projectName = await askInput("Project name", { defaultValue: "project-name" })
-	const hostDomain = await askInput("Host domain", { defaultValue: "" })
-	const hostPort = await askInput("Host SSH port", { defaultValue: 22 })
+	const hostDomain = await askInput("Pasta server domain")
+	const hostPort = await askInput("Pasta server SSH port", { defaultValue: 22 })
+	const projectName = await askInput("Project name on Pasta server", { defaultValue: "project-name" })
 
 	const createCI = await askList("Create CI file", {
 		no: "No",
@@ -39,7 +39,7 @@ export async function initCommand () {
 		    host: ${hostDomain}
 		    port: ${hostPort}
 		    project: ${projectName}
-		    #key: pasta.key
+		    key: pasta.key
 		    #user: root
 		    files:
 		      - docker-compose.common.yaml
@@ -50,7 +50,7 @@ export async function initCommand () {
 		    domain: ${projectName}-preview
 		    password: "login:pass"
 		    data: preview
-		    sync: "pull"
+		    sync: "both"
 		  main:
 		    domain: ${projectName}
 		    data: main
@@ -108,7 +108,7 @@ export async function initCommand () {
 		    environment:
 		      VIRTUAL_PORT: 3000
     `))
-	dockerComposeCommonFile.save()
+	await dockerComposeCommonFile.save()
 
 	const dockerComposePastaFile = await File.create("docker-compose.pasta.yaml")
 	dockerComposePastaFile.content(untab(`
@@ -126,7 +126,7 @@ export async function initCommand () {
 		    networks:
 		      - pasta
 	`))
-	dockerComposePastaFile.save()
+	await dockerComposePastaFile.save()
 
 	const dockerComposeFile = await File.create("docker-compose.yaml")
 	dockerComposeFile.content(untab(`
@@ -143,7 +143,7 @@ export async function initCommand () {
 		    environment:
 		      VIRTUAL_HOST: "$PASTA_PROJECT_NAME.ssl.localhost,localhost,$PASTA_HOSTNAME.local"
 	`))
-	dockerComposeFile.save()
+	await dockerComposeFile.save()
 
 	if ( createCI === "gitea" ) {
 		const giteaFile = await File.create(".gitea/workflows/ci.yaml")
@@ -186,10 +186,8 @@ export async function initCommand () {
 		join(process.cwd(), "dist", "bun-example.js")
 	)
 
-	await generateSSLCommand( projectName )
+	await generateSSLCommand( projectName, false )
 	newLine()
-
 	nicePrint(`{b/g}Pasta project created ✨`)
-	newLine()
 	openCommand( projectName )
 }
