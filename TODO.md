@@ -25,3 +25,17 @@
 ## pasta init
 - github ci example
 - gitlab ci example
+
+- add `.proxy/certs` to .gitignore if not already 
+- add `.env` to .gitignore if not already
+- add `pasta.key` if not already
+
+
+## pasta server command
+- `pasta server add <endpoint?>`
+- `pasta server remove <hostname?>`
+- `pasta server stats <hostname?>`
+- `pasta server stats all` ( should gracefully fail if any cannot connect )
+- `pasta server connect <hostname?>`
+
+- `pasta server init` should have selection to registered pasta server

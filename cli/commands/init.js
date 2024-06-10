@@ -44,6 +44,7 @@ export async function initCommand () {
 		    files:
 		      - docker-compose.common.yaml
 		      - docker-compose.pasta.yaml
+		      - .proxy/nginx.conf
 		      - .env
 		      - dist/
 		  preview:

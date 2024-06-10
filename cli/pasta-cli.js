@@ -48,11 +48,10 @@ commands.add("sync", async () => {
 })
 
 
-commands.add("server", async () => {
-	// const { config, branch } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
-	// syncCommand( config, branch, commands.parsedArgs.arguments[2] )
-	serverCommand( commands.parsedArgs.arguments[1], commands.parsedArgs.arguments[2] )
-})
+// TODO : Finish
+// commands.add("server", async () => {
+// 	serverCommand( commands.parsedArgs.arguments[1], commands.parsedArgs.arguments[2] )
+// })
 
 // commands.add("help", async () => {
 // 	newLine()
