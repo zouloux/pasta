@@ -11,7 +11,7 @@ echo ""
 
 echo "This script will :"
 echo "- Install your ssh public key"
-echo "- Disable SSH password access"
+echo "- Disable SSH password access (optional)"
 echo "- Change SSH default port"
 echo ""
 read -p "Do you want to continue ? (y/n) " choice
@@ -31,6 +31,9 @@ if [[ $sshPort -le 2000 || $sshPort -ge 3000 ]]; then
   sshPort=22
 fi
 
+# Ask if password access should be kept or removed
+read -p "Do you want to disable SSH password access? (y/n) " disablePasswordAccess
+
 echo "Installing SSH key ..."
 mkdir -p ~/.ssh
 echo "$sshKey" >> ~/.ssh/authorized_keys
@@ -38,8 +41,12 @@ chmod 600 ~/.ssh/authorized_keys > /dev/null 2>&1
 
 echo "Saving SSH config ..."
 sed -i "s/^#Port 22/Port $sshPort/" /etc/ssh/sshd_config
-sed -i "s/^#PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
-sed -i "s/^#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
+
+if [ "$disablePasswordAccess" == "y" ]; then
+  sed -i "s/^#PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
+  sed -i "s/^#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
+fi
+
 # Delete the default password config (Ionos only)
 rm -f /etc/ssh/sshd_config.d/50-cloud-init.conf > /dev/null 2>&1
 

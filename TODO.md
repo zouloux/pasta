@@ -15,8 +15,7 @@
 #### Prepare SSH script
 - allow to keep password login
 
-#### Config
-- Move `/root/.config/pasta` to `/usr/local/pasta` ? or `/etc/pasta` ?
+
 
 
 ## CLI
@@ -30,3 +29,6 @@
 #### init
 - github ci example
 - gitlab ci example
+
+#### Nginx config
+- Allow `.proxy/nginx.conf` to be moved automatically to `$domain` on deploy.
