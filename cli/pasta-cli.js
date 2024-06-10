@@ -7,6 +7,7 @@ import { generateSSLCommand } from "./commands/generate-ssl.js";
 import { openCommand } from "./commands/open.js";
 import { syncCommand } from "./commands/sync.js";
 import { patchKey } from "./commands/patch-key.js";
+import { serverCommand } from "./commands/server.js";
 
 const commands = new CLICommands({})
 
@@ -44,6 +45,13 @@ commands.add("deploy", async () => {
 commands.add("sync", async () => {
 	const { config, branch } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
 	syncCommand( config, branch, commands.parsedArgs.arguments[2] )
+})
+
+
+commands.add("server", async () => {
+	// const { config, branch } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
+	// syncCommand( config, branch, commands.parsedArgs.arguments[2] )
+	serverCommand( commands.parsedArgs.arguments[1], commands.parsedArgs.arguments[2] )
 })
 
 // commands.add("help", async () => {

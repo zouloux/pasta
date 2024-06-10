@@ -4,7 +4,7 @@ services:
     container_name: "proxy-nginx"
     restart: always
     environment:
-      HTTPS_METHOD: redirect
+      HTTPS_METHOD: noredirect
       DISABLE_ACCESS_LOGS: true
     ports:
       - "80:80"
@@ -12,9 +12,8 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - /etc/nginx/htpasswd:/etc/nginx/htpasswd
+      - /etc/nginx/vhost.d:/etc/nginx/vhost.d
       - ./data/certs/:/etc/nginx/certs
-      - ./data/vhost/:/etc/nginx/vhost.d
-      - ./data/html/:/usr/share/nginx/html
       - ./config/nginx.conf:/etc/nginx/conf.d/proxy.conf:ro
     networks:
       - "pasta"

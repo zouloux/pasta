@@ -74,9 +74,12 @@ echo "PASTA_BUILD=$buildNumber" >> $dotEnv
 if [ -n "$domain" ]; then
   # Remove virtual host from dot env
   sed -i '/^VIRTUAL_HOST=/d' $dotEnv
-  # Has a dot, it's a full-domain
-  # No dot, it's a sub-domain
-  if [[ "$domain" != *"."* ]]; then
+  # If it's a dot, it's the main pasta domain
+  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
+  # No dot, it's a sub-domain of the main pasta domain
+  if [[ "$domain" == "." ]]; then
+    domain="$PASTA_DOMAIN"
+  elif [[ "$domain" != *"."* ]]; then
     domain="$domain.$PASTA_DOMAIN"
   fi
   echo "Domain is $domain"

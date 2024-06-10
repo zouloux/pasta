@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Getting main disk total size and usage
+disk_info=$(df -B1 / | grep '^/' | awk '{total+=$2; used+=$3} END {print total, used}')
+disk_total=$(echo $disk_info | awk '{print $1}')
+disk_used=$(echo $disk_info | awk '{print $2}')
+
+# Getting total RAM and usage
+mem_info=$(free -b | grep Mem)
+ram_total=$(echo $mem_info | awk '{print $2}')
+ram_used=$(echo $mem_info | awk '{print $3}')
+
+# Getting CPU info
+cpu_total=$(nproc)
+
+# Calculate CPU usage
+cpu_idle_before=$(awk '/^cpu / {print $5}' /proc/stat)
+cpu_total_before=$(awk '/^cpu / {print $2+$3+$4+$5+$6+$7+$8}' /proc/stat)
+sleep 0.5
+cpu_idle_after=$(awk '/^cpu / {print $5}' /proc/stat)
+cpu_total_after=$(awk '/^cpu / {print $2+$3+$4+$5+$6+$7+$8}' /proc/stat)
+
+cpu_idle=$((cpu_idle_after - cpu_idle_before))
+cpu_total_diff=$((cpu_total_after - cpu_total_before))
+cpu_usage=$(awk "BEGIN {print (1 - $cpu_idle / $cpu_total_diff) * 100}")
+
+# Creating JSON output
+json_output="{"
+json_output+="\"diskTotal\": $(printf "%.0f" $disk_total),"
+json_output+="\"diskUsed\": $(printf "%.0f" $disk_used),"
+json_output+="\"ramTotal\": $ram_total,"
+json_output+="\"ramUsed\": $ram_used,"
+json_output+="\"cpuTotal\": $cpu_total,"
+json_output+="\"cpuUsed\": $(printf "%.2f" $cpu_usage)"
+json_output+="}"
+
+echo $json_output

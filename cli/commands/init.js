@@ -95,8 +95,7 @@ export async function initCommand () {
 		      - "/var/run/docker.sock:/tmp/docker.sock:ro"
 		      - "./.proxy/certs:/etc/nginx/certs"
 		      - "./.proxy/nginx.conf:/etc/nginx/conf.d/proxy.conf:ro"
-		    logging:
-		      driver: "none"
+		    attach: false
 		  front:
 		    image: "oven/bun:alpine"
 		    working_dir: "/app"
@@ -107,6 +106,7 @@ export async function initCommand () {
 		      - "\${PASTA_DATA}/front:/root/data"
 		    environment:
 		      VIRTUAL_PORT: 3000
+		      HTTPS_METHOD: redirect
     `))
 	await dockerComposeCommonFile.save()
 

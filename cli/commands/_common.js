@@ -1,6 +1,7 @@
 import { File } from "@zouloux/files"
 import { askList, nicePrint } from "@zouloux/cli";
 import { parse } from "yaml"
+import Preferences from "preferences"
 
 const dotEnvFileName = ".env"
 const configFileName = "pasta.yaml"
@@ -115,4 +116,14 @@ export async function getKeyCommand ( keyPath ) {
 		return ""
 	}
 	return ` -i ${keyFile.path} -o IdentitiesOnly=yes`
+}
+
+// ----------------------------------------------------------------------------- PREFERENCES
+
+export function getPreferences () {
+	return new Preferences('zouloux.pasta', {
+		ready: false
+	}, {
+		encrypt: false
+	})
 }
