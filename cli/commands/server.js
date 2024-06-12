@@ -1,16 +1,22 @@
 import { execSync, newLine, askInput, nicePrint, execAsync, askList, clearScreen } from "@zouloux/cli";
 import { getPreferences } from "./_common.js";
 import { spawn } from "node:child_process";
+import { delay } from "@zouloux/ecma-core";
 
 function getServerStats ( endpoint ) {
 	const { user, host, port } = parseServerEndpoint( endpoint )
-	const command = `ssh -p ${port} ${user}@${host} "/root/stats.sh"`
+	const command = `ssh -p ${port} ${user}@${host} "host-stats-json"`
 	const rawStats = execSync(command)
-	return JSON.parse( rawStats )
+	try {
+		return JSON.parse( rawStats )
+	}
+	catch (e) {
+		return false
+	}
 }
 
-function parseServerEndpoint ( endpoint ) {
-	let parts = endpoint.split("@")
+export function parseServerEndpoint ( endpoint ) {
+	let parts = endpoint.toLowerCase().split("@")
 	if ( !parts[1] ) {
 		parts[1] = parts[0]
 		parts[0] = "root"
@@ -27,7 +33,11 @@ function generateRamUsageBar(usagePercent, width) {
 	return '[' + '█'.repeat(filledLength) + ' '.repeat(emptyLength) + ']';
 }
 
-function showServerStats ( statsData ) {
+function showServerStats ( statsData, serverName ) {
+	if ( !statsData ) {
+		nicePrint(`{b/r}Unable to get stats from ${serverName}`)
+		return
+	}
 	const terminalWidth = process.stdout.columns;
 	const barWidth = terminalWidth - 30;
 	// CPU
@@ -47,21 +57,22 @@ function showServerStats ( statsData ) {
 }
 
 function showAllServerStats () {
-	nicePrint(`{d}Loading all server stats ...`)
+	nicePrint(`{d}Updating ...`)
 	const serverStats = {}
 	const servers = listRegisteredServers()
-	Object.keys( servers ).forEach( key => {
-		serverStats[ key ] = getServerStats( servers[ key ] )
+	Object.keys( servers ).forEach( serverName => {
+		serverStats[ serverName ] = getServerStats( servers[ serverName ] )
 	})
 	clearScreen( false )
-	Object.keys( serverStats ).forEach( key => {
-		nicePrint(`{b}${key}`)
-		const statsData = serverStats[ key ]
-		showServerStats( statsData )
+	Object.keys( serverStats ).forEach( serverName => {
+		nicePrint(`{b}ℹ️ ${serverName}{d} - ${servers[serverName]}`)
+		newLine()
+		const statsData = serverStats[ serverName ]
+		showServerStats( statsData, serverName )
 	})
 }
 
-function listRegisteredServers () {
+export function listRegisteredServers () {
 	const preferences = getPreferences()
 	return preferences.servers ?? {}
 }
@@ -70,12 +81,16 @@ async function askServer ( serverName ) {
 	const servers = listRegisteredServers()
 	if ( serverName in servers )
 		return serverName
-	return await askList("Which server ?", Object.keys(servers), { returnType: "value" })
+	return await askList("Which registered server ?", Object.keys(servers), { returnType: "value" })
 }
 
 function getServerByName ( serverName ) {
 	const servers = listRegisteredServers()
 	return servers[ serverName ]
+}
+
+async function askForOtherServer () {
+	return await askInput("Enter server endpoint ( user@host:port )")
 }
 
 export async function serverCommand ( action, serverName ) {
@@ -91,7 +106,7 @@ export async function serverCommand ( action, serverName ) {
 	// ------------------------------------------------------------------------- ADD / REMOVE SERVER
 	else if ( action === "add" ) {
 		// Ask for server endpoint to add
-		const endpoint = await askInput("Server endpoint ( user@host:port )")
+		const endpoint = await askForOtherServer()
 		const { port, user, host } = parseServerEndpoint( endpoint )
 		// Call hostname on this server
 		const command = `ssh -p ${port} ${user}@${host} "hostname"`
@@ -99,27 +114,47 @@ export async function serverCommand ( action, serverName ) {
 		let hostname = ""
 		const reconstructedEndpoint = `${user}@${host}:${port}`
 		try {
-			hostname = await execAsync( command, 3 )
+			hostname = await execAsync( command, 0 )
 			hostname = hostname.trim()
 		}
 		// Cannot connect
 		catch ( e ) {
+			console.error( e )
 			nicePrint(`{b/r}Unable to connect to ${reconstructedEndpoint}`, { code: 1 })
 		}
 		// Invalid endpoint
 		if ( !hostname )
 			nicePrint(`{b/r}Invalid hostname on ${reconstructedEndpoint}`, { code: 1 })
-		// Save server to preferences
-		const preferences = getPreferences()
-		const servers = preferences.servers ?? {}
-		servers[ hostname ] = reconstructedEndpoint
-		preferences.servers = servers
-		preferences.save()
+		// Ask hostname and save
+		async function handleHostname () {
+			const preferences = getPreferences()
+			const servers = preferences.servers ?? {}
+			const baseHostname = hostname
+			hostname = await askInput(`Optionally change server name`, { defaultValue: baseHostname, notEmpty: true })
+			// Save server to preferences
+			if ( hostname in servers ) {
+				nicePrint(`{o/b}Name ${ hostname } is already used`)
+				handleHostname()
+				return
+			}
+			servers[ hostname ] = reconstructedEndpoint
+			preferences.servers = servers
+			preferences.save()
+			nicePrint(`{b/g}Saved`)
+		}
+		handleHostname()
 	}
 	else if ( action === "remove" ) {
-		const server = await askServer( serverName )
-		console.log( server );
-		// todo : ask confirm
+		serverName = await askServer( serverName )
+		const answer = await askList(`Are you sure to remove ${serverName}?`, ['No', 'Yes'], { returnType: "index" })
+		if ( answer === 0 )
+			return
+		const preferences = getPreferences()
+		const servers = preferences.servers ?? {}
+		delete servers[ serverName ]
+		preferences.servers = servers
+		preferences.save()
+		nicePrint(`{b/g}Saved`)
 	}
 
 	// ------------------------------------------------------------------------- CONNECT
@@ -138,11 +173,13 @@ export async function serverCommand ( action, serverName ) {
 		serverName = await askServer( serverName )
 		const server = getServerByName( serverName )
 		const serverStats = getServerStats( server )
-		showServerStats( serverStats )
+		showServerStats( serverStats, serverName )
 	}
 	else if ( action === "all-stats" ) {
+		clearScreen(false)
 		async function updateStatsScreen () {
 			showAllServerStats()
+			await delay(2)
 			updateStatsScreen()
 		}
 		updateStatsScreen()
@@ -150,7 +187,7 @@ export async function serverCommand ( action, serverName ) {
 
 	// ------------------------------------------------------------------------- MENU
 	else {
-		const choice = await askList(`Which action ?`, {
+		const choice = await askList(`Which server action ?`, {
 			list: nicePrint(`list - {d}List all registered Pasta Servers`, { output: "return" }).trim(),
 			add: nicePrint(`add - {d}Register a new Pasta Server`, { output: "return" }).trim(),
 			remove: nicePrint(`remove - {d}Unregister a Pasta Server`, { output: "return" }).trim(),

@@ -2,9 +2,31 @@ import { File } from "@zouloux/files"
 import { askList, nicePrint } from "@zouloux/cli";
 import { parse } from "yaml"
 import Preferences from "preferences"
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
 const dotEnvFileName = ".env"
-const configFileName = "pasta.yaml"
+export const pastaConfigFileName = "pasta.yaml"
+
+// ----------------------------------------------------------------------------- PACKAGE
+
+export function relativeDirname ( importMetaURL ) {
+	const __filename = fileURLToPath(import.meta.url);
+	return dirname(__filename);
+}
+
+export function getPackageVersion() {
+	try {
+		const filePath = join(relativeDirname(import.meta.url), '../', 'package.json');
+		const data = readFileSync(filePath, 'utf8');
+		const packageJson = JSON.parse(data);
+		return packageJson.version;
+	} catch (error) {
+		console.error('Error reading package.json:', error);
+		return null;
+	}
+}
 
 // ----------------------------------------------------------------------------- DOT ENV
 
@@ -33,37 +55,37 @@ export async function getProjectNameFromDotEnv () {
 // ----------------------------------------------------------------------------- CONFIG
 
 export async function hasConfig () {
-	const configFile = await File.create( configFileName )
+	const configFile = await File.create( pastaConfigFileName )
 	return await configFile.exists()
 }
 
 export async function loadConfig (  ) {
-	const config = await readProjectConfig( configFileName )
+	const config = await readProjectConfig( pastaConfigFileName )
 	if ( !config ) {
-		nicePrint(`{b/r}${configFileName} file not found in ${process.cwd}`, { code: 1 })
+		nicePrint(`{b/r}${pastaConfigFileName} file not found in ${process.cwd}`, { code: 1 })
 	}
 	return config
 }
 
 export async function readProjectConfig () {
-	const configFile = await File.create( configFileName )
+	const configFile = await File.create( pastaConfigFileName )
 	if ( ! await configFile.exists() )
-		nicePrint(`{b/r}${configFileName} file not found in ${process.cwd}`, { code: 1 })
+		nicePrint(`{b/r}${pastaConfigFileName} file not found in ${process.cwd}`, { code: 1 })
 	try {
 		await configFile.load()
 	}
 	catch ( e ) {
-		nicePrint(`{r}Unable to load {b}${configFileName}{/r} file.\n${e.message}`, { code: 1 })
+		nicePrint(`{r}Unable to load {b}${pastaConfigFileName}{/r} file.\n${e.message}`, { code: 1 })
 	}
 	let config
 	try {
 		config = parse( configFile.data )
 	}
 	catch ( e ) {
-		nicePrint(`{r}Invalid {b}${configFileName}{/r} file. Syntax error.\n${e.message}`, { code: 1 })
+		nicePrint(`{r}Invalid {b}${pastaConfigFileName}{/r} file. Syntax error.\n${e.message}`, { code: 1 })
 	}
 	if ( typeof config.branches !== "object" )
-		nicePrint(`{r}Invalid {b}${configFileName}{/r} file. Missing {b/r}branches{/r} object.`, { code: 1 })
+		nicePrint(`{r}Invalid {b}${pastaConfigFileName}{/r} file. Missing {b/r}branches{/r} object.`, { code: 1 })
 	return config
 }
 

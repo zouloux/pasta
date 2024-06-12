@@ -1,26 +1,48 @@
 import { Directory, File } from "@zouloux/files"
-import { fileURLToPath } from 'url';
 import { askInput, askList, execSync, newLine, nicePrint, clearScreen } from "@zouloux/cli";
 import { untab } from "@zouloux/ecma-core";
 import { copyFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join } from "node:path";
 import { generateSSLCommand } from "./generate-ssl.js";
 import { openCommand } from "./open.js";
+import { pastaConfigFileName, relativeDirname } from "./_common.js";
+import { listRegisteredServers, parseServerEndpoint } from "./server.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+async function askForOtherServer () {
+	const serverHost = await askInput("Enter Pasta Server host")
+	const serverPort = await askInput("Enter Pasta Server port", { defaultValue: 22 })
+	return `root@${serverHost}:${serverPort}`.toLowerCase()
+}
 
 export async function initCommand () {
-	clearScreen()
-	const hostDomain = await askInput("Pasta server domain")
-	const hostPort = await askInput("Pasta server SSH port", { defaultValue: 22 })
-	const projectName = await askInput("Project name on Pasta server", { defaultValue: "project-name" })
+	clearScreen( false )
+
+	const servers = listRegisteredServers()
+	const serverNames = Object.keys(servers)
+	let pastaServer
+	if ( serverNames.length === 0 ) {
+		pastaServer = await askForOtherServer()
+	}
+	else {
+		const index = await askList(`Please select which Pasta Server to use`, [
+			...serverNames,
+			"✚ Another one"
+		], { returnType: "index" })
+		if ( index >= serverNames.length ) {
+			pastaServer = await askForOtherServer()
+		}
+		else {
+			pastaServer = servers[ serverNames[index] ]
+		}
+	}
+	const projectName = await askInput("Project name created on Pasta server", { defaultValue: "project-name" })
+	const { host, port } = parseServerEndpoint( pastaServer )
 
 	const createCI = await askList("Create CI file", {
-		no: "No",
-		gitea: "Gitea / Github",
-		// github: "Github", // TODO the same as Gitea ?
-		gitlab: "Gitlab ( coming soon )", // TODO
+		no: "No - Yolo",
+		gitea: "Gitea",
+		github: "Github",
+		gitlab: "Gitlab",
 	}, { returnType: "key" })
 
 	const localHostname = execSync('hostname').trim()
@@ -32,15 +54,21 @@ export async function initCommand () {
 	const distDir = await Directory.create("dist")
 	await distDir.create()
 
-	const pastaConfigFile = await File.create("pasta.yaml")
+	const pastaConfigFile = await File.create(pastaConfigFileName)
 	pastaConfigFile.content(untab(`
 		branches:
+		  # Shared between all branches
 		  _defaults:
-		    host: ${hostDomain}
-		    port: ${hostPort}
+		    # Pasta server config
+		    host: ${host}
+		    port: ${port}
+		    # Project name on pasta server
 		    project: ${projectName}
-		    key: pasta.key
+		    # Key to use for deploy and sync
+		    key: .pasta.key
+		    # Use root user and not project user
 		    #user: root
+		    # Files to transfer in the artefact
 		    files:
 		      - docker-compose.common.yaml
 		      - docker-compose.pasta.yaml
@@ -48,11 +76,16 @@ export async function initCommand () {
 		      - .env
 		      - dist/
 		  preview:
+		    # Domain to deploy to. You can use full domain, or a sub-domain
 		    domain: ${projectName}-preview
+		    # Setup an HTTP login / password on this branch
 		    password: "login:pass"
-		    data: preview
+		    # By default, data goes to branch directory, but it can be shared with other branches
+		    # data: main
 		    sync: "both"
+		  # Production branch
 		  main:
+		    # Production domain. Set "." to use the root $PASTA_DOMAIN
 		    domain: ${projectName}
 		    data: main
 		    sync: "pull"
@@ -146,11 +179,10 @@ export async function initCommand () {
 	`))
 	await dockerComposeFile.save()
 
-	if ( createCI === "gitea" ) {
-		const giteaFile = await File.create(".gitea/workflows/ci.yaml")
+	if ( createCI === "gitea" || createCI === "github" ) {
+		const giteaFile = await File.create(`.${createCI}/workflows/ci.yaml`)
 		await giteaFile.ensureParents()
 		giteaFile.content(untab(`
-			# https://docs.gitea.com/usage/actions/actions-variables
 			name: "Deploy"
 			on:
 			  push:
@@ -172,20 +204,58 @@ export async function initCommand () {
 			          chmod 600 ~/.ssh/id_ed25519
 			      - name: "Build"
 			        run: |
-			          echo "Implement build step"
-			      - name: "Deploy to server"
-			        run: |
 			          branch=\${{ github.ref }}
 			          mv ".env.$branch" .env
-			          pasta deploy $branch
+			          echo "TODO : implement build steps ..."
+			      - name: "Deploy to server"
+			        run: |
+			          pasta deploy
 		`))
 		await giteaFile.save()
 	}
+	else if ( createCI === "gitlab" ) {
+		const gitlabFile = await File.create(`.gitlab-ci.yml`)
+		gitlabFile.content(untab(`
+			variables:
+			  BRANCH: $CI_COMMIT_REF_NAME
+			  GIT_SUBMODULE_STRATEGY: recursive
+			image:
+			  name: zouloux/docker-debian-ci
+			stages:
+			  - deploy
+			default:
+			  before_script:
+			    - mkdir -p ~/.ssh
+			    - echo SSH_PRIVATE | tr " " "\\n" > ~/.ssh/id_ed25519
+			    - chmod 600 ~/.ssh/id_ed25519
+			job:deploy:
+			  stage: deploy
+			  only:
+			    - preview
+			    - main
+			  script:
+			    - mv ".env.$BRANCH" .env
+			    - echo "TODO : implement build steps ..."
+			    - pasta deploy
+		`))
+		await gitlabFile.save()
+	}
 
 	copyFileSync(
-		join(__dirname, "..", "bun-example.js"),
+		join(relativeDirname( import.meta.url ), "..", "bun-example.js"),
 		join(process.cwd(), "dist", "bun-example.js")
 	)
+
+	const gitignore = await File.create(".gitignore")
+	await gitignore.load()
+	if ( gitignore.content().indexOf("# Pasta ignore") === -1 ) {
+		gitignore.append(untab(`
+			# Pasta ignore
+			.proxy/certs
+			.env
+			.pasta.key
+		`))
+	}
 
 	await generateSSLCommand( projectName, false )
 	newLine()

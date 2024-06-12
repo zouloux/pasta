@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { CLICommands, askList, nicePrint, newLine, execSync } from "@zouloux/cli"
-import { hasConfig, targetBranchConfig, getProjectNameFromDotEnv } from "./commands/_common.js";
+import { CLICommands, askList, nicePrint, execSync } from "@zouloux/cli"
+import { hasConfig, targetBranchConfig, getProjectNameFromDotEnv, getPackageVersion } from "./commands/_common.js";
 import { initCommand } from "./commands/init.js";
 import { deployCommand } from "./commands/deploy.js";
 import { generateSSLCommand } from "./commands/generate-ssl.js";
@@ -93,20 +93,21 @@ commands.add("server", async () => {
 // 	`)
 // })
 
-commands.before( () => nicePrint(`{c/b}Pasta Devops{d} - CLI`) )
+commands.before( () => nicePrint(`{c/b}Pasta Devops{d} - CLI - ${getPackageVersion()}`) )
 
 commands.start( async (commandName) => {
 	if ( !commands.exists(commandName) ) {
 		const choices = {
 			init: "Create a new Pasta project in current directory.",
-			// "---0": "---",
+			"---0": "---",
 			open: "Show links to open current project on local or mobile device.",
-			'generate-ssl': "Re-generate SSL keys for local https.",
-			'patch-key': "Try to patch deployment key.",
 			deploy: "Deploy project branch to server.",
 			sync: "Synchronize branch data between server and local.",
-			// "---1": "---",
-			//server: "Manage servers"
+			"---1": "---",
+			'generate-ssl': "Re-generate SSL keys for local https.",
+			'patch-key': "Try to patch deployment key.",
+			"---2": "---",
+			server: "Manage servers"
 		}
 		// commands.list().forEach( a => {
 		const actions = Object.keys(choices)
@@ -117,10 +118,9 @@ commands.start( async (commandName) => {
 				: choices[a]
 			)
 		})
-		const choice = await askList("Choose action", choices, { returnType: "key" })
-		// const choiceIndex = choice[0]
-		// const action = actions[ choiceIndex ]
-		// console.log( actions, choiceIndex );
-		commands.run( choice )
+		const choice = await askList("Choose action", choices, { returnType: "index" })
+		const actionsWithoutSeparators = actions.filter( a => !a.startsWith("---") )
+		const action = actionsWithoutSeparators[ choice ]
+		commands.run( action )
 	}
 })

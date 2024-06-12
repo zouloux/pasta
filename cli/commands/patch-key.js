@@ -1,9 +1,12 @@
 import { execSync, nicePrint } from "@zouloux/cli";
 import { File } from "@zouloux/files";
+import { pastaConfigFileName } from "./_common.js";
 
 
 export async function patchKey ( config ) {
 	const keyPath = config.key ?? ""
+	if ( !keyPath )
+		nicePrint(`{b/r}No key specified in ${pastaConfigFileName}`, { code: 1 })
 	const keyFile = await File.create( keyPath )
 	const keyExists = await keyFile.exists()
 	if ( !keyExists )

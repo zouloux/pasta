@@ -5,6 +5,7 @@ pastaBinDir="/usr/local/pasta/bin"
 chmod -R 0700 $pastaBinDir
 chmod 0755 $pastaBinDir
 chmod 0755 "$pastaBinDir/docker-restart"
+chmod 0755 "$pastaBinDir/host-stats-json"
 chmod 0755 "$pastaBinDir/project-deploy"
 chmod 0755 "$pastaBinDir/project-clean"
 chmod 0755 "$pastaBinDir/project-remove-branch"
