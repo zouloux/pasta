@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { CLICommands, askList, nicePrint, newLine } from "@zouloux/cli"
+import { CLICommands, askList, nicePrint, newLine, execSync } from "@zouloux/cli"
 import { hasConfig, targetBranchConfig, getProjectNameFromDotEnv } from "./commands/_common.js";
 import { initCommand } from "./commands/init.js";
 import { deployCommand } from "./commands/deploy.js";
@@ -38,7 +38,17 @@ commands.add("patch-key", async () => {
 })
 
 commands.add("deploy", async () => {
-	const { config, branch } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
+	// Branch is given from argv
+	let gitBranch = commands.parsedArgs.arguments[1]
+	// Not found in argv, default is the current git branch
+	if ( !gitBranch ) {
+		try {
+			gitBranch = execSync(`git branch --show-current`, 0).trim()
+		}
+		catch ( e ) {}
+	}
+	// Still not found ? We ask for user
+	const { config, branch } = await targetBranchConfig( gitBranch )
 	await deployCommand( config, branch )
 })
 
@@ -49,9 +59,9 @@ commands.add("sync", async () => {
 
 
 // TODO : Finish
-// commands.add("server", async () => {
-// 	serverCommand( commands.parsedArgs.arguments[1], commands.parsedArgs.arguments[2] )
-// })
+commands.add("server", async () => {
+	serverCommand( commands.parsedArgs.arguments[1], commands.parsedArgs.arguments[2] )
+})
 
 // commands.add("help", async () => {
 // 	newLine()
