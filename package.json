@@ -7,7 +7,8 @@
     "doc": "doc"
   },
   "scripts": {
-    "docs-serve": "docsify serve docs"
+    "docs-serve": "static-http docs",
+    "publish-cli": "cd cli && ./publish.sh"
   },
   "keywords": [
     "Pasta",
@@ -16,6 +17,6 @@
   "author": "Alexis Bouhet - ZoulouX",
   "license": "MIT",
   "dependencies": {
-    "docsify-cli": "^4.4.4"
+    "@zouloux/static-http": "^1.0.1"
   }
 }
