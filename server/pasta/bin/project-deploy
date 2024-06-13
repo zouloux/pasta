@@ -111,10 +111,12 @@ if [ -n "$alias" ]; then
   pasta_alias:
     image: morbz/docker-web-redirect
     restart: unless-stopped
-    environments:
+    environment:
       VIRTUAL_HOST: $alias
       LETSENCRYPT_HOST: $alias
       REDIRECT_TARGET: $domain
+    networks:
+      - pasta
 "
   # Split docker compose around "services" declaration
   before=$(sed '/^services\s*:/q' $dockerComposeFile)
@@ -124,8 +126,6 @@ if [ -n "$alias" ]; then
   echo "$pasta_alias" >> $dockerComposeFile
   echo "$after" >> $dockerComposeFile
 fi
-
-cat $dockerComposeFile
 
 # Save domain as text for later deletion
 echo $domain > "$destinationBuildDir/domain.txt"
