@@ -2,7 +2,7 @@
 
 if [ $# -lt 2 ] || [ $# -gt 6 ]; then
   echo "Usage:"
-  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <alias> <login:password?>"
+  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <alias?> <login:password?>"
   exit 1
 fi
 
@@ -95,6 +95,7 @@ fi
 
 # Add alias service if alias is detected
 if [ -n "$alias" ]; then
+  echo "Setting up alias $alias ..."
   # If it's a dot, it's the main pasta domain
   # If it has a dot, it's a full-domain ( can be external to main pasta domain )
   # No dot, it's a sub-domain of the main pasta domain
