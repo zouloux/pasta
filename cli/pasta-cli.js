@@ -89,8 +89,8 @@ commands.start( async (commandName) => {
 			'generate-ssl': "Re-generate SSL keys for local https.",
 			'patch-key': "Try to patch deployment key.",
 			"---2": "---",
-			server: "Manage servers",
-			connect: nicePrint(`connect - {d}Start SSH connexion to a registered Pasta Server`, { output: "return" }).trim(),
+			server: "Manage registered servers",
+			connect: "Start SSH connexion to a registered Pasta Server",
 		}
 		// commands.list().forEach( a => {
 		const actions = Object.keys(choices)
