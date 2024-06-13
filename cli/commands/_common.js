@@ -121,6 +121,7 @@ export async function targetBranchConfig ( branchName ) {
 			data: branchName,
 			user: branchConfig.project,
 			password: "",
+			alias: "",
 			...branchConfig,
 		}
 	}
