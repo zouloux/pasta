@@ -55,7 +55,8 @@ if [ -f "$destinationBuildDir/docker-compose.pasta.yaml" ]; then
 fi
 
 # No docker compose file
-if [ ! -f "$destinationBuildDir/docker-compose.yaml" ]; then
+dockerComposeFile="$destinationBuildDir/docker-compose.yaml"
+if [ ! -f "$dockerComposeFile" ]; then
   echo "No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
   exit 1
 fi
@@ -104,22 +105,23 @@ if [ -n "$alias" ]; then
     alias="$alias.$PASTA_DOMAIN"
   fi
   echo "Setting up alias $alias ..."
-  replacement=$(cat <<EOF
-  services:
-    pasta_alias:
-      image: morbz/docker-web-redirect
-      restart: unless-stopped
-      environments:
-        VIRTUAL_HOST: $alias
-        LETSENCRYPT_HOST: $alias
-        REDIRECT_TARGET: $domain
-EOF
-)
-  sed -i "/^services\s*:/ {
-      s/^\s*services\s*:/services:/
-      a\\
-$replacement
-  }" docker-compose.yaml
+  pasta_alias="
+  pasta_alias:
+    image: morbz/docker-web-redirect
+    restart: unless-stopped
+    environments:
+      VIRTUAL_HOST: $alias
+      LETSENCRYPT_HOST: $alias
+      REDIRECT_TARGET: $domain
+"
+  # Split docker compose around "services" declaration
+  before=$(sed '/^services\s*:/q' $dockerComposeFile)
+  after=$(sed -n '/^services\s*:/,$p' $dockerComposeFile | tail -n +2)
+  # Recreate the docker compose file with injected alias
+  echo "$before" > $dockerComposeFile
+  echo "services:" >> $dockerComposeFile
+  echo "$pasta_alias" >> $dockerComposeFile
+  echo "$after" >> $dockerComposeFile
 fi
 
 # Save domain as text for later deletion
