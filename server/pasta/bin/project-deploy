@@ -95,7 +95,6 @@ fi
 
 # Add alias service if alias is detected
 if [ -n "$alias" ]; then
-  echo "Setting up alias $alias ..."
   # If it's a dot, it's the main pasta domain
   # If it has a dot, it's a full-domain ( can be external to main pasta domain )
   # No dot, it's a sub-domain of the main pasta domain
@@ -104,6 +103,7 @@ if [ -n "$alias" ]; then
   elif [[ "$alias" != *"."* ]]; then
     alias="$alias.$PASTA_DOMAIN"
   fi
+  echo "Setting up alias $alias ..."
   replacement="services:
     pasta_alias:
       image: morbz/docker-web-redirect
