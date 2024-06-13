@@ -46,9 +46,11 @@ if [ ! -f "$tarFile" ]; then
   exit 1
 fi
 mkdir -p $destinationBuildDir
+echo "Extracting $tarFile ..."
 if ! tar -xzf $tarFile -C $destinationBuildDir; then
-  echo "Failed to extract $tarFile"
+  echo "⚠ Failed to extract $tarFile"
   rm -f $tarFile
+  rm -rf $destinationBuildDir
   exit 1
 fi
 
@@ -68,7 +70,8 @@ fi
 dockerComposeFile="$destinationBuildDir/docker-compose.yaml"
 if [ ! -f "$dockerComposeFile" ]; then
   echo "⚠ No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
-  # TODO : Clean
+  rm -rf $destinationBuildDir
+  rm -f $tarFile
   exit 1
 fi
 
@@ -142,32 +145,10 @@ fi
 
 # ------------------------------------------------------------------------------ CHECK DOMAIN AVAILABILITY
 
-# Extract all reserved domains by other app or project
-reservedDomains=()
-for dir in $(ls -d /root/containers/apps/*); do
-  if [ -d "$dir" ]; then
-    echo "$dir"
-    appDomain=$(basename "$dir")
-    reservedDomains+=( "$appDomain.$PASTA_DOMAIN" )
-  fi
-done
-for file in $(find /root/containers/projects/*/branches/* -name domain.txt); do
-  if [ -f "$file" ]; then
-    echo "$file"
-    # todo : remove same project and same branch
-    projectDomain=$(cat "$file")
-    reservedDomains+=( "$projectDomain" )
-  fi
-done
-
-
-echo "Reserved ${reservedDomains[@]}"
-
-#if [[ " ${reservedDomains[@]} " =~ " ${domain} " || " ${reservedDomains[@]} " =~ " ${alias} " ]]; then
-#  echo "$myDomain is included in the array"
-#  exit 0
-# TODO : Clean
-#fi
+# TODO : Grab all used domains from all containers
+# TODO : Exclude current project with current branch
+# TODO : Check for $domain and $alias, should fail if any is already reserved
+# TODO : see grab-reserved-hostnames.sh
 
 # ------------------------------------------------------------------------------ INJECT DOT ENV
 
