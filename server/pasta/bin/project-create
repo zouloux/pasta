@@ -42,9 +42,6 @@ project-revoke-key $projectName
 #cat "$rootProjectRoot/keys/id_ed25519.pub" >> "$userProjectRoot/.ssh/authorized_keys"
 #cat "/root/.ssh/authorized_keys" >> "$userProjectRoot/.ssh/authorized_keys"
 
-echo "Copying pasta config into user directory ..."
-cp -r "/root/.config/pasta" "$userProjectRoot/.config/"
-
 echo "Configuring directories access ..."
 chown -h -R $username:$username $userProjectRoot
 chmod 770 -R $userProjectRoot
