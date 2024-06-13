@@ -51,18 +51,18 @@ async function getDeployConfig () {
 		catch ( e ) {}
 	}
 	// Still not found ? We ask for user
-	await targetBranchConfig( gitBranch )
+	return await targetBranchConfig( gitBranch )
 }
 
 commands.add("deploy", async () => {
-	const { config, branch } = getDeployConfig()
+	const { config, branch } = await getDeployConfig()
 	if ( config.noDirectDeploy )
 		nicePrint(`{b/r}Direct deployment is disabled for branch ${branch}. Use CI pipeline to deploy.`, { code: 1 })
 	await deployCommand( config, branch )
 })
 
 commands.add("ci", async () => {
-	const { config, branch } = getDeployConfig()
+	const { config, branch } = await getDeployConfig()
 	await deployCommand( config, branch )
 })
 
