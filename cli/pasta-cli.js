@@ -8,6 +8,7 @@ import { openCommand } from "./commands/open.js";
 import { syncCommand } from "./commands/sync.js";
 import { patchKey } from "./commands/patch-key.js";
 import { serverCommand } from "./commands/server.js";
+import { Directory } from "@zouloux/files";
 
 const commands = new CLICommands({})
 
@@ -41,7 +42,9 @@ commands.add("deploy", async () => {
 	// Branch is given from argv
 	let gitBranch = commands.parsedArgs.arguments[1]
 	// Not found in argv, default is the current git branch
-	if ( !gitBranch ) {
+	const gitDirectory = await Directory.create(".git")
+	const gitDirectoryExists = await gitDirectory.exists()
+	if ( !gitBranch && gitDirectoryExists ) {
 		try {
 			gitBranch = execSync(`git branch --show-current`, 0).trim()
 		}

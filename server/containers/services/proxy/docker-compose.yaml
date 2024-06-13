@@ -13,6 +13,7 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - /etc/nginx/htpasswd:/etc/nginx/htpasswd
       - /etc/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./data/html/:/usr/share/nginx/html
       - ./data/certs/:/etc/nginx/certs
       - ./config/nginx.conf:/etc/nginx/conf.d/proxy.conf:ro
     networks:
