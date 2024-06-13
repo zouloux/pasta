@@ -18,17 +18,25 @@ async function fetch(request) {
     `).join("")
 
 		const html = `
-      <h1>Hello Pasta</h1>
-      <div>Build: ${Bun.env.PASTA_BUILD}</div>
-      <div>Branch: ${Bun.env.PASTA_BRANCH}</div>
-      <hr />
-      <h3>Add Task</h3>
-      <form method="POST" action="/add-task">
-        <input type="text" name="name" required />
-        <button type="submit">Add</button>
-      </form>
-      <h2>Tasks</h2>
-      <ul>${taskList}</ul>
+<html lang="en">
+<head>
+  <title>Pasta bun test</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h1>Hello Pasta</h1>
+  <div>Build: ${Bun.env.PASTA_BUILD}</div>
+  <div>Branch: ${Bun.env.PASTA_BRANCH}</div>
+  <hr />
+  <h3>Add Task</h3>
+  <form method="POST" action="/add-task">
+	<input type="text" name="name" required />
+	<button type="submit">Add</button>
+  </form>
+  <h2>Tasks</h2>
+  <ul>${taskList}</ul>
+</body>
+</html>
     `
 		return new Response(html, { headers: { "Content-Type": "text/html" } })
 	}
