@@ -51,6 +51,10 @@ if [ "$(id -u)" -eq 0 ]; then
   echo ""
   echo "${bold}project-archive <project?>${normal} [ADMIN]"
   echo "  Archive a project and save data and keys to a tar.gz file."
+  echo ""
+  echo "${bold}project-revoke-key <project?>${normal} [ADMIN]"
+  echo "  Revoke access of current deploy key of a project and create a new deploy key."
+  echo "  Use cat to show the new deploy key"
 fi
 #echo ""
 #echo "${bold}project-deploy <project> <branch> <data-bucket?> <sub-domain|full-domain?>${normal} [CI]"

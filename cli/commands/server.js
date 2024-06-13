@@ -191,7 +191,6 @@ export async function serverCommand ( action, serverName ) {
 			list: nicePrint(`list - {d}List all registered Pasta Servers`, { output: "return" }).trim(),
 			add: nicePrint(`add - {d}Register a new Pasta Server`, { output: "return" }).trim(),
 			remove: nicePrint(`remove - {d}Unregister a Pasta Server`, { output: "return" }).trim(),
-			connect: nicePrint(`connect - {d}Start SSH connexion to a Pasta Server`, { output: "return" }).trim(),
 			stats: nicePrint(`stats - {d}Grab stats of a Pasta Server`, { output: "return" }).trim(),
 			'all-stats': nicePrint(`all-stats - {d}Grab stats all registered servers`, { output: "return" }).trim(),
 		}, { returnType: "key" })
