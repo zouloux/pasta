@@ -115,6 +115,8 @@ if [ -n "$alias" ]; then
       VIRTUAL_HOST: $alias
       LETSENCRYPT_HOST: $alias
       REDIRECT_TARGET: $domain
+      # 302 redirects
+      REDIRECT_TYPE: redirect
     networks:
       - pasta
 "
