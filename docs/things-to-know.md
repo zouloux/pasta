@@ -13,14 +13,14 @@
 
 ?> Don't worry, it's just naming, they are all just **Pasta Servers**.
 
-#### Pasta Master Servers
+### Master Pasta Servers
 
 Those server will host your Git repositories and some content services for your company.
 Also, some projects preview or labs elements if needed.
 
 > Basically no production website will run but only useful internal services
 
-#### Pasta Production Servers
+### Production Pasta Servers
 
 Will host only **production websites** and will not host Git repositories or content services.
 
@@ -29,4 +29,4 @@ Will host only **production websites** and will not host Git repositories or con
 
 ## Do what you want
 
-**Pasta** is just a set of scripts and conventions.
+**Pasta** is just a set of scripts and conventions, feel free to tweak it for your needs.

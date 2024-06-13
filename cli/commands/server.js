@@ -106,7 +106,7 @@ export async function serverCommand ( action, serverName ) {
 	// ------------------------------------------------------------------------- ADD / REMOVE SERVER
 	else if ( action === "add" ) {
 		// Ask for server endpoint to add
-		const endpoint = await askForOtherServer()
+		const endpoint = serverName ?? await askForOtherServer()
 		const { port, user, host } = parseServerEndpoint( endpoint )
 		// Call hostname on this server
 		const command = `ssh -p ${port} ${user}@${host} "hostname"`

@@ -36,7 +36,7 @@ buildNumber=$(openssl rand -hex 8)
 destinationBuildDir="$userDir/builds/$branch-$buildNumber"
 destinationBranchLink="$userDir/branches/$branch"
 
-echo "Build number is $buildNumber"
+echo "> Build number is $buildNumber"
 
 # ------------------------------------------------------------------------------ EXTRACT
 
@@ -95,7 +95,7 @@ if [ -n "$domain" ]; then
   elif [[ "$domain" != *"."* ]]; then
     domain="$domain.$PASTA_DOMAIN"
   fi
-  echo "Domain is $domain"
+  echo "> Domain is $domain"
   echo "VIRTUAL_HOST=$domain" >> $dotEnv
 # No domain to set, but no domain in dot env, use auto mode
 elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
@@ -120,7 +120,7 @@ if [ -n "$alias" ]; then
   elif [[ "$alias" != *"."* ]]; then
     alias="$alias.$PASTA_DOMAIN"
   fi
-  echo "Alias is $alias"
+  echo "> Alias is $alias"
   pasta_alias="
   pasta_alias:
     image: morbz/docker-web-redirect

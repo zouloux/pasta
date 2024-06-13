@@ -1,6 +1,7 @@
 
 * [About](./about.md)
 * [Things to know](./things-to-know.md)
+* [Quick Start](./quick-start.md)
 * Server
   * Install
     * [Choose a VPS](./00.server/00.install/00.choose-a-vps)

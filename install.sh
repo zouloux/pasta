@@ -175,5 +175,5 @@ cd /root
 echo ""
 echo "All done ✨"
 echo ""
-echo "You can add this alias to your .zshrc or .bashrc to connect easily :"
+echo "Add a shortcut to this server in your Pasta-CLI :"
 /usr/local/pasta/bin/print-alias
