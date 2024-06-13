@@ -106,7 +106,7 @@ if [ -n "$alias" ]; then
   elif [[ "$alias" != *"."* ]]; then
     alias="$alias.$PASTA_DOMAIN"
   fi
-  echo "Setting up alias $alias ..."
+  echo "Alias is $alias"
   pasta_alias="
   pasta_alias:
     image: morbz/docker-web-redirect
@@ -151,15 +151,15 @@ composeProjectName="${projectName}_${branch}_${buildNumber}"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
 
 # Preparing data directories
-echo "Extracting data directories ..."
-dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
-dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
+#echo "Extracting data directories ..."
+#dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
+#dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
 
 # Create directories for each volume
-for volume in $dataVolumes; do
-  echo "- $volume"
-  mkdir -p "${baseDataDir}${volume}"
-done
+#for volume in $dataVolumes; do
+#  echo "- $volume"
+#  mkdir -p "${baseDataDir}${volume}"
+#done
 
 # FIXME : Maybe find something else than 777 ?
 # FIXME : Adding user to the group is not enough for 776, why ?
@@ -182,7 +182,6 @@ fi
 
 # Setting password
 if [ -n "$password" ]; then
-  echo "Setting password ..."
   proxy-password "$domain" "$password"
 fi
 
