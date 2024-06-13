@@ -92,6 +92,9 @@ elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
   exit 1
 fi
 
+# Save domain as text for later deletion
+echo $domain > "$destinationBuildDir/domain.txt"
+
 # Remove pasta data from dot env and force it
 sed -i '/^PASTA_DATA=/d' $dotEnv
 echo "PASTA_DATA=../../data/$dataBucketName" >> $dotEnv
@@ -129,22 +132,32 @@ echo "Patching user on data ..."
 chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
 chmod -R 0777 $baseDataDir > /dev/null 2>&1
 
+# Check if we had a
+oldDomainFile="$destinationBranchLink/domain.txt"
+if [ -f "$oldDomainFile" ]; then
+  oldDomain=$(cat $oldDomainFile)
+  # Remove old password
+  proxy-password "$oldDomain"
+  # Remove old config
+  rm -f "/etc/nginx/vhost.d/$oldDomain" > /dev/null 2>&1
+fi
+
 # Setting password
-echo "Setting password ..."
-proxy-password $domain $password
+if [ -n "$password" ]; then
+  echo "Setting password ..."
+  proxy-password "$domain" "$password"
+fi
 
 # Setting nginx config
-echo "Setting nginx config ..."
 proxyConfigSource="$destinationBuildDir/.proxy/nginx.conf"
 proxyConfigDestination="/etc/nginx/vhost.d/$domain"
-if [ ! -f "$destinationBuildDir/.proxy/nginx.conf" ]; then
-  mv $proxyConfigSource $proxyConfigDestination
-else
-  rm $proxyConfigDestination
+if [ -f "$proxyConfigSource" ]; then
+  echo "Setting nginx config ..."
+  mv -f $proxyConfigSource $proxyConfigDestination > /dev/null 2>&1
 fi
 
 # Reload proxy config
-echo "Setting proxy config ..."
+echo "Reloading proxy config ..."
 docker exec proxy-nginx nginx -s reload
 
 # Docker compose up

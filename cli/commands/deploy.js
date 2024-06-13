@@ -61,7 +61,7 @@ export async function deployCommand ( config, branchName ) {
 	newLine()
 	nicePrint(`{b}Deploying branch ${branchName} ...`)
 	try {
-		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "sudo project-deploy '${project}' '${branchName}' '${data}' '${domain}' '${password}'"`
+		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "project-deploy '${project}' '${branchName}' '${data}' '${domain}' '${password}'"`
 		nicePrint(`{d}$ ${command}`)
 		await execAsync(command, 3)
 	}
