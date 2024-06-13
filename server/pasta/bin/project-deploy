@@ -144,21 +144,22 @@ fi
 
 # Extract all reserved domains by other app or project
 reservedDomains=()
-for dir in /root/containers/apps/*; do
-  echo $dir
+for dir in $(ls -d /root/containers/apps/*); do
   if [ -d "$dir" ]; then
+    echo "$dir"
     appDomain=$(basename "$dir")
     reservedDomains+=( "$appDomain.$PASTA_DOMAIN" )
   fi
 done
-for file in /root/containers/projects/*/branches/*/domain.txt; do
-  echo $file
-  # todo : remove same project and same branch
+for file in $(find /root/containers/projects/*/branches/* -name domain.txt); do
   if [ -f "$file" ]; then
+    echo "$file"
+    # todo : remove same project and same branch
     projectDomain=$(cat "$file")
     reservedDomains+=( "$projectDomain" )
   fi
 done
+
 
 echo "Reserved ${reservedDomains[@]}"
 
