@@ -159,9 +159,7 @@ export async function initCommand () {
 		      file: "docker-compose.common.yaml"
 		      service: front
 		    restart: "unless-stopped"
-		    environment:
-		      VIRTUAL_HOST: "\${VIRTUAL_HOST}"
-		      LETSENCRYPT_HOST: "\${VIRTUAL_HOST}"
+		    env_file: ".env"
 		    networks:
 		      - pasta
 	`))

@@ -1,18 +1,17 @@
 # TODO
 
-## `project-deploy`
-- Allow `alias` key in `pasta.yaml` to redirect using https://hub.docker.com/r/morbz/docker-web-redirect
-- Lock some domains :
-  - Lock master domain `.` for other projects
-  - Lock domains used by other projects ( project-a cannot override project-b domain )
-  - Lock application domains
-
 ## Gitea
 - Use back original runner !
 
 ## Documentation !!!
 
 
+
+## `project-deploy`
+- Lock some domains :
+  - Lock master domain `.` for other projects
+  - Lock domains used by other projects ( project-a cannot override project-b domain )
+  - Lock application domains
 
 ## Server
 - Script to check resources on VPS ( ram / disk ) + send emails ( which platform to use ? )

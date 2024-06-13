@@ -8,7 +8,7 @@ export async function deployCommand ( config, branchName ) {
 	// Config and defaults
 	const archiveName = `${branchName}.tar.gz`
 	const files = (config.files ?? []).join(" ")
-	const { project, host, port, domain, user, password, data, key } = config
+	const { project, host, port, domain, user, password, data, key, alias } = config
 	// Checks
 	if ( host.length === 0 )
 		nicePrint(`{r}Invalid {b/r}host{/}{r} in pasta config.`, { code: 1 })
@@ -62,7 +62,7 @@ export async function deployCommand ( config, branchName ) {
 	newLine()
 	nicePrint(`{b}Deploying branch ${branchName} ...`)
 	try {
-		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "project-deploy '${project}' '${branchName}' '${data}' '${domain}' '${password}'"`
+		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "project-deploy '${project}' '${branchName}' '${data}' '${domain}' '${alias}' '${password}'"`
 		nicePrint(`{d}$ ${command}`)
 		await execAsync(command, 3)
 	}
