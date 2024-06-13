@@ -12,7 +12,7 @@
 npm i -g @zouloux/pasta-cli
 ```
 
-## Optionally, install it locally and use npm scripts
+## Or install it locally and use npm scripts
 
 ```bash
 npm i @zouloux/pasta-cli

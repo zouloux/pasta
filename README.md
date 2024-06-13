@@ -30,7 +30,6 @@ With those script and conventions, you will be able to :
 - a set of [scripts](https://zouloux.github.io/pasta/#/./00.server/01.after-installation/02.available-scripts)
 - a nice [.bashrc](./server/.bashrc) which shows the current user and server to avoid critical mistakes when connected through SSH.
 - `lazydocker` / `htop` / `l` / `ll`
-- Pre-configured and easy to install [docker applications](https://zouloux.github.io/pasta/#/./00.server/02.applications/0.index)
 
 **Pasta-CLI** node package :
 - `pasta init` to create a new project
