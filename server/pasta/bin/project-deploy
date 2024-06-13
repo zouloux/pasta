@@ -67,7 +67,8 @@ fi
 # No docker compose file
 dockerComposeFile="$destinationBuildDir/docker-compose.yaml"
 if [ ! -f "$dockerComposeFile" ]; then
-  echo "No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
+  echo "⚠ No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
+  # TODO : Clean
   exit 1
 fi
 
@@ -146,7 +147,7 @@ reservedDomains=()
 for dir in /root/containers/apps/*; do
   if [ -d "$dir" ]; then
     appDomain=$(basename "$dir")
-    reservedDomains+=( "$appDomain" )
+    reservedDomains+=( "$appDomain.$PASTA_DOMAIN" )
   fi
 done
 for file in /root/containers/projects/*/branches/*/domain.txt; do
@@ -161,6 +162,7 @@ echo "Reserved $reservedDomains"
 #if [[ " ${reservedDomains[@]} " =~ " ${domain} " || " ${reservedDomains[@]} " =~ " ${alias} " ]]; then
 #  echo "$myDomain is included in the array"
 #  exit 0
+# TODO : Clean
 #fi
 
 # ------------------------------------------------------------------------------ INJECT DOT ENV
