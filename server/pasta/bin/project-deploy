@@ -14,8 +14,8 @@ dataBucketName=${3:-$branch}
 domain=$4
 alias=$5
 password=$6
-user=$projectName
-userDir="/home/$user"
+username=$projectName
+userDir="/home/$username"
 
 if [[ ! -d $userDir ]]; then
   echo "Project $projectName does not exist."
@@ -57,7 +57,7 @@ fi
 # ------------------------------------------------------------------------------ PATCH BUILD OWNING
 
 # Patch destination directory
-chown -R "$user:$user" $destinationBuildDir > /dev/null 2>&1
+chown -R "$username:$username" $destinationBuildDir > /dev/null 2>&1
 
 # ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
@@ -84,20 +84,22 @@ dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
 dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
 
 # Create directories for each volume
+echo "Patching data directories ..."
 for volume in $dataVolumes; do
   echo "- $volume"
-  mkdir -p "${baseDataDir}${volume}"
+  localDir="${baseDataDir}${volume}"
+  mkdir -p "$localDir"
+
+  chown -R "$username:$username" "$localDir"
+  chmod -R 0777 "$localDir"
+  setfacl -d -m u::rwx "$localDir"
+  setfacl -d -m g::rwx "$localDir"
+  setfacl -d -m o::rwx "$localDir"
+  setfacl -R -m u::rwx "$localDir"
+  setfacl -R -m g::rwx "$localDir"
+  setfacl -R -m o::rwx "$localDir"
 done
 
-echo "Patching owning on data directory ..."
-chown -R "$user:$user" "$baseDataDir"
-chmod -R 0777 "$baseDataDir"
-setfacl -d -m u::rwx "$baseDataDir"
-setfacl -d -m g::rwx "$baseDataDir"
-setfacl -d -m o::rwx "$baseDataDir"
-setfacl -R -m u::rwx "$baseDataDir"
-setfacl -R -m g::rwx "$baseDataDir"
-setfacl -R -m o::rwx "$baseDataDir"
 
 # ------------------------------------------------------------------------------ DOT ENV INIT
 
