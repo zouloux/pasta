@@ -31,7 +31,8 @@ export async function deployCommand ( config, branchName ) {
 		nicePrint(`{b/r}Unable to connect.`)
 		if ( keyCommand ) {
 			newLine()
-			nicePrint(`ℹ️ {c}If this looks like  a key issue, run {b/w}$ pasta patch-key ${branchName}`)
+			nicePrint(`ℹ️ {c}If this looks like a key issue, run {b/w}$ pasta patch-key ${branchName}`)
+			newLine()
 		}
 		process.exit(1)
 	}

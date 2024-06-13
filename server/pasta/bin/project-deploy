@@ -128,9 +128,9 @@ done
 #echo "USER_ID=$(id -u $USER):$(id -g $USER)" >> $dotEnv
 # ADD : usermod -aG www-data $username
 # REMOVE : gpasswd -d $username www-data
-echo "Patching user on data ..."
-chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
-chmod -R 0777 $baseDataDir > /dev/null 2>&1
+#echo "Patching user on data ..."
+#chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
+#chmod -R 0777 $baseDataDir > /dev/null 2>&1
 
 # Check if we had a
 oldDomainFile="$destinationBranchLink/domain.txt"

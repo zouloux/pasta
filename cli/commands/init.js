@@ -54,6 +54,8 @@ export async function initCommand () {
 	const distDir = await Directory.create("dist")
 	await distDir.create()
 
+	const useCI = createCI === "no" ? "false" : "true"
+
 	const pastaConfigFile = await File.create(pastaConfigFileName)
 	pastaConfigFile.content(untab(`
 		branches:
@@ -83,12 +85,15 @@ export async function initCommand () {
 		    # By default, data goes to branch directory, but it can be shared with other branches
 		    # data: main
 		    sync: "both"
+		    # Can only push from CI
+		    noDirectDeploy: ${useCI}
 		  # Production branch
 		  main:
 		    # Production domain. Set "." to use the root $PASTA_DOMAIN
 		    domain: ${projectName}
 		    data: main
 		    sync: "pull"
+		    noDirectDeploy: ${useCI}
 	`))
 	await pastaConfigFile.save()
 
@@ -140,7 +145,6 @@ export async function initCommand () {
 		      - "\${PASTA_DATA}/front:/root/data"
 		    environment:
 		      VIRTUAL_PORT: 3000
-		      HTTPS_METHOD: redirect
     `))
 	await dockerComposeCommonFile.save()
 
@@ -156,6 +160,7 @@ export async function initCommand () {
 		      service: front
 		    restart: "unless-stopped"
 		    environment:
+		      VIRTUAL_HOST: "\${VIRTUAL_HOST}"
 		      LETSENCRYPT_HOST: "\${VIRTUAL_HOST}"
 		    networks:
 		      - pasta
@@ -197,19 +202,23 @@ export async function initCommand () {
 			    steps:
 			      - name: "Checkout repository"
 			        uses: actions/checkout@v4
+			      - name: "Install pasta"
+			        run: |
+			          npm i -g @zouloux/pasta-cli
 			      - name: "Register SSH Key"
 			        run: |
 			          mkdir -p ~/.ssh
-			          echo "\${{ secrets.SSH_KEY }}"" > ~/.ssh/id_ed25519
+			          echo "\${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
 			          chmod 600 ~/.ssh/id_ed25519
 			      - name: "Build"
 			        run: |
 			          branch=\${{ github.ref }}
-			          mv ".env.$branch" .env
+			          branch=\${branch#refs/heads/}
+			          mv ".env.$branch" .env || touch .env
 			          echo "TODO : implement build steps ..."
 			      - name: "Deploy to server"
 			        run: |
-			          pasta deploy
+			          pasta ci
 		`))
 		await giteaFile.save()
 	}
@@ -236,7 +245,7 @@ export async function initCommand () {
 			  script:
 			    - mv ".env.$BRANCH" .env
 			    - echo "TODO : implement build steps ..."
-			    - pasta deploy
+			    - pasta ci
 		`))
 		await gitlabFile.save()
 	}
@@ -250,11 +259,17 @@ export async function initCommand () {
 	await gitignore.load()
 	if ( gitignore.content().indexOf("# Pasta ignore") === -1 ) {
 		gitignore.append(untab(`
+			# Common ignore
+			.idea
+			.DS_Store
+			node_modules
 			# Pasta ignore
 			.proxy/certs
 			.env
 			.pasta.key
+			/data/
 		`))
+		await gitignore.save()
 	}
 
 	await generateSSLCommand( projectName, false )

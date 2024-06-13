@@ -38,7 +38,7 @@ commands.add("patch-key", async () => {
 	await patchKey( config )
 })
 
-commands.add("deploy", async () => {
+async function getDeployConfig () {
 	// Branch is given from argv
 	let gitBranch = commands.parsedArgs.arguments[1]
 	// Not found in argv, default is the current git branch
@@ -51,7 +51,18 @@ commands.add("deploy", async () => {
 		catch ( e ) {}
 	}
 	// Still not found ? We ask for user
-	const { config, branch } = await targetBranchConfig( gitBranch )
+	await targetBranchConfig( gitBranch )
+}
+
+commands.add("deploy", async () => {
+	const { config, branch } = getDeployConfig()
+	if ( config.noDirectDeploy )
+		nicePrint(`{b/r}Direct deployment is disabled for branch ${branch}. Use CI pipeline to deploy.`, { code: 1 })
+	await deployCommand( config, branch )
+})
+
+commands.add("ci", async () => {
+	const { config, branch } = getDeployConfig()
 	await deployCommand( config, branch )
 })
 

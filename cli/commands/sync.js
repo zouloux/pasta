@@ -14,8 +14,10 @@ export async function syncCommand ( config, branch, direction ) {
 	// Ask confirmation for main branch push
 	if ( branch === "main" && direction === "push" ) {
 		nicePrint(`{b/r}You are going to erase production data. Are you sure ?`)
-		const confirm = await askInput("Type : production")
-		if ( confirm !== "production" )
+		const key = Math.round( Math.random() * 899 + 100 )
+		const confirmation = `production-${key}`
+		const confirm = await askInput(`Type : ${confirmation} to continue`)
+		if ( confirm !== confirmation )
 			process.exit(0)
 	}
 	// Get local data directory
@@ -26,7 +28,7 @@ export async function syncCommand ( config, branch, direction ) {
 	// Load key
 	const keyCommand = await getKeyCommand( key )
 	// Generate rsync command
-	let command = `rsync -az --delete --no-perms -e 'ssh${keyCommand} -p ${port}' `
+	let command = `rsync -az --delete --no-perms --omit-dir-times -e 'ssh${keyCommand} -p ${port}' `
 	const remote = `"${user}@${host}:/home/${project}/data/${data}/"`
 	const local = `"${localData}"`
 	if ( direction === "pull" )
@@ -42,7 +44,8 @@ export async function syncCommand ( config, branch, direction ) {
 		catch ( e ) {
 			console.error( e )
 			newLine()
-			nicePrint(`ℹ️ {c}If this looks like  a key issue, run {b/w}$ pasta patch-key ${branch}`, { code: 1 })
+			nicePrint(`ℹ️ {c}If this looks like a key issue, run {b/w}$ pasta patch-key ${branch}`, { code: 1 })
+			newLine()
 		}
 	})
 	nicePrint(`{b/g}Done ✨`)
