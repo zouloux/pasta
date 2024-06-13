@@ -1,0 +1,18 @@
+#!/bin/bash
+
+clear
+cd /root
+if [ -z "$1" ]; then
+  read -p "Enter the project name: " projectName
+else
+  projectName=$1
+fi
+
+rootProjectPath="/root/containers/projects/$projectName"
+
+if [[ ! -d $rootProjectPath ]]; then
+  echo "Project $projectName does not exist."
+  exit 1
+fi
+
+cat /root/containers/projects/$projectName/keys/id_ed25519

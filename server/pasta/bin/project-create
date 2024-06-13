@@ -64,5 +64,7 @@ cp "/root/.bashrc" "$userProjectRoot/.bashrc"
 
 echo ""
 echo "Project $projectName created ✨"
+echo "Show key with command :"
+echo "project-show-key $projectName"
 echo ""
-cat "$rootProjectRoot/keys/id_ed25519"
+#cat "$rootProjectRoot/keys/id_ed25519"

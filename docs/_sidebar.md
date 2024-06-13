@@ -12,6 +12,7 @@
     * [File structure](00.server/01.after-installation/00.file-structure.md)
     * [Available Variables](00.server/01.after-installation/01.available-variables)
     * [Available Scripts](00.server/01.after-installation/02.available-scripts)
+    * [Reverse Proxy](00.server/01.after-installation/03.reverse-proxy.md)
   * [Dockerized Applications](00.server/02.applications/0.index.md)
     * _Code management_
       * [Gitea](00.server/02.applications/00.gitea.md)
@@ -25,7 +26,7 @@
       * [Uptime Kuma](00.server/02.applications/30.uptime-kuma.md)
       * [Netdata](00.server/02.applications/31.netdata.md)
       * [Portainer-Admin](00.server/02.applications/32.portainer-admin.md)
-      * [Portainer-Agent](00.server/02.applications/32.portainer-agent.md)
+      * [Portainer-Agent](00.server/02.applications/33.portainer-agent.md)
   * Projects
     * How it works
     * Create a new project

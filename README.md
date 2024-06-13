@@ -9,7 +9,7 @@
 
 It's a **one line install script** and super easy to use.
 
-It manages **sud-domains routing** and **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
+It manages **sud-domains routing** and has **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
 
 It's **SSH based** for admin, and comes with a **[node package](https://www.npmjs.com/package/@zouloux/pasta-cli)** for **Git Projects** deployments.
 
