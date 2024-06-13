@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  read -p "Enter the project name: " projectName
+else
+  projectName=$1
+fi
+
+username="$projectName"
+userProjectRoot="/home/$username"
+rootProjectRoot="/root/containers/projects/$projectName"
+
+# Check if this project or user already exists
+if [ ! -d "$rootProjectRoot" ]; then
+  echo "Project $projectName not found."
+  exit 1
+fi
+
+echo "Creating SSH keypair ..."
+mkdir -p "$rootProjectRoot/keys"
+ssh-keygen -t ed25519 -f "$rootProjectRoot/keys/id_ed25519" -C "$username@$PASTA_HOSNAME" -N "" -q
+
+echo "Setting up SSH authorized keys ..."
+cat "$rootProjectRoot/keys/id_ed25519.pub" > "$userProjectRoot/.ssh/authorized_keys"
+cat "/root/.ssh/authorized_keys" >> "$userProjectRoot/.ssh/authorized_keys"
