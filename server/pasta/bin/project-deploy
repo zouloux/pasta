@@ -145,12 +145,14 @@ fi
 # Extract all reserved domains by other app or project
 reservedDomains=()
 for dir in /root/containers/apps/*; do
+  echo $dir
   if [ -d "$dir" ]; then
     appDomain=$(basename "$dir")
     reservedDomains+=( "$appDomain.$PASTA_DOMAIN" )
   fi
 done
 for file in /root/containers/projects/*/branches/*/domain.txt; do
+  echo $file
   if [ -f "$file" ]; then
     projectDomain=$(cat "$file")
     reservedDomains+=( "$projectDomain" )
