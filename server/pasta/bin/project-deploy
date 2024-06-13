@@ -104,18 +104,21 @@ if [ -n "$alias" ]; then
     alias="$alias.$PASTA_DOMAIN"
   fi
   echo "Setting up alias $alias ..."
-  replacement="services:
-    pasta_alias:
-      image: morbz/docker-web-redirect
-      restart: unless-stopped
-      environments:
-        VIRTUAL_HOST: $alias
-        LETSENCRYPT_HOST: $alias
-        REDIRECT_TARGET: $domain"
+  replacement=$(cat <<EOF
+services:
+  pasta_alias:
+    image: morbz/docker-web-redirect
+    restart: unless-stopped
+    environments:
+      VIRTUAL_HOST: $alias
+      LETSENCRYPT_HOST: $alias
+      REDIRECT_TARGET: $domain
+EOF
+)
   sed -i "/^services\s*:/ {
       s/^\s*services\s*:/services:/
       a\\
-  $replacement
+$(echo "$replacement")
   }" docker-compose.yaml
 fi
 
