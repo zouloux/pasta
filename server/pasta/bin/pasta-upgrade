@@ -1,0 +1,3 @@
+#!/bin/bash
+
+bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/update.sh)

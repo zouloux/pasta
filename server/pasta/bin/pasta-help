@@ -86,4 +86,8 @@ if [ "$(id -u)" -eq 0 ]; then
   echo "${bold}htop${normal} [ADMIN]"
   echo "  Open process manager"
   echo ""
+  echo "${bold}--- UPGRADE ---${normal}"
+  echo ""
+  echo "${bold}pasta-upgrade${normal} [ADMIN]"
+  echo "  Update Pasta Server and optionally update Docker"
 fi

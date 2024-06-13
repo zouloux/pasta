@@ -121,7 +121,6 @@ if [ -n "$alias" ]; then
   after=$(sed -n '/^services\s*:/,$p' $dockerComposeFile | tail -n +2)
   # Recreate the docker compose file with injected alias
   echo "$before" > $dockerComposeFile
-  echo "services:" >> $dockerComposeFile
   echo "$pasta_alias" >> $dockerComposeFile
   echo "$after" >> $dockerComposeFile
 fi
