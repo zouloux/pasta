@@ -54,7 +54,7 @@ if ! tar -xzf $tarFile -C $destinationBuildDir; then
   exit 1
 fi
 
-# ------------------------------------------------------------------------------ PATCH OWNING
+# ------------------------------------------------------------------------------ PATCH BUILD OWNING
 
 # Patch destination directory
 chown -R "$user:$user" $destinationBuildDir > /dev/null 2>&1
@@ -74,6 +74,30 @@ if [ ! -f "$dockerComposeFile" ]; then
   rm -f $tarFile
   exit 1
 fi
+
+
+# ------------------------------------------------------------------------------ PATCH DATA OWNING
+
+# Preparing data directories
+echo "Extracting data directories ..."
+dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
+dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
+
+# Create directories for each volume
+for volume in $dataVolumes; do
+  echo "- $volume"
+  mkdir -p "${dataDir}${volume}"
+done
+
+echo "Patching owning on data directory ..."
+chown -R "$user:$user" $dataDir
+chmod -R 0777 $dataDir
+setfacl -d -m u::rwx $dataDir
+setfacl -d -m g::rwx $dataDir
+setfacl -d -m o::rwx $dataDir
+setfacl -R -m u::rwx $dataDir
+setfacl -R -m g::rwx $dataDir
+setfacl -R -m o::rwx $dataDir
 
 # ------------------------------------------------------------------------------ DOT ENV INIT
 
