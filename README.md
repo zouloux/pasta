@@ -7,11 +7,10 @@
 
 **Pasta** is a minimalist set of scripts and conventions to host **Docker Applications** and **Git Projects** on **Debian based VPS servers**.
 
-It's a **one line install script** and super easy to use.
-
-It manages **sud-domains routing** and has **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
-
-It's **SSH based** for admin, and comes with a **[node package](https://www.npmjs.com/package/@zouloux/pasta-cli)** for **Git Projects** deployments.
+- **[one line install script](https://zouloux.github.io/pasta/#/00.server/00.install/03.install-pasta-server)**
+- Has **sud-domains routing** and **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
+- Headless by default and **SSH based** for admin
+- Comes with a **[node package](https://www.npmjs.com/package/@zouloux/pasta-cli)** for **Git Projects** deployments and **servers managements**.
 
 ## Features
 
