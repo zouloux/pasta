@@ -94,7 +94,7 @@ elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
 fi
 
 # Add alias service if alias is detected
-if [ -n "$alias" ]; the
+if [ -n "$alias" ]; then
   # If it's a dot, it's the main pasta domain
   # If it has a dot, it's a full-domain ( can be external to main pasta domain )
   # No dot, it's a sub-domain of the main pasta domain
