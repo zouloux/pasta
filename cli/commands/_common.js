@@ -62,7 +62,7 @@ export async function hasConfig () {
 export async function loadConfig (  ) {
 	const config = await readProjectConfig( pastaConfigFileName )
 	if ( !config ) {
-		nicePrint(`{b/r}${pastaConfigFileName} file not found in ${process.cwd}`, { code: 1 })
+		nicePrint(`{b/r}${pastaConfigFileName} file not found in ${process.cwd()}`, { code: 1 })
 	}
 	return config
 }
@@ -70,7 +70,7 @@ export async function loadConfig (  ) {
 export async function readProjectConfig () {
 	const configFile = await File.create( pastaConfigFileName )
 	if ( ! await configFile.exists() )
-		nicePrint(`{b/r}${pastaConfigFileName} file not found in ${process.cwd}`, { code: 1 })
+		nicePrint(`{b/r}${pastaConfigFileName} file not found in ${process.cwd()}`, { code: 1 })
 	try {
 		await configFile.load()
 	}
