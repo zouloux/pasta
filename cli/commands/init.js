@@ -273,5 +273,5 @@ export async function initCommand () {
 	await generateSSLCommand( projectName, false )
 	newLine()
 	nicePrint(`{b/g}Pasta project created ✨`)
-	openCommand( projectName )
+	openCommand( projectName, localHostname, false )
 }

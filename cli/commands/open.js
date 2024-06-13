@@ -1,7 +1,7 @@
 import qrTerminal from "qrcode-terminal"
 import { execSync, newLine, nicePrint } from "@zouloux/cli";
 
-export function openCommand ( projectName, localHostname ) {
+export function openCommand ( projectName, localHostname, showQR = true ) {
 	localHostname ??= execSync('hostname').trim()
 	const localURL = `https://${localHostname}.local`
 	newLine()
@@ -12,6 +12,8 @@ export function openCommand ( projectName, localHostname ) {
 		{d}- Open {b}${localURL}{/d} to test from other devices on the same network
 	`)
 	newLine()
-	qrTerminal.setErrorLevel('Q');
-	qrTerminal.generate(localURL, { small: true });
+	if ( showQR ) {
+		qrTerminal.setErrorLevel('Q');
+		qrTerminal.generate(localURL, { small: true });
+	}
 }

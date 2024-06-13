@@ -3,7 +3,17 @@ import { File } from "@zouloux/files";
 import { pastaConfigFileName } from "./_common.js";
 
 
-export async function patchKey ( config ) {
+export async function patchKey ( keyFile, keyPath ) {
+	// Patch key content
+	await keyFile.load()
+	const patchedContent = keyFile.content().trim().split( "\n" ).map( l => l.trim() ).join("\n")
+	keyFile.content( patchedContent + "\n" ) // important, key need a last trailing line
+	await keyFile.save()
+	// Patch file chmod
+	execSync(`chmod 0600 ${keyPath}`, 3)
+}
+
+export async function patchKeyCommand ( config ) {
 	const keyPath = config.key ?? ""
 	if ( !keyPath )
 		nicePrint(`{b/r}No key specified in ${pastaConfigFileName}`, { code: 1 })
@@ -12,12 +22,6 @@ export async function patchKey ( config ) {
 	if ( !keyExists )
 		nicePrint(`{r}Key {b/r}${keyPath}{/}{r} not found.`, { code: 1 })
 	nicePrint(`{b/o}Patching key ${keyPath}...`)
-	// Patch key content
-	await keyFile.load()
-	const patchedContent = keyFile.content().trim().split( "\n" ).map( l => l.trim() ).join("\n")
-	keyFile.content( patchedContent + "\n" ) // important, key need a last trailing line
-	await keyFile.save()
-	// Patch file chmod
-	execSync(`chmod 0600 ${keyPath}`, 3)
+	await patchKey( keyFile, keyPath )
 	nicePrint(`{g/b}Done`)
 }

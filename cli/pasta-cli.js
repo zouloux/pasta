@@ -6,7 +6,7 @@ import { deployCommand } from "./commands/deploy.js";
 import { generateSSLCommand } from "./commands/generate-ssl.js";
 import { openCommand } from "./commands/open.js";
 import { syncCommand } from "./commands/sync.js";
-import { patchKey } from "./commands/patch-key.js";
+import { patchKeyCommand } from "./commands/patch-key.js";
 import { serverCommand } from "./commands/server.js";
 import { Directory } from "@zouloux/files";
 
@@ -35,7 +35,7 @@ commands.add("generate-ssl", async () => {
 })
 commands.add("patch-key", async () => {
 	const { config } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
-	await patchKey( config )
+	await patchKeyCommand( config )
 })
 
 async function getDeployConfig () {

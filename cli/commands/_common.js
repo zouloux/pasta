@@ -5,6 +5,7 @@ import Preferences from "preferences"
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { patchKey } from "./patch-key.js";
 
 const dotEnvFileName = ".env"
 export const pastaConfigFileName = "pasta.yaml"
@@ -132,11 +133,11 @@ export async function getKeyCommand ( keyPath ) {
 		return ""
 	const keyFile = await File.create( keyPath )
 	const keyExists = await keyFile.exists()
-	if ( !keyExists ) {
-		// nicePrint(`{r}Key {b/r}${keyPath}{/}{r} not found.`, { code: 1 })
+	if ( !keyExists )  {
 		nicePrint(`{o}Key {b/r}${keyPath}{/}{o} not found, falling back to ssh-agent.`)
 		return ""
 	}
+	await patchKey( keyFile, keyPath )
 	return ` -i ${keyFile.path} -o IdentitiesOnly=yes`
 }
 

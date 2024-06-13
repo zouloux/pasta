@@ -1,6 +1,7 @@
 <p align="center">
-  <h1 align="center">Pasta Devops</h1>
+  <img src="./docs/pasta.png" width="100px" title="Pasta Devops" />
 </p>
+<h1 align="center">Pasta Devops</h1>
 <br/>
 
 ## About
