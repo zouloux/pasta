@@ -6,6 +6,8 @@ if [ $# -lt 2 ] || [ $# -gt 6 ]; then
   exit 1
 fi
 
+# ------------------------------------------------------------------------------ INIT
+
 projectName=$1
 branch=$2
 dataBucketName=${3:-$branch}
@@ -36,6 +38,8 @@ destinationBranchLink="$userDir/branches/$branch"
 
 echo "Build number is $buildNumber"
 
+# ------------------------------------------------------------------------------ EXTRACT
+
 # Extract tar.gz file
 if [ ! -f "$tarFile" ]; then
   echo "File $tarFile not found"
@@ -48,8 +52,12 @@ if ! tar -xzf $tarFile -C $destinationBuildDir; then
   exit 1
 fi
 
+# ------------------------------------------------------------------------------ PATCH OWNING
+
 # Patch destination directory
 chown -R "$user:$user" $destinationBuildDir > /dev/null 2>&1
+
+# ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
 # Move pasta docker compose file
 if [ -f "$destinationBuildDir/docker-compose.pasta.yaml" ]; then
@@ -63,16 +71,13 @@ if [ ! -f "$dockerComposeFile" ]; then
   exit 1
 fi
 
+# ------------------------------------------------------------------------------ DOT ENV INIT
+
 # Dot env
 dotEnv="$destinationBuildDir/.env"
 echo "" >> $dotEnv
 
-# Force pasta project name
-sed -i '/^PASTA_PROJECT_NAME=/d' $dotEnv
-echo "PASTA_PROJECT_NAME=$projectName" >> $dotEnv
-
-# Inject build number
-echo "PASTA_BUILD=$buildNumber" >> $dotEnv
+# ------------------------------------------------------------------------------ COMPUTE DOMAIN
 
 # If we have a domain to set
 if [ -n "$domain" ]; then
@@ -95,6 +100,11 @@ elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
   echo "VIRTUAL_HOST=$domain" >> $dotEnv
   exit 1
 fi
+
+# Save domain as text for later deletion
+echo $domain > "$destinationBuildDir/domain.txt"
+
+# ------------------------------------------------------------------------------ COMPUTE ALIAS
 
 # Add alias service if alias is detected
 if [ -n "$alias" ]; then
@@ -129,8 +139,38 @@ if [ -n "$alias" ]; then
   echo "$after" >> $dockerComposeFile
 fi
 
-# Save domain as text for later deletion
-echo $domain > "$destinationBuildDir/domain.txt"
+# ------------------------------------------------------------------------------ CHECK DOMAIN AVAILABILITY
+
+# Extract all reserved domains by other app or project
+reservedDomains=()
+for dir in /root/containers/apps/*; do
+  if [ -d "$dir" ]; then
+    appDomain=$(basename "$dir")
+    reservedDomains+=( "$appDomain" )
+  fi
+done
+for file in /root/containers/projects/*/branches/*/domain.txt; do
+  if [ -f "$file" ]; then
+    projectDomain=$(cat "$file")
+    reservedDomains+=( "$projectDomain" )
+  fi
+done
+
+echo "Reserved $reservedDomains"
+
+#if [[ " ${reservedDomains[@]} " =~ " ${domain} " || " ${reservedDomains[@]} " =~ " ${alias} " ]]; then
+#  echo "$myDomain is included in the array"
+#  exit 0
+#fi
+
+# ------------------------------------------------------------------------------ INJECT DOT ENV
+
+# Force pasta project name
+sed -i '/^PASTA_PROJECT_NAME=/d' $dotEnv
+echo "PASTA_PROJECT_NAME=$projectName" >> $dotEnv
+
+# Inject build number
+echo "PASTA_BUILD=$buildNumber" >> $dotEnv
 
 # Save https host
 echo "LETSENCRYPT_HOST=$domain" >> $dotEnv
@@ -152,27 +192,9 @@ echo "HTTPS_METHOD=redirect" >> $dotEnv
 composeProjectName="${projectName}_${branch}_${buildNumber}"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
 
-# Preparing data directories
-#echo "Extracting data directories ..."
-#dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
-#dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
+# ------------------------------------------------------------------------------ PASSWORD
 
-# Create directories for each volume
-#for volume in $dataVolumes; do
-#  echo "- $volume"
-#  mkdir -p "${baseDataDir}${volume}"
-#done
-
-# FIXME : Maybe find something else than 777 ?
-# FIXME : Adding user to the group is not enough for 776, why ?
-#echo "USER_ID=$(id -u $USER):$(id -g $USER)" >> $dotEnv
-# ADD : usermod -aG www-data $username
-# REMOVE : gpasswd -d $username www-data
-#echo "Patching user on data ..."
-#chown -R "$user:$user" $baseDataDir > /dev/null 2>&1
-#chmod -R 0777 $baseDataDir > /dev/null 2>&1
-
-# Check if we had a
+# Check if we had a domain in previous build
 oldDomainFile="$destinationBranchLink/domain.txt"
 if [ -f "$oldDomainFile" ]; then
   oldDomain=$(cat $oldDomainFile)
@@ -187,6 +209,8 @@ if [ -n "$password" ]; then
   proxy-password "$domain" "$password"
 fi
 
+# ------------------------------------------------------------------------------ NGINX CONFIG
+
 # Setting nginx config
 proxyConfigSource="$destinationBuildDir/.proxy/nginx.conf"
 proxyConfigDestination="/etc/nginx/vhost.d/$domain"
@@ -195,9 +219,13 @@ if [ -f "$proxyConfigSource" ]; then
   mv -f $proxyConfigSource $proxyConfigDestination > /dev/null 2>&1
 fi
 
+# ------------------------------------------------------------------------------ RELOAD NGINX
+
 # Reload proxy config
 echo "Reloading proxy config ..."
 docker exec proxy-nginx nginx -s reload
+
+# ------------------------------------------------------------------------------ STARTING NEW BUILD
 
 # Docker compose up
 echo "Starting containers ..."
@@ -209,6 +237,8 @@ if ! (cd $destinationBuildDir && docker compose build && docker compose up -d); 
   exit 1
 fi
 echo ""
+
+# ------------------------------------------------------------------------------ STOPPING PREVIOUS BUILD
 
 # TODO : Wait enough time to have the new container ready before stopping the old one
 # TODO : Maybe having a heartbeat call or something ?
@@ -223,9 +253,13 @@ if [ -d $destinationBranchLink ]; then
 fi
 echo ""
 
+# ------------------------------------------------------------------------------ BRANCH LINK TO BUILD
+
 echo "Creating branch link ..."
 ln -sf $destinationBuildDir $destinationBranchLink
 rm -f $tarFile
+
+# ------------------------------------------------------------------------------ END
 
 echo ""
 echo "Branch $branch of $projectName deployed to $domain"
