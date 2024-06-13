@@ -56,10 +56,6 @@ if [ "$(id -u)" -eq 0 ]; then
   echo "  Revoke access of current deploy key of a project and create a new deploy key."
   echo "  Use cat to show the new deploy key"
 fi
-#echo ""
-#echo "${bold}project-deploy <project> <branch> <data-bucket?> <sub-domain|full-domain?>${normal} [CI]"
-#echo "  Deploy an uploaded archive for a project."
-#echo "  Artifact should be available in /home/\$project/artifacts/\$branch.tar.gz"
 echo ""
 echo "${bold}project-clean <project> <branch>${normal}"
 echo "  Clean all builds of a projects for a specific branch, and keep only the latest."

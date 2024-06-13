@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $# -lt 2 ] || [ $# -gt 5 ]; then
+if [ $# -lt 2 ] || [ $# -gt 6 ]; then
   echo "Usage:"
-  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <login:password?>"
+  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <alias> <login:password?>"
   exit 1
 fi
 
@@ -10,7 +10,8 @@ projectName=$1
 branch=$2
 dataBucketName=${3:-$branch}
 domain=$4
-password=$5
+alias=$5
+password=$6
 user=$projectName
 userDir="/home/$user"
 
@@ -92,8 +93,36 @@ elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
   exit 1
 fi
 
+# Add alias service if alias is detected
+if [ -n "$alias" ]; the
+  # If it's a dot, it's the main pasta domain
+  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
+  # No dot, it's a sub-domain of the main pasta domain
+  if [[ "$alias" == "." ]]; then
+    alias="$PASTA_DOMAIN"
+  elif [[ "$alias" != *"."* ]]; then
+    alias="$alias.$PASTA_DOMAIN"
+  fi
+  replacement="services:
+    pasta_alias:
+      image: morbz/docker-web-redirect
+      restart: unless-stopped
+      environments:
+        VIRTUAL_HOST: $alias
+        LETSENCRYPT_HOST: $alias
+        REDIRECT_TARGET: $domain"
+  sed -i "/^services\s*:/ {
+      s/^\s*services\s*:/services:/
+      a\\
+  $replacement
+  }" docker-compose.yaml
+fi
+
 # Save domain as text for later deletion
 echo $domain > "$destinationBuildDir/domain.txt"
+
+# Save https host
+echo "LETSENCRYPT_HOST=$domain" >> $dotEnv
 
 # Remove pasta data from dot env and force it
 sed -i '/^PASTA_DATA=/d' $dotEnv
