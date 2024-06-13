@@ -39,10 +39,10 @@ export async function initCommand () {
 	const { host, port } = parseServerEndpoint( pastaServer )
 
 	const createCI = await askList("Create CI file", {
-		no: "No - Yolo",
 		gitea: "Gitea",
 		github: "Github",
 		gitlab: "Gitlab",
+		no: "No - Pasta Yolo",
 	}, { returnType: "key" })
 
 	const localHostname = execSync('hostname').trim()

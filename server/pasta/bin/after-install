@@ -18,8 +18,9 @@ chmod 0755 "$pastaBinDir/print-alias"
 chmod 0755 "$pastaBinDir/pasta-help"
 
 echo "Patch nginx passwords directory ..."
-# fixme : we should avoid 777 here
+# fixme : we should avoid 777 here but we need it for project-deploy
 chmod 0777 /etc/nginx/htpasswd
+chmod 0777 /etc/nginx/vhost.d
 
 echo "Cleaning ..."
 rm -rf /tmp/* /tmp/.* > /dev/null 2>&1

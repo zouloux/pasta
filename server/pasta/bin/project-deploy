@@ -100,6 +100,10 @@ echo "PASTA_DATA=../../data/$dataBucketName" >> $dotEnv
 sed -i '/^PASTA_BRANCH=/d' $dotEnv
 echo "PASTA_BRANCH=$branch" >> $dotEnv
 
+# Force https redirect
+sed -i '/^HTTPS_METHOD=/d' $dotEnv
+echo "HTTPS_METHOD=redirect" >> $dotEnv
+
 # Set the docker compose project name from the unique build number
 # With this, "docker compose" commands can be ran from the branch link and the build directory
 composeProjectName="${projectName}_${branch}_${buildNumber}"
@@ -128,6 +132,20 @@ chmod -R 0777 $baseDataDir > /dev/null 2>&1
 # Setting password
 echo "Setting password ..."
 proxy-password $domain $password
+
+# Setting nginx config
+echo "Setting nginx config ..."
+proxyConfigSource="$destinationBuildDir/.proxy/nginx.conf"
+proxyConfigDestination="/etc/nginx/vhost.d/$domain"
+if [ ! -f "$destinationBuildDir/.proxy/nginx.conf" ]; then
+  mv $proxyConfigSource $proxyConfigDestination
+else
+  rm $proxyConfigDestination
+fi
+
+# Reload proxy config
+echo "Setting proxy config ..."
+docker exec proxy-nginx nginx -s reload
 
 # Docker compose up
 echo "Starting containers ..."
