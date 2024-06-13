@@ -34,6 +34,8 @@ buildNumber=$(openssl rand -hex 8)
 destinationBuildDir="$userDir/builds/$branch-$buildNumber"
 destinationBranchLink="$userDir/branches/$branch"
 
+echo "Build number is $buildNumber"
+
 # Extract tar.gz file
 if [ ! -f "$tarFile" ]; then
   echo "File $tarFile not found"
@@ -123,6 +125,8 @@ if [ -n "$alias" ]; then
   echo "$pasta_alias" >> $dockerComposeFile
   echo "$after" >> $dockerComposeFile
 fi
+
+cat $dockerComposeFile
 
 # Save domain as text for later deletion
 echo $domain > "$destinationBuildDir/domain.txt"
