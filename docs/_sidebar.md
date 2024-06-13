@@ -25,17 +25,14 @@
     * _Monitoring_
       * [Uptime Kuma](00.server/02.applications/30.uptime-kuma.md)
       * [Netdata](00.server/02.applications/31.netdata.md)
-      * [Portainer-Admin](00.server/02.applications/32.portainer-admin.md)
-      * [Portainer-Agent](00.server/02.applications/33.portainer-agent.md)
+      * [Portainer](00.server/02.applications/32.portainer.md)
   * Projects
-    * How it works
-    * Create a new project
-    * Archive a project
-    * Work with friends
+    * [Create a new project](00.server/03.projects/00.create-new-project)
+    * [Archive a project](00.server/03.projects/01.archive-a-project.md)
+    * [Project Branches](00.server/03.projects/02.project-branches.md)
   * More
-    * Update Pasta Server
-    * Uninstall Pasta Server
-    * Pasta Server file structure
+    * [Update Pasta Server](00.server/04.more/00.update.md)
+    * [Uninstall Pasta Server](00.server/04.more/01.uninstall.md)
 * Client
   * Install Pasta-CLI
   * Create a new Pasta project
@@ -44,7 +41,7 @@
     * .env
   * Deploy from local
   * Deploy using CI
-  * Sync data
+  * Data synchronisation
 * Types of Pasta Structures
   * Pasta Yolo
   * Pasta Gitea

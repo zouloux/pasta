@@ -1,12 +1,12 @@
 # Things to know
 
 
-## Knowledge
+## Knowledge to have
 
 - Basic linux, shell and terminal usage
 - How to configure a DNS
-- SSH and keys
-- Git for projects
+- SSH basics and keys
+- Git for CI projects
 
 
 ## 2 Types of servers

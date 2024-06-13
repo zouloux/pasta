@@ -2,9 +2,7 @@
 
 No time? **No problem**. Let's do it **Al dente** !
 
-### Follow instructions to deploy a test project in **10 steps**.
-
-## TLDR
+?> Follow those instructions to deploy a test project in **10 steps**.
 
 1. Buy a cheap VPS and a domain name
 2. Points DNS `your-domain.com` and `*.your-domain.com` to VPS IP address
@@ -36,4 +34,5 @@ pasta init
 ```bash
 pasta deploy preview
 ```
-> Visit `pasta-test.your-domain.com` 
+> Visit `pasta-test.your-domain.com`
+
