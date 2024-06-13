@@ -75,32 +75,6 @@ if [ ! -f "$dockerComposeFile" ]; then
   exit 1
 fi
 
-
-# ------------------------------------------------------------------------------ PATCH DATA OWNING
-
-# Preparing data directories
-echo "Extracting data directories ..."
-dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
-dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
-
-# Create directories for each volume
-echo "Patching data directories ..."
-for volume in $dataVolumes; do
-  echo "- $volume"
-  localDir="${baseDataDir}${volume}"
-  mkdir -p "$localDir"
-
-  chown -R "$username:$username" "$localDir"
-  chmod -R 0777 "$localDir"
-  setfacl -d -m u::rwx "$localDir"
-  setfacl -d -m g::rwx "$localDir"
-  setfacl -d -m o::rwx "$localDir"
-  setfacl -R -m u::rwx "$localDir"
-  setfacl -R -m g::rwx "$localDir"
-  setfacl -R -m o::rwx "$localDir"
-done
-
-
 # ------------------------------------------------------------------------------ DOT ENV INIT
 
 # Dot env
@@ -204,6 +178,29 @@ echo "HTTPS_METHOD=redirect" >> $dotEnv
 # With this, "docker compose" commands can be ran from the branch link and the build directory
 composeProjectName="${projectName}_${branch}_${buildNumber}"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
+
+# ------------------------------------------------------------------------------ PATCH DATA OWNING
+
+# Preparing data directories
+echo "Extracting data directories ..."
+dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
+dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
+
+# Create directories for each volume
+echo "Patching data directories ..."
+for volume in $dataVolumes; do
+  echo "- $volume"
+  localDir="${baseDataDir}${volume}"
+  mkdir -p "$localDir"
+  chown -R "$username:$username" "$localDir"
+  chmod -R 0777 "$localDir"
+  setfacl -d -m u::rwx "$localDir"
+  setfacl -d -m g::rwx "$localDir"
+  setfacl -d -m o::rwx "$localDir"
+  setfacl -R -m u::rwx "$localDir"
+  setfacl -R -m g::rwx "$localDir"
+  setfacl -R -m o::rwx "$localDir"
+done
 
 # ------------------------------------------------------------------------------ PASSWORD
 
