@@ -34,16 +34,24 @@
     * [Update Pasta Server](00.server/04.more/00.update.md)
     * [Uninstall Pasta Server](00.server/04.more/01.uninstall.md)
 * Client
-  * Install Pasta-CLI
-  * Create a new Pasta project
-    * Docker Compose
-    * pasta.yaml
-    * .env
+  * [Install Pasta-CLI](01.client/00.install-pasta-cli.md)
+  * [Create a new Pasta project](01.client/01.create-new-project.md)
+  * _Generated Files_
+    * [docker-compose.common.yaml](01.client/10.docker-compose.common.yaml.md)
+    * [docker-compose.pasta.yaml](01.client/11.docker-compose.pasta.yaml.md)
+    * [docker-compose.yaml](01.client/12.docker-compose.yaml.md)
+    * [pasta.yaml](01.client/13.pasta.yaml.md)
+    * [.env](01.client/14.dot-env.md)
   * Deploy from local
   * Deploy using CI
   * Data synchronisation
-* Types of Pasta Structures
-  * Pasta Yolo
-  * Pasta Gitea
-  * Pasta Gitea
-  * Pasta Github
+
+[//]: # (* Types of Pasta Structures)
+
+[//]: # (  * Pasta Yolo)
+
+[//]: # (  * Pasta Gitea)
+
+[//]: # (  * Pasta Gitea)
+
+[//]: # (  * Pasta Github)

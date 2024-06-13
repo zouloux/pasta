@@ -16,9 +16,10 @@
 
 With those script and conventions, you will be able to :
 - Host and run [Docker Applications](https://zouloux.github.io/pasta/#/./00.server/02.applications/0.index)
-- Host your Projects Git repositories ( with [Gitea](https://zouloux.github.io/pasta/#/./00.server/02.applications/00.gitea) or Gitlab )
+- Host your projects Git repositories ( with [Gitea](https://zouloux.github.io/pasta/#/./00.server/02.applications/00.gitea) or Gitlab )
 - Host and run projects in **staging phase**
 - Deploy with **CI** to a **production server**
+- Or deploy directly from your computer
 
 **But also :**
 - Create **secured workspaces** for any project to **work with other developers**
@@ -27,7 +28,7 @@ With those script and conventions, you will be able to :
 
 **Pasta Server** comes with :
 - a set of [scripts](https://zouloux.github.io/pasta/#/./00.server/01.after-installation/02.available-scripts)
-- a nice [.bashrc](./server/.bashrc) which shows the current user and server to avoid critical mistakes when connected through SSH.
+- a nice preconfigured [.bashrc](./server/.bashrc) file
 - `lazydocker` / `htop` / `l` / `ll`
 
 **Pasta-CLI** node package :
