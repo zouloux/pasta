@@ -81,10 +81,6 @@ apt remove figlet -y -qq > /dev/null 2>&1
 echo "PrintMotd yes" >> /etc/ssh/sshd_config
 systemctl restart sshd > /dev/null 2>&1
 
-# Creating pasta group
-echo "Creating pasta group ..."
-groupadd pasta > /dev/null 2>&1
-
 # Install Docker
 if ! command -v docker &> /dev/null; then
   echo "Installing docker ..."
@@ -161,6 +157,10 @@ cp -r /tmp/pasta/server/containers/services/proxy/config/ /root/containers/servi
 echo "Installing pasta bin ..."
 mkdir -p "$pastaDir" > /dev/null 2>&1
 cp -r "/tmp/pasta/server/pasta/*" "$pastaDir" > /dev/null 2>&1
+
+echo "Configuring deployment group..."
+groupadd pasta > /dev/null 2>&1
+echo "%pasta ALL=(ALL) NOPASSWD: /usr/local/pasta/bin/project-deploy" >> /etc/sudoers.d/pasta-deploy
 
 echo "Creating docker network ..."
 docker network create pasta > /dev/null 2>&1

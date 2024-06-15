@@ -84,6 +84,7 @@ export async function initCommand () {
 		    password: "login:pass"
 		    # By default, data goes to branch directory, but it can be shared with other branches
 		    # data: main
+		    # Allow pull and push sync for preview branch
 		    sync: "both"
 		    # Can only push from CI
 		    noDirectDeploy: ${useCI}
@@ -200,14 +201,9 @@ export async function initCommand () {
 			    steps:
 			      - name: "Checkout repository"
 			        uses: actions/checkout@v4
-			      - name: "Install pasta"
+			      - name: "Install Pasta CLI"
 			        run: |
 			          npm i -g @zouloux/pasta-cli
-			      - name: "Register SSH Key"
-			        run: |
-			          mkdir -p ~/.ssh
-			          echo "\${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-			          chmod 600 ~/.ssh/id_ed25519
 			      - name: "Build"
 			        run: |
 			          branch=\${{ github.ref }}
@@ -216,6 +212,7 @@ export async function initCommand () {
 			          echo "TODO : implement build steps ..."
 			      - name: "Deploy to server"
 			        run: |
+			          echo "\${{ secrets.DEPLOY_KEY }}" > .pasta.key
 			          pasta ci
 		`))
 		await giteaFile.save()
@@ -230,11 +227,6 @@ export async function initCommand () {
 			  name: zouloux/docker-debian-ci
 			stages:
 			  - deploy
-			default:
-			  before_script:
-			    - mkdir -p ~/.ssh
-			    - echo SSH_PRIVATE | tr " " "\\n" > ~/.ssh/id_ed25519
-			    - chmod 600 ~/.ssh/id_ed25519
 			job:deploy:
 			  stage: deploy
 			  only:
@@ -243,6 +235,7 @@ export async function initCommand () {
 			  script:
 			    - mv ".env.$BRANCH" .env
 			    - echo "TODO : implement build steps ..."
+			    - echo SSH_PRIVATE | tr " " "\\n" > .pasta.key
 			    - pasta ci
 		`))
 		await gitlabFile.save()

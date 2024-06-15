@@ -154,14 +154,6 @@ echo "VIRTUAL_HOST=$domain" >> "$dotEnv"
 # Save domain as text for later deletion
 echo "$domain" > "$destinationBuildDir/domain.txt"
 
-# ------------------------------------------------------------------------------ CHECK DOMAIN AVAILABILITY
-
-# TODO : Grab all used domains from all containers
-# TODO : Exclude current project with current branch
-# TODO : Check for $domain and $alias, should fail if any is already reserved
-# TODO : see grab-reserved-hostnames.sh
-# TODO : Maybe also remove VIRTUAL_HOST and LETSENCRYPT_HOST from docker-compose.yaml for better security ?
-
 # ------------------------------------------------------------------------------ COMPUTE ALIAS
 
 # Add alias service if alias is detected
@@ -271,6 +263,15 @@ for volume in $dataVolumes; do
     setfacl -R -m o::rwx "$volume"
   fi
 done
+
+# ------------------------------------------------------------------------------ CHECK DOMAIN AVAILABILITY
+
+# TODO : Grab all used domains from all containers
+# TODO : Exclude current project with current branch
+# TODO : Check for $domain and $alias, should fail if any is already reserved
+# TODO : see grab-reserved-hostnames.sh
+# TODO : Maybe also remove VIRTUAL_HOST and LETSENCRYPT_HOST from docker-compose.yaml for better security ?
+# TODO : Or check from docker compose config !
 
 # ------------------------------------------------------------------------------ PASSWORD & PROXY CONFIG
 
