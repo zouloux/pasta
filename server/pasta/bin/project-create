@@ -41,7 +41,7 @@ group="pasta"
 usermod -aG "$group" "$username"
 
 echo "Creating project directories ..."
-mkdir -p "$userProjectRoot/{.config,artifacts,builds,branches,data,.ssh}"
+mkdir -p "$userProjectRoot/"{.config,artifacts,builds,branches,data,.ssh}
 
 mkdir -p "$rootProjectRoot/keys"
 project-revoke-key "$projectName"
@@ -74,4 +74,5 @@ cp "/root/.bashrc" "$userProjectRoot/.bashrc"
 echo ""
 echo "> Project $projectName created"
 echo "> Deploy key is:"
+echo ""
 cat "$rootProjectRoot/keys/id_ed25519"

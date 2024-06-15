@@ -73,5 +73,6 @@ export async function deployCommand ( config, branchName ) {
 
 	// ------------------------------------------------------------------------- CLEAN
 	await archiveFile.delete()
+	newLine()
 	nicePrint(`{b/g}Done ✨`)
 }

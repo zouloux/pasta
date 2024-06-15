@@ -13,6 +13,7 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 
 if [ "$(id -u)" -eq 0 ]; then
+  echo ""
   echo "${bold}--- DOCKER ---${normal}"
   echo ""
   echo "${bold}docker-clean${normal} [ROOT]"
@@ -36,7 +37,9 @@ if [ "$(id -u)" -eq 0 ]; then
   echo "${bold}proxy-password <branch> <domain?> <login:password?>${normal}"
   echo "  Set an http password for a domain."
   echo "  If no login and password pair is given, password will be removed."
+  echo ""
 fi
+echo ""
 echo "${bold}--- PROJECTS ---${normal}"
 if [ "$(id -u)" -eq 0 ]; then
   echo ""
@@ -63,6 +66,7 @@ echo "${bold}project-branch-remove <project?> <branch?>${normal}"
 echo "  Stop running containers in this branch and remove build files."
 echo "  Data files for this branch will be kept into data directory."
 echo ""
+echo ""
 echo "${bold}--- FILE TRANSFER ---${normal}"
 echo ""
 echo "${bold}iterm-download <file>${normal}"
@@ -76,10 +80,11 @@ echo "${bold}rsync-upload${normal} <file?>"
 echo "  Create an rsync command to upload a file from your computer."
 echo "  File override is disabled by default."
 echo ""
+echo ""
 echo "${bold}--- TOOLS ---${normal}"
+echo ""
 echo "${bold}print-alias${normal}"
 echo "  Show command to add this server to Pasta CLI"
-echo ""
 if [ "$(id -u)" -eq 0 ]; then
   echo ""
   echo "${bold}lazydocker${normal} [ROOT]"
@@ -87,6 +92,7 @@ if [ "$(id -u)" -eq 0 ]; then
   echo ""
   echo "${bold}htop${normal} [ROOT]"
   echo "  Open process manager"
+  echo ""
   echo ""
   echo "${bold}--- UPGRADE ---${normal}"
   echo ""
