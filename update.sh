@@ -50,6 +50,7 @@ cd /root
 
 # Clone repo
 echo "Cloning Pasta repo ..."
+rm -rf /tmp/pasta > /dev/null 2>&1
 git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
 # Set bash profile
@@ -69,7 +70,7 @@ if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.ya
 echo "Updating pasta bin ..."
 rm -rf "$pastaDir/bin" > /dev/null 2>&1
 mkdir -p "$pastaDir" > /dev/null 2>&1
-cp -f -r "/tmp/pasta/server/pasta/*" "$pastaDir" > /dev/null 2>&1
+cp -f -r /tmp/pasta/server/pasta/bin/* "$pastaDir" > /dev/null 2>&1
 
 # Start the proxy
 echo "Starting proxy ..."
