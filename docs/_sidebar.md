@@ -34,7 +34,7 @@
     * [Update Pasta Server](00.server/04.more/00.update.md)
     * [Uninstall Pasta Server](00.server/04.more/01.uninstall.md)
 * Client
-  * [Install Pasta-CLI](01.client/00.install-pasta-cli.md)
+  * [Install Pasta CLI](01.client/00.install-pasta-cli.md)
   * [Create a new Pasta project](01.client/01.create-new-project.md)
   * _Generated Files_
     * [docker-compose.common.yaml](01.client/10.docker-compose.common.yaml.md)

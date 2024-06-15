@@ -1,0 +1,37 @@
+#!/bin/bash
+
+clear
+if [ -z "$1" ]; then
+  read -p "Enter the project name: " projectName
+else
+  projectName="$1"
+fi
+if [ -z "$2" ]; then
+  read -p "Enter branch name: " branch
+else
+  branch="$2"
+fi
+
+buildsDir="builds"
+branchesDir="branches"
+user="$projectName"
+userDir="/home/$user"
+branchDir="$userDir/$branchesDir/$branch"
+
+if [[ ! -d $userDir ]]; then
+  echo "Project $projectName does not exist."
+  exit 1
+fi
+if [[ ! -d "$branchDir" ]]; then
+  echo "Branch $branch does not exist on project $projectName."
+  exit 1
+fi
+
+link=$(readlink "$branchDir")
+echo "Stopping and removing build $link ..."
+(cd $link && docker compose down --volumes --remove-orphans) > /dev/null 2>&1
+rm -rf "$link"
+rm "$branchDir"
+
+echo ""
+echo "> Branch $branch of project $projectName removed"

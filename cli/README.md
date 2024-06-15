@@ -1,6 +1,6 @@
-# Pasta-CLI
+# Pasta CLI
 
-**Pasta-CLI** helps you manage your **Pasta Server** from your **terminal**.
+**Pasta CLI** helps you manage your **Pasta Server** from your **terminal**.
 
 - [Github](https://github.com/zouloux/pasta)
 - [Documentation](https://zouloux.github.io/pasta/)

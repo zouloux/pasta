@@ -1,63 +1,114 @@
 #!/bin/bash
 
+if [ "$(id -u)" -ne 0 ]; then
+  echo "This script must be run as root"
+  exit 1
+fi
 if [ $# -lt 2 ] || [ $# -gt 6 ]; then
   echo "Usage:"
-  echo "$0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <alias?> <login:password?>"
+  echo "sudo $0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <alias?> <login:password?>"
   exit 1
 fi
 
 # ------------------------------------------------------------------------------ INIT
 
-projectName=$1
-branch=$2
-dataBucketName=${3:-$branch}
-domain=$4
-alias=$5
-password=$6
-username=$projectName
+# Using sudo, bashrc is not read. We have to reload envs and path.
+# Pasta Server config
+export PASTA_DOMAIN=$(cat /usr/local/pasta/config/domain.txt)
+export PASTA_HOSTNAME=$(cat /usr/local/pasta/config/hostname.txt)
+export PASTA_EMAIL=$(cat /usr/local/pasta/config/email.txt)
+
+# Pasta Server scripts aliases
+export PATH="$PATH:/usr/local/pasta/bin"
+
+# Process arguments
+projectName="$1"
+branch="$2"
+dataBucketName="${3:-$branch}"
+domain="$4"
+alias="$5"
+password="$6"
+
+# Check arguments
+if [[ ! "$projectName" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  echo "Invalid project name [a-zA-Z0-9_-]"
+  exit 1
+fi
+if [[ ! "$branch" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  echo "Invalid branch name [a-zA-Z0-9_-]"
+  exit 1
+fi
+if [[ -n "$dataBucketName" && ! "$dataBucketName" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  echo "Invalid dataBucketName [a-zA-Z0-9_-]"
+  exit 1
+fi
+if [[ -n "$domain" && ! "$domain" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+  echo "Invalid domain [a-zA-Z0-9._-]"
+  exit 1
+fi
+if [[ -n "$alias" && ! "$alias" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+  echo "Invalid alias [a-zA-Z0-9._-]"
+  exit 1
+fi
+if [[ -n "$password" && ! "$password" =~ ^[a-zA-Z0-9._:-]+$ ]]; then
+  echo "Invalid login:password [a-zA-Z0-9._:-]"
+  exit 1
+fi
+
+# Init variables
+username="$projectName"
 userDir="/home/$username"
-
-if [[ ! -d $userDir ]]; then
-  echo "Project $projectName does not exist."
-  exit 1
-fi
-
-cd $userDir
-
-if [[ "dataBucketName" =~ [^a-zA-Z0-9_-] ]]; then
-  echo "Bucket name cannot contain special chars."
-  exit 1
-fi
-
-# Create variables
 baseDataDir="$userDir/data"
 tarFile="$userDir/artifacts/$branch.tar.gz"
 buildNumber=$(openssl rand -hex 8)
 destinationBuildDir="$userDir/builds/$branch-$buildNumber"
 destinationBranchLink="$userDir/branches/$branch"
+group="pasta"
 
-echo "> Build number is $buildNumber"
+# ------------------------------------------------------------------------------ TARGET ELEMENTS
 
-# ------------------------------------------------------------------------------ EXTRACT
+# Target user directory
+if [[ ! -d $userDir ]]; then
+  echo "Project $projectName does not exist."
+  exit 1
+fi
 
-# Extract tar.gz file
+# Target tar.gz file
 if [ ! -f "$tarFile" ]; then
   echo "File $tarFile not found"
   exit 1
 fi
-mkdir -p $destinationBuildDir
+
+cd "$userDir"
+
+echo "> Build number is $buildNumber"
+
+# ------------------------------------------------------------------------------ ERROR EXIT
+
+fatalError () {
+  echo "⚠ $1 : $2"
+  if [ -n "$3" ]; then
+    echo "Error stack"
+    echo "$3"
+  fi
+  rm -f "$tarFile"
+  (cd "$destinationBuildDir" && docker compose down --volumes --remove-orphans ) > /dev/null 2>&1
+  rm -rf "$destinationBuildDir"
+  exit 1
+}
+
+# ------------------------------------------------------------------------------ EXTRACT
+
+mkdir -p "$destinationBuildDir"
 echo "Extracting $tarFile ..."
 if ! tar -xzf $tarFile -C $destinationBuildDir; then
-  echo "⚠ Failed to extract $tarFile"
-  rm -f $tarFile
-  rm -rf $destinationBuildDir
-  exit 1
+  fatalError "build" "Failed to extract $tarFile"
 fi
 
 # ------------------------------------------------------------------------------ PATCH BUILD OWNING
 
 # Patch destination directory
-chown -R "$username:$username" $destinationBuildDir > /dev/null 2>&1
+chown -R "$username:$group" "$destinationBuildDir" > /dev/null 2>&1
 
 # ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
@@ -69,24 +120,19 @@ fi
 # No docker compose file
 dockerComposeFile="$destinationBuildDir/docker-compose.yaml"
 if [ ! -f "$dockerComposeFile" ]; then
-  echo "⚠ No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
-  rm -rf $destinationBuildDir
-  rm -f $tarFile
-  exit 1
+  fatalError "prepare" "No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
 fi
 
 # ------------------------------------------------------------------------------ DOT ENV INIT
 
 # Dot env
 dotEnv="$destinationBuildDir/.env"
-echo "" >> $dotEnv
+echo "" >> "$dotEnv"
 
 # ------------------------------------------------------------------------------ COMPUTE DOMAIN
 
 # If we have a domain to set
 if [ -n "$domain" ]; then
-  # Remove virtual host from dot env
-  sed -i '/^VIRTUAL_HOST=/d' $dotEnv
   # If it's a dot, it's the main pasta domain
   # If it has a dot, it's a full-domain ( can be external to main pasta domain )
   # No dot, it's a sub-domain of the main pasta domain
@@ -95,18 +141,26 @@ if [ -n "$domain" ]; then
   elif [[ "$domain" != *"."* ]]; then
     domain="$domain.$PASTA_DOMAIN"
   fi
-  echo "> Domain is $domain"
-  echo "VIRTUAL_HOST=$domain" >> $dotEnv
 # No domain to set, but no domain in dot env, use auto mode
-elif ! grep -q '^VIRTUAL_HOST=' $dotEnv; then
+else
   domain="$projectName-$branch.$PASTA_DOMAIN"
-  echo "Missing VIRTUAL_HOST from .env file. Setting domain to $domain"
-  echo "VIRTUAL_HOST=$domain" >> $dotEnv
-  exit 1
 fi
 
+# Save domain
+echo "> Domain is $domain"
+sed -i '/^VIRTUAL_HOST=/d' "$dotEnv"
+echo "VIRTUAL_HOST=$domain" >> "$dotEnv"
+
 # Save domain as text for later deletion
-echo $domain > "$destinationBuildDir/domain.txt"
+echo "$domain" > "$destinationBuildDir/domain.txt"
+
+# ------------------------------------------------------------------------------ CHECK DOMAIN AVAILABILITY
+
+# TODO : Grab all used domains from all containers
+# TODO : Exclude current project with current branch
+# TODO : Check for $domain and $alias, should fail if any is already reserved
+# TODO : see grab-reserved-hostnames.sh
+# TODO : Maybe also remove VIRTUAL_HOST and LETSENCRYPT_HOST from docker-compose.yaml for better security ?
 
 # ------------------------------------------------------------------------------ COMPUTE ALIAS
 
@@ -135,79 +189,95 @@ if [ -n "$alias" ]; then
       - pasta
 "
   # Split docker compose around "services" declaration
-  before=$(sed '/^services\s*:/q' $dockerComposeFile)
-  after=$(sed -n '/^services\s*:/,$p' $dockerComposeFile | tail -n +2)
+  before=$(sed '/^services\s*:/q' "$dockerComposeFile")
+  after=$(sed -n '/^services\s*:/,$p' "$dockerComposeFile" | tail -n +2)
   # Recreate the docker compose file with injected alias
-  echo "$before" > $dockerComposeFile
-  echo "$pasta_alias" >> $dockerComposeFile
-  echo "$after" >> $dockerComposeFile
+  echo "$before" > "$dockerComposeFile"
+  echo "$pasta_alias" >> "$dockerComposeFile"
+  echo "$after" >> "$dockerComposeFile"
 fi
-
-# ------------------------------------------------------------------------------ CHECK DOMAIN AVAILABILITY
-
-# TODO : Grab all used domains from all containers
-# TODO : Exclude current project with current branch
-# TODO : Check for $domain and $alias, should fail if any is already reserved
-# TODO : see grab-reserved-hostnames.sh
 
 # ------------------------------------------------------------------------------ INJECT DOT ENV
 
 # Force pasta project name
-sed -i '/^PASTA_PROJECT_NAME=/d' $dotEnv
-echo "PASTA_PROJECT_NAME=$projectName" >> $dotEnv
+sed -i '/^PASTA_PROJECT_NAME=/d' "$dotEnv"
+echo "PASTA_PROJECT_NAME=$projectName" >> "$dotEnv"
 
 # Inject build number
-echo "PASTA_BUILD=$buildNumber" >> $dotEnv
+sed -i '/^PASTA_BUILD=/d' "$dotEnv"
+echo "PASTA_BUILD=$buildNumber" >> "$dotEnv"
 
 # Save https host
-echo "LETSENCRYPT_HOST=$domain" >> $dotEnv
+sed -i '/^LETSENCRYPT_HOST=/d' "$dotEnv"
+echo "LETSENCRYPT_HOST=$domain" >> "$dotEnv"
 
 # Remove pasta data from dot env and force it
-sed -i '/^PASTA_DATA=/d' $dotEnv
-echo "PASTA_DATA=../../data/$dataBucketName" >> $dotEnv
+sed -i '/^PASTA_DATA=/d' "$dotEnv"
+echo "PASTA_DATA=../../data/$dataBucketName" >> "$dotEnv"
 
 # Inject branch
-sed -i '/^PASTA_BRANCH=/d' $dotEnv
-echo "PASTA_BRANCH=$branch" >> $dotEnv
+sed -i '/^PASTA_BRANCH=/d' "$dotEnv"
+echo "PASTA_BRANCH=$branch" >> "$dotEnv"
 
 # Force https redirect
-sed -i '/^HTTPS_METHOD=/d' $dotEnv
-echo "HTTPS_METHOD=redirect" >> $dotEnv
+sed -i '/^HTTPS_METHOD=/d' "$dotEnv"
+echo "HTTPS_METHOD=redirect" >> "$dotEnv"
 
 # Set the docker compose project name from the unique build number
 # With this, "docker compose" commands can be ran from the branch link and the build directory
 composeProjectName="${projectName}_${branch}_${buildNumber}"
-echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> $dotEnv
+sed -i '/^COMPOSE_PROJECT_NAME=/d' "$dotEnv"
+echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
 
 # ------------------------------------------------------------------------------ PATCH DATA OWNING
 
 # Preparing data directories
 echo "Extracting data directories ..."
-dockerComposeConfig=$(cd $destinationBuildDir && docker compose config)
-dataVolumes=$(echo "$dockerComposeConfig" | grep "source: $HOME/data" | awk -F"$HOME/data" '{print $2}' | tr -d ' ')
+dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose config)
+if [ $? -ne 0 ]; then
+  fatalError "docker compose" "Failed to get docker compose config. Check docker-compose.yaml file."
+fi
 
-# Create directories for each volume
-echo "Patching data directories ..."
+# Read all mapped volumes of all services
+dataVolumes=$(echo "$dockerComposeConfig" | grep "source:" | awk -F"source: " '{print $2}' | tr -d ' ')
+
+# Browse all mapped volumes and check if any tries to get out of the sandbox.
+# - /home/$user/data/*
+# - /home/$user/branches/*
+# - /home/$user/builds/*
+# Anything else will be banned for security reasons
 for volume in $dataVolumes; do
-  echo "- $volume"
-  localDir="${baseDataDir}${volume}"
-  mkdir -p "$localDir"
-  chown -R "$username:$username" "$localDir"
-  chmod -R 0777 "$localDir"
-  setfacl -d -m u::rwx "$localDir"
-  setfacl -d -m g::rwx "$localDir"
-  setfacl -d -m o::rwx "$localDir"
-  setfacl -R -m u::rwx "$localDir"
-  setfacl -R -m g::rwx "$localDir"
-  setfacl -R -m o::rwx "$localDir"
+  if [[ "$volume" != "$userDir/data"* && "$volume" != "$userDir/branches"* && "$volume" != "$userDir/builds"* ]]; then
+    fatalError "docker compose" "Volume $volume is outside of sandbox ( mapping a directory outside $userDir is forbidden )"
+  fi
+  if [[ "$volume" =~ ^[a-zA-Z0-9._:-]+$ ]]; then
+    fatalError "docker compose" "Volume $volume is outside of sandbox ( docker volumes are forbidden )"
+  fi
 done
 
-# ------------------------------------------------------------------------------ PASSWORD
+# Create directories for each valid volume mapping to $userDir/data or children
+echo "Patching data directories ..."
+for volume in $dataVolumes; do
+  if [[ "$volume" == "$userDir/data"* ]]; then
+    echo "- $volume"
+    mkdir -p "$volume"
+    chown -R "$username:$group" "$volume"
+    chmod -R 0777 "$volume"
+    setfacl -d -m u::rwx "$volume"
+    setfacl -d -m g::rwx "$volume"
+    setfacl -d -m o::rwx "$volume"
+    setfacl -R -m u::rwx "$volume"
+    setfacl -R -m g::rwx "$volume"
+    setfacl -R -m o::rwx "$volume"
+  fi
+done
+
+# ------------------------------------------------------------------------------ PASSWORD & PROXY CONFIG
 
 # Check if we had a domain in previous build
 oldDomainFile="$destinationBranchLink/domain.txt"
 if [ -f "$oldDomainFile" ]; then
-  oldDomain=$(cat $oldDomainFile)
+  oldDomain=$(cat "$oldDomainFile")
   # Remove old password
   proxy-password "$oldDomain"
   # Remove old config
@@ -219,57 +289,52 @@ if [ -n "$password" ]; then
   proxy-password "$domain" "$password"
 fi
 
-# ------------------------------------------------------------------------------ NGINX CONFIG
-
 # Setting nginx config
 proxyConfigSource="$destinationBuildDir/.proxy/nginx.conf"
 proxyConfigDestination="/etc/nginx/vhost.d/$domain"
 if [ -f "$proxyConfigSource" ]; then
   echo "Setting nginx config ..."
-  mv -f $proxyConfigSource $proxyConfigDestination > /dev/null 2>&1
+  mv -f "$proxyConfigSource" "$proxyConfigDestination" > /dev/null 2>&1
+  rm -rf "$destinationBuildDir/.proxy"
 fi
 
 # ------------------------------------------------------------------------------ RELOAD NGINX
 
 # Reload proxy config
 echo "Reloading proxy config ..."
-docker exec proxy-nginx nginx -s reload
+docker exec proxy-nginx nginx -s reload > /dev/null 2>&1
 
 # ------------------------------------------------------------------------------ STARTING NEW BUILD
 
-# Docker compose up
-echo "Starting containers ..."
-if ! (cd $destinationBuildDir && docker compose build && docker compose up -d); then
-  echo "⚠ Unable to start docker stack"
-  docker compose down --volumes --remove-orphans > /dev/null 2>&1
-  rm -rf $destinationBuildDir
-  rm -f $tarFile
-  exit 1
+echo "Building containers ..."
+buildOutput=$(cd "$destinationBuildDir" && docker compose build 2>&1)
+if [ $? -ne 0 ]; then
+  fatalError "docker compose" "Unable to build docker stack" "$buildOutput"
 fi
-echo ""
+echo "Starting containers ..."
+startOutput=$(cd "$destinationBuildDir" && docker compose up -d 2>&1)
+if [ $? -ne 0 ]; then
+  fatalError "docker compose" "Unable to start docker stack" "$startOutput"
+fi
 
 # ------------------------------------------------------------------------------ STOPPING PREVIOUS BUILD
 
-# TODO : Wait enough time to have the new container ready before stopping the old one
-# TODO : Maybe having a heartbeat call or something ?
-# TODO : If more than 60s, docker compose down and fail
 sleep 1
-
 echo "Stopping and removing old containers ..."
-if [ -d $destinationBranchLink ]; then
-  oldBranchDir=$(readlink -f $destinationBranchLink)
-  (cd $oldBranchDir && docker compose down --volumes --remove-orphans && docker container prune -f)
-  rm -rf $oldBranchDir
+if [ -d "$destinationBranchLink" ]; then
+  oldBranchDir=$(readlink -f "$destinationBranchLink")
+  (cd "$oldBranchDir" && docker compose down --volumes --remove-orphans) > /dev/null 2>&1
+  rm -rf "$oldBranchDir"
 fi
-echo ""
 
 # ------------------------------------------------------------------------------ BRANCH LINK TO BUILD
 
-echo "Creating branch link ..."
-ln -sf $destinationBuildDir $destinationBranchLink
-rm -f $tarFile
+echo "Linking new build directory ..."
+ln -sf "$destinationBuildDir" "$destinationBranchLink"
+rm -f "$tarFile"
 
 # ------------------------------------------------------------------------------ END
 
 echo ""
-echo "Branch $branch of $projectName deployed to $domain"
+echo "> Branch $branch of $projectName deployed successfully"
+echo "> https://$domain"

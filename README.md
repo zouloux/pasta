@@ -44,7 +44,7 @@ With those script and conventions, you will be able to :
 ## Documentation
 
 ## 💿 [Install Pasta Server](https://zouloux.github.io/pasta/#/./00.server/00.install/03.install-pasta-server)
-## 🚀 Install Pasta-CLI
+## 🚀 Install Pasta CLI
 ## ⚡️ [Quick start](https://zouloux.github.io/pasta/)
 ## 📕 [Complete documentation](https://zouloux.github.io/pasta/)
 

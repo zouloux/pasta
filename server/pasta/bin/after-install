@@ -1,30 +1,30 @@
 #!/bin/bash
 
+if [ "$(id -u)" -ne 0 ]; then
+  echo "This script must be run as root"
+  exit 1
+fi
+
+group="pasta"
+
 echo "Patching pasta bin ..."
 pastaBinDir="/usr/local/pasta/bin"
 chmod -R 0700 $pastaBinDir
-chmod 0755 $pastaBinDir
-chmod 0755 "$pastaBinDir/docker-restart"
-chmod 0755 "$pastaBinDir/host-stats-json"
-chmod 0755 "$pastaBinDir/project-deploy"
-chmod 0755 "$pastaBinDir/project-clean"
-chmod 0755 "$pastaBinDir/project-remove-branch"
-chmod 0755 "$pastaBinDir/proxy-password"
-chmod 0755 "$pastaBinDir/proxy-reload"
-chmod 0755 "$pastaBinDir/iterm-download"
-chmod 0755 "$pastaBinDir/rsync-download"
-chmod 0755 "$pastaBinDir/rsync-upload"
-chmod 0755 "$pastaBinDir/print-alias"
-chmod 0755 "$pastaBinDir/pasta-help"
-
-echo "Patch nginx passwords directory ..."
-# fixme : we should avoid 777 here but we need it for project-deploy
-chmod 0777 /etc/nginx/htpasswd
-chmod 0777 /etc/nginx/vhost.d
+chown -R "root:$group" $pastaBinDir
+chmod 0750 $pastaBinDir
+chmod 0750 "$pastaBinDir/host-stats-json"
+chmod 0750 "$pastaBinDir/iterm-download"
+chmod 0750 "$pastaBinDir/pasta-help"
+chmod 0750 "$pastaBinDir/print-version"
+chmod 0750 "$pastaBinDir/project-branch-clean"
+chmod 0750 "$pastaBinDir/project-branch-remove"
+chmod 0750 "$pastaBinDir/project-deploy" # sudo
+chmod 0750 "$pastaBinDir/rsync-download"
+chmod 0750 "$pastaBinDir/rsync-upload"
 
 echo "Cleaning ..."
-rm -rf /tmp/* /tmp/.* > /dev/null 2>&1
-rm -f .zcompdump* > /dev/null 2>&1
-rm -f .wget-hsts > /dev/null 2>&1
-rm -f .viminfo > /dev/null 2>&1
+rm -rf "/tmp/*" "/tmp/.*" > /dev/null 2>&1
+rm -f ".zcompdump*" > /dev/null 2>&1
+rm -f ".wget-hsts" > /dev/null 2>&1
+rm -f ".viminfo" > /dev/null 2>&1
 echo "" > .bash_history

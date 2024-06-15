@@ -1,15 +1,20 @@
 #!/bin/bash
 
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <project> <branch>"
-  exit 1
+clear
+if [ -z "$1" ]; then
+  read -p "Enter the project name: " projectName
+else
+  projectName="$1"
+fi
+if [ -z "$2" ]; then
+  read -p "Enter branch name: " branch
+else
+  branch="$2"
 fi
 
-projectName=$1
-branch=$2
 buildsDir="builds"
 branchesDir="branches"
-user=$projectName
+user="$projectName"
 userDir="/home/$user"
 
 if [[ ! -d $userDir ]]; then
@@ -17,7 +22,7 @@ if [[ ! -d $userDir ]]; then
   exit 1
 fi
 
-cd $userDir
+cd "$userDir"
 
 # Collect all build IDs for the specified branch
 allBuilds=()
@@ -32,10 +37,11 @@ linkedBuild=$(basename "$(readlink "$branchesDir/$branch")" 2>/dev/null | sed 's
 for build in "${allBuilds[@]}"; do
   buildId=$(echo "$build" | sed 's/^.*-//')
   if [ "$buildId" != "$linkedBuild" ]; then
-    echo "Stopping and removing build $build"
-    ( cd $buildsDir/$build && docker compose down --volumes --remove-orphans && docker container prune -f )
-    rm -rf $buildsDir/$build
+    echo "Stopping and removing build $build ..."
+    (cd "$buildsDir/$build" && docker compose down --volumes --remove-orphans) > /dev/null 2>&1
+    rm -rf "$buildsDir/$build"
   fi
 done
 
-echo "Cleanup complete."
+echo ""
+echo "> Branch $branch of project $projectName cleaned"

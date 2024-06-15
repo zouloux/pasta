@@ -29,14 +29,14 @@ commands.add("open", async () => {
 	await openCommand(projectName)
 })
 
-commands.add("generate-ssl", async () => {
+commands.add("ssl", async () => {
 	const projectName = await getProjectNameFromDotEnv()
 	await generateSSLCommand( projectName )
 })
-commands.add("patch-key", async () => {
-	const { config } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
-	await patchKeyCommand( config )
-})
+// commands.add("patch-key", async () => {
+// 	const { config } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
+// 	await patchKeyCommand( config )
+// })
 
 async function getDeployConfig () {
 	// Branch is given from argv
@@ -85,9 +85,9 @@ commands.start( async (commandName) => {
 			open: "Show links to open current project on local or mobile device.",
 			deploy: "Deploy project branch to server.",
 			sync: "Synchronize branch data between server and local.",
-			"---1": "---",
-			'generate-ssl': "Re-generate SSL keys for local https.",
-			'patch-key': "Try to patch deployment key.",
+			ssl: "Re-generate SSL keys for local https.",
+			// "---1": "---",
+			// 'patch-key': "Try to patch deployment key.",
 			"---2": "---",
 			server: "Manage registered servers",
 			connect: "Start SSH connexion to a registered Pasta Server",

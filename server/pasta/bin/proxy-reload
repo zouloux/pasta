@@ -1,5 +1,8 @@
 #!/bin/bash
 
-#cd ~/containers/services/proxy
-#docker compose exec nginx nginx -s reload
+if [ "$(id -u)" -ne 0 ]; then
+  echo "This script must be run as root"
+  exit 1
+fi
+
 docker exec proxy-nginx nginx -s reload

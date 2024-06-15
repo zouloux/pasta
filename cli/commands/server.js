@@ -164,7 +164,8 @@ export async function serverCommand ( action, serverName ) {
 		const { user, host, port } = parseServerEndpoint( server )
 		const sshCommand = 'ssh';
 		const sshArgs = [ '-p', port, `${user}@${host}` ];
-		nicePrint(`{d}Opening SSH connexion to ${host} ...`)
+		nicePrint(`Opening SSH connexion to ${host} ...`)
+		nicePrint(`{d}$ ${sshCommand} ${sshArgs.join(" ")}`)
 		spawn(sshCommand, sshArgs, { stdio: 'inherit' });
 	}
 

@@ -12,8 +12,8 @@ echo ""
 pastaDir="/usr/local/pasta"
 proxyDir="/root/containers/services/proxy"
 
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root"
+if [ "$(id -u)" -ne 0 ]; then
+  echo "This script must be run as root"
   exit 1
 fi
 
@@ -26,7 +26,7 @@ fi
 
 # Ask for confirmation
 read -p "This script will update :
-- /usr/local/pasta ( override )
+- /usr/local/pasta/bin ( override )
 - /root/.bashrc ( will create a .old backup if different )
 - ${proxyDir}/docker-compose.yaml ( will create a .old backup if different )
 Are you sure to continue? (y/n) " confirmation
@@ -44,7 +44,7 @@ fi
 
 # Stop proxy
 echo "Stopping proxy ..."
-cd $proxyDir
+cd "$proxyDir"
 docker compose stop > /dev/null 2>&1
 cd /root
 
@@ -61,19 +61,19 @@ source .bashrc
 
 # Copy the proxy config and scripts
 echo "Updating proxy ..."
-cd $proxyDir
+cd "$proxyDir"
 cp -f docker-compose.yaml docker-compose.yaml.old
 cp -f /tmp/pasta/server/containers/services/proxy/docker-compose.yaml $proxyDir
 if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
 echo "Updating pasta bin ..."
 rm -rf "$pastaDir/bin" > /dev/null 2>&1
-mkdir -p $pastaDir > /dev/null 2>&1
-cp -f -r /tmp/pasta/server/pasta/* $pastaDir > /dev/null 2>&1
+mkdir -p "$pastaDir" > /dev/null 2>&1
+cp -f -r "/tmp/pasta/server/pasta/*" "$pastaDir" > /dev/null 2>&1
 
 # Start the proxy
 echo "Starting proxy ..."
-cd $proxyDir
+cd "$proxyDir"
 docker compose up -d > /dev/null 2>&1
 cd /root
 
@@ -81,4 +81,4 @@ cd /root
 /usr/local/pasta/bin/after-install
 
 echo ""
-echo "All done ✨"
+echo "> All done"

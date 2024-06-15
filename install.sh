@@ -11,7 +11,7 @@ echo ""
 
 pastaDir="/usr/local/pasta"
 
-if [ "$EUID" -ne 0 ]; then
+if [ "$(id -u)" -ne 0 ]; then
   echo "Please run as root"
   exit 1
 fi
@@ -60,8 +60,8 @@ echo ""
 
 # Set the hostname
 echo "Configuring hosts ..."
-echo $hostname > /etc/hostname
-hostnamectl set-hostname $hostname > /dev/null 2>&1
+echo "$hostname" > /etc/hostname
+hostnamectl set-hostname "$hostname" > /dev/null 2>&1
 echo "" >> /etc/hosts
 echo "127.0.0.1 $hostname" >> /etc/hosts
 
@@ -80,6 +80,10 @@ apt remove figlet -y -qq > /dev/null 2>&1
 # Enable banner for SSH login
 echo "PrintMotd yes" >> /etc/ssh/sshd_config
 systemctl restart sshd > /dev/null 2>&1
+
+# Creating pasta group
+echo "Creating pasta group ..."
+groupadd pasta > /dev/null 2>&1
 
 # Install Docker
 if ! command -v docker &> /dev/null; then
@@ -136,9 +140,9 @@ mkdir -p containers/projects/
 echo "Saving config ..."
 mkdir -p "$pastaDir/config"
 cd "$pastaDir/config"
-echo $hostname > hostname.txt
-echo $rootDomain > domain.txt
-echo $adminEmail > email.txt
+echo "$hostname" > hostname.txt
+echo "$rootDomain" > domain.txt
+echo "$adminEmail" > email.txt
 cd /root
 
 # Clone repo
@@ -155,8 +159,8 @@ cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml /root/contain
 cp -r /tmp/pasta/server/containers/services/proxy/config/ /root/containers/services/proxy/config/
 
 echo "Installing pasta bin ..."
-mkdir -p $pastaDir > /dev/null 2>&1
-cp -r /tmp/pasta/server/pasta/* $pastaDir > /dev/null 2>&1
+mkdir -p "$pastaDir" > /dev/null 2>&1
+cp -r "/tmp/pasta/server/pasta/*" "$pastaDir" > /dev/null 2>&1
 
 echo "Creating docker network ..."
 docker network create pasta > /dev/null 2>&1
@@ -173,7 +177,6 @@ cd /root
 /usr/local/pasta/bin/after-install
 
 echo ""
-echo "All done ✨"
-echo ""
-echo "Add a shortcut to this server in your Pasta-CLI :"
+echo "> All done"
+echo "> Add a shortcut to this server in your Pasta CLI :"
 /usr/local/pasta/bin/print-alias

@@ -1,11 +1,21 @@
 #!/bin/bash
 
 clear
-cd ~
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "This script must be run as root"
+  exit 1
+fi
+if [ $# -gt 1 ]; then
+  echo "Usage:"
+  echo "$0 <project?>"
+  exit 1
+fi
+
 if [ -z "$1" ]; then
   read -p "Enter the project name: " projectName
 else
-  projectName=$1
+  projectName="$1"
 fi
 
 username="$projectName"
@@ -24,27 +34,26 @@ fi
 
 # Create a new linux user associated to this project workspace
 echo "Creating user $username ..."
-adduser --disabled-password --gecos "" $username > /dev/null 2>&1
+adduser --disabled-password --gecos "" "$username" > /dev/null 2>&1
 
-# Allow this user to use Docker
-usermod -aG docker $username
+# Allow this user to the pasta group
+group="pasta"
+usermod -aG "$group" "$username"
 
 echo "Creating project directories ..."
-mkdir -p $userProjectRoot/{.config,artifacts,builds,branches,data,.ssh}
+mkdir -p "$userProjectRoot/{.config,artifacts,builds,branches,data,.ssh}"
 
 mkdir -p "$rootProjectRoot/keys"
-project-revoke-key $projectName
+project-revoke-key "$projectName"
 
 echo "Configuring directories access ..."
-chown -h -R $username:$username $userProjectRoot
-chmod 770 -R $userProjectRoot
-chmod 700 $userProjectRoot/.ssh
-chmod 600 $userProjectRoot/.ssh/authorized_keys
+chown -h -R "$username:$username" "$userProjectRoot"
+chmod 770 -R "$userProjectRoot"
+chmod 700 "$userProjectRoot/.ssh"
+chmod 600 "$userProjectRoot/.ssh/authorized_keys"
 
 # Data is from root for everybody
-# FIXME : 777 is too opened but this is the only way to have
-# FIXME : docker users and scp users having access in read / write
-chown root:root "$userProjectRoot/data"
+chown "root:$group" "$userProjectRoot/data"
 chmod 0777 "$userProjectRoot/data"
 setfacl -d -m u::rwx "$userProjectRoot/data"
 setfacl -d -m g::rwx "$userProjectRoot/data"
@@ -63,10 +72,6 @@ rm -rf "$userProjectRoot/.bash_logout"
 cp "/root/.bashrc" "$userProjectRoot/.bashrc"
 
 echo ""
-echo "Project $projectName created ✨"
-echo ""
-#echo "Show deploy key with command :"
-#echo "project-show-key $projectName"
-#echo ""
-echo "Deploy key is"
+echo "> Project $projectName created"
+echo "> Deploy key is:"
 cat "$rootProjectRoot/keys/id_ed25519"

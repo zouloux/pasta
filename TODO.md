@@ -5,7 +5,24 @@
 
 ## Documentation !!!
 
+## New security
 
+To do
+- Allow on users: 
+  - project-clean
+  - project-remove-branch
+  - update doc
+
+- Install script / update script :
+  - Check after-install
+  - Remove add group docker
+  - Create sudoer file on install
+  - Create group pasta on install
+  - Remove chmod 777 on install for /etc/nginx
+
+- reinstall on servers
+
+- specific bashrc for users ?
 
 ## `project-deploy`
 - Lock some domains :

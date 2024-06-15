@@ -16,6 +16,7 @@ cpu_total=$(nproc)
 # Calculate CPU usage
 cpu_idle_before=$(awk '/^cpu / {print $5}' /proc/stat)
 cpu_total_before=$(awk '/^cpu / {print $2+$3+$4+$5+$6+$7+$8}' /proc/stat)
+# Sample duration, can be changed but will impact the stats speed
 sleep 0.5
 cpu_idle_after=$(awk '/^cpu / {print $5}' /proc/stat)
 cpu_total_after=$(awk '/^cpu / {print $2+$3+$4+$5+$6+$7+$8}' /proc/stat)

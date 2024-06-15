@@ -20,7 +20,7 @@ project-create pasta-test
 ```
 > Copy the private key somewhere
 6. Create a new directory on your computer
-7. Install `Pasta-CLI` globally on your computer
+7. Install `Pasta CLI` globally on your computer
 ```bash
 npm i -g pasta-cli
 ```
