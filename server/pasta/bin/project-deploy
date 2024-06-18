@@ -4,9 +4,9 @@ if [ "$(id -u)" -ne 0 ]; then
   echo "This script must be run as root"
   exit 1
 fi
-if [ $# -lt 2 ] || [ $# -gt 6 ]; then
+if [ $# -lt 2 ] || [ $# -gt 7 ]; then
   echo "Usage:"
-  echo "sudo $0 <project> <branch> <data-bucket?> <sub-domain|full-domain?> <alias?> <login:password?>"
+  echo "sudo $0 <project> <branch> <sub-branch?> <data-bucket?> <sub-domain|full-domain?> <alias?> <login:password?>"
   exit 1
 fi
 
@@ -24,10 +24,11 @@ export PATH="$PATH:/usr/local/pasta/bin"
 # Process arguments
 projectName="$1"
 branch="$2"
-dataBucketName="${3:-$branch}"
-domain="$4"
-alias="$5"
-password="$6"
+subBranch="$3"
+dataBucketName="${4:-$branch}"
+domain="$5"
+alias="$6"
+password="$7"
 
 # Check arguments
 if [[ ! "$projectName" =~ ^[a-zA-Z0-9_-]+$ ]]; then
@@ -134,17 +135,26 @@ echo "" >> "$dotEnv"
 # If we have a domain to set
 if [ -n "$domain" ]; then
   # If it's a dot, it's the main pasta domain
-  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
-  # No dot, it's a sub-domain of the main pasta domain
   if [[ "$domain" == "." ]]; then
     domain="$PASTA_DOMAIN"
+  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
   elif [[ "$domain" != *"."* ]]; then
     domain="$domain.$PASTA_DOMAIN"
+    # Automatic sub-branch
+    if [ -n "$subBranch" ]; then
+      domain="${domain}__${subBranch}.$PASTA_DOMAIN"
+    else
+      domain="$domain.$PASTA_DOMAIN"
+    fi
   fi
+  # No dot, it's a sub-domain of the main pasta domain
+
 # No domain to set, but no domain in dot env, use auto mode
 else
   domain="$projectName-$branch.$PASTA_DOMAIN"
 fi
+
+
 
 # Save domain
 echo "> Domain is $domain"
@@ -339,3 +349,9 @@ rm -f "$tarFile"
 echo ""
 echo "> Branch $branch of $projectName deployed successfully"
 echo "> https://$domain"
+if [ -n "$password" ]; then
+  login="${password%%:*}"
+  pass="${password#*:}"
+  stars=$(printf '%*s' "${#pass}" '' | tr ' ' '*')
+  echo "> Credentials are $login:$stars"
+fi
