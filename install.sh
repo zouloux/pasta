@@ -117,10 +117,10 @@ EOF
 cat <<EOF > /etc/systemd/journald.conf
 [Journal]
 Storage=persistent
-SystemMaxUse=256M
+SystemMaxUse=512M
 SystemKeepFree=1G
 SystemMaxFileSize=32M
-MaxRetentionSec=1month
+MaxRetentionSec=3month
 RateLimitInterval=60s
 RateLimitBurst=1000
 Compress=yes

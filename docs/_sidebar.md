@@ -27,16 +27,30 @@
   * [Uninstall Pasta Server](00.server/04.more/01.uninstall)
 
 # Client
-* [Install Pasta CLI](01.client/00.install-pasta-cli.md)
-* [Create a new Pasta project](01.client/01.create-new-project.md)
-* _Generated Files_
-  * [docker-compose.common.yaml](01.client/10.docker-compose.common.yaml.md)
-  * [docker-compose.pasta.yaml](01.client/11.docker-compose.pasta.yaml.md)
-  * [docker-compose.yaml](01.client/12.docker-compose.yaml.md)
-  * [pasta.yaml](01.client/13.pasta.yaml.md)
-  * [.env](01.client/14.dot-env.md)
-* Run locally with https
-* Deploy from local
-* Deploy using CI
-* Data synchronisation
-* Server stats
+* [Install Pasta CLI](01.client/00.install-pasta-cli)
+
+Client documentation is WIP
+
+[//]: # (* [Create a new Pasta project]&#40;01.client/01.create-new-project&#41;)
+
+[//]: # (* _Generated Files_)
+
+[//]: # (  * [docker-compose.common.yaml]&#40;01.client/10.docker-compose.common.yaml.md&#41;)
+
+[//]: # (  * [docker-compose.pasta.yaml]&#40;01.client/11.docker-compose.pasta.yaml.md&#41;)
+
+[//]: # (  * [docker-compose.yaml]&#40;01.client/12.docker-compose.yaml.md&#41;)
+
+[//]: # (  * [pasta.yaml]&#40;01.client/13.pasta.yaml.md&#41;)
+
+[//]: # (  * [.env]&#40;01.client/14.dot-env.md&#41;)
+
+[//]: # (* Run locally with https)
+
+[//]: # (* Deploy from local)
+
+[//]: # (* Deploy using CI)
+
+[//]: # (* Data synchronisation)
+
+[//]: # (* Server stats)
