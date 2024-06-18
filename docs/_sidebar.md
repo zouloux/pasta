@@ -1,6 +1,6 @@
 
 # Intro
-* [About](/about)
+* [About](/)
 * [Things to know](things-to-know.md)
 * [Quick Start](quick-start.md)
 * [Deploy Project demo](demo.md)
@@ -15,16 +15,16 @@
   * [File structure](00.server/01.after-installation/00.file-structure.md)
   * [Available Variables](00.server/01.after-installation/01.available-variables)
   * [Available Scripts](00.server/01.after-installation/02.available-scripts)
-  * [Reverse Proxy](00.server/01.after-installation/03.reverse-proxy.md)
 * **Applications**
-  * [Install Applications](00.server/02.applications/0.index.md)
+  * [Available Applications](00.server/02.applications/0.index.md)
+  * [Install your own](00.server/02.applications/0.your-own.md)
 * **Projects**
   * [Create a new project](00.server/03.projects/00.create-new-project)
   * [Archive a project](00.server/03.projects/01.archive-a-project.md)
   * [Project Branches](00.server/03.projects/02.project-branches.md)
 * **More**
-  * [Update Pasta Server](00.server/04.more/00.update.md)
-  * [Uninstall Pasta Server](00.server/04.more/01.uninstall.md)
+  * [Update Pasta Server](00.server/04.more/00.update)
+  * [Uninstall Pasta Server](00.server/04.more/01.uninstall)
 
 # Client
 * [Install Pasta CLI](01.client/00.install-pasta-cli.md)
