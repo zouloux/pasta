@@ -48,6 +48,10 @@ function showServerStats ( statsData, serverName ) {
 	const ramPercentage = statsData.ramUsed / statsData.ramTotal * 100
 	const ramUsageBar = generateRamUsageBar(ramPercentage, barWidth);
 	console.log(` RAM usage: ${ramUsageBar} ${ramPercentage.toFixed(2)}%`);
+	// SWAP
+	const swapPercentage = statsData.swapUsed / statsData.swapTotal * 100
+	const swapUsageBar = generateRamUsageBar(swapPercentage, barWidth);
+	console.log(` SWAP usage: ${swapUsageBar} ${swapPercentage.toFixed(2)}%`);
 	// DISK
 	const diskPercentage = statsData.diskUsed / statsData.diskTotal * 100
 	const diskUsageBar = generateRamUsageBar(diskPercentage, barWidth);

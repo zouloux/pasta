@@ -10,6 +10,11 @@ mem_info=$(free -b | grep Mem)
 ram_total=$(echo $mem_info | awk '{print $2}')
 ram_used=$(echo $mem_info | awk '{print $3}')
 
+# Getting swap total and usage
+swap_info=$(free -b | grep Swap)
+swap_total=$(echo $swap_info | awk '{print $2}')
+swap_used=$(echo $swap_info | awk '{print $3}')
+
 # Getting CPU info
 cpu_total=$(nproc)
 
@@ -31,6 +36,8 @@ json_output+="\"diskTotal\": $(printf "%.0f" $disk_total),"
 json_output+="\"diskUsed\": $(printf "%.0f" $disk_used),"
 json_output+="\"ramTotal\": $ram_total,"
 json_output+="\"ramUsed\": $ram_used,"
+json_output+="\"swapTotal\": $swap_total,"
+json_output+="\"swapUsed\": $swap_used,"
 json_output+="\"cpuTotal\": $cpu_total,"
 json_output+="\"cpuUsed\": $(printf "%.2f" $cpu_usage)"
 json_output+="}"

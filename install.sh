@@ -58,6 +58,8 @@ read -p "Admin email address :
 " adminEmail
 echo ""
 
+read -p "Enable ASCII banner with '$hostname' when you login ? (y/n)" doBanner
+
 # Set the hostname
 echo "Configuring hosts ..."
 echo "$hostname" > /etc/hostname
