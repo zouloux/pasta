@@ -69,6 +69,7 @@ ln -s "$userProjectRoot/data" "$rootProjectRoot/data"
 
 echo "Create .bashrc for project user ..."
 rm -rf "$userProjectRoot/.bash_logout"
+pastaDir="/usr/local/pasta"
 echo "source $pastaDir/.bashrc" > "$userProjectRoot/.bashrc"
 
 echo ""

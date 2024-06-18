@@ -139,8 +139,6 @@ if [ -n "$domain" ]; then
     domain="$PASTA_DOMAIN"
   # If it has a dot, it's a full-domain ( can be external to main pasta domain )
   elif [[ "$domain" != *"."* ]]; then
-    domain="$domain.$PASTA_DOMAIN"
-    # Automatic sub-branch
     if [ -n "$subBranch" ]; then
       domain="${domain}__${subBranch}.$PASTA_DOMAIN"
     else
@@ -151,7 +149,11 @@ if [ -n "$domain" ]; then
 
 # No domain to set, but no domain in dot env, use auto mode
 else
-  domain="$projectName-$branch.$PASTA_DOMAIN"
+  if [ -n "$subBranch" ]; then
+    domain="${projectName}-${branch}__${subBranch}.$PASTA_DOMAIN"
+  else
+    domain="$projectName-$branch.$PASTA_DOMAIN"
+  fi
 fi
 
 

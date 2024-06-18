@@ -8,7 +8,8 @@ export async function deployCommand ( config, branchName, subBranch ) {
 	// Config and defaults
 	const archiveName = `${branchName}.tar.gz`
 	const files = (config.files ?? []).join(" ")
-	let { project, host, port, domain, user, password, data, key, alias } = config
+	const { project, host, port, domain, user, password, data, key, alias } = config
+
 	// Checks
 	if ( host.length === 0 )
 		nicePrint(`{r}Invalid {b/r}host{/}{r} in pasta config.`, { code: 1 })

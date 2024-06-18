@@ -54,10 +54,10 @@ async function getDeployConfig () {
 }
 
 commands.add("deploy", async () => {
-	const { config, branch } = await getDeployConfig()
+	const { config, branch, subBranch } = await getDeployConfig()
 	if ( config.noDirectDeploy )
 		nicePrint(`{b/r}Direct deployment is disabled for branch ${branch}. Use CI pipeline to deploy.`, { code: 1 })
-	await deployCommand( config, branch )
+	await deployCommand( config, branch, subBranch )
 })
 
 commands.add("ci", async () => {

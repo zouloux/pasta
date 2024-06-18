@@ -104,9 +104,8 @@ export async function getPastaEnvNameFromCLI ( config, branch ) {
 	const branches = listConfigBranches( config )
 	if ( typeof branch === "string" ) {
 		const hasSlash = branch.indexOf("/") >= 0
-		if ( !hasSlash && !branches.includes(branch) ) {
+		if ( !hasSlash && !branches.includes(branch) )
 			nicePrint(`{r}Branch {b/r}${branch}{/}{r} not found in {r/b}${pastaConfigFileName}{/}{r}.`, { code: 1 })
-		}
 		if ( hasSlash ) {
 			const splitBranch = branch.split("/")
 			const masterBranch = splitBranch[0]
