@@ -26,8 +26,8 @@ fi
 
 # Ask for confirmation
 read -p "This script will update :
-- /usr/local/pasta/bin ( override )
-- /root/.bashrc ( will create a .old backup if different )
+- ${pastaDir}/bin
+- ${pastaDir}/.bashrc
 - ${proxyDir}/docker-compose.yaml ( will create a .old backup if different )
 Are you sure to continue? (y/n) " confirmation
 if [ "$confirmation" != "y" ]; then
@@ -46,7 +46,6 @@ fi
 echo "Stopping proxy ..."
 cd "$proxyDir"
 docker compose stop > /dev/null 2>&1
-cd /root
 
 # Clone repo
 echo "Cloning Pasta repo ..."
@@ -55,10 +54,8 @@ git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
 # Set bash profile
 echo "Updating .bashrc ..."
-mv .bashrc .bashrc.old
-cp /tmp/pasta/server/.bashrc .bashrc
-if cmp -s .bashrc .bashrc.old; then rm .bashrc.old; fi
-source .bashrc
+cp -f /tmp/pasta/server/.bashrc "${pastaDir}/.bashrc" > /dev/null 2>&1
+source /root/.bashrc
 
 # Copy the proxy config and scripts
 echo "Updating proxy ..."

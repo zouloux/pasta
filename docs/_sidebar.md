@@ -1,7 +1,9 @@
 
-* [About](about.md)
-* [Things to know](things-to-know.md)
-* [Quick Start](quick-start.md)
+# Intro
+  * [About](/about)
+  * [Things to know](things-to-know.md)
+  * [Quick Start](quick-start.md)
+  * [Deploy Project demo](demo.md)
 * Server
   * Install
     * [Choose a VPS](00.server/00.install/00.choose-a-vps)
@@ -14,18 +16,6 @@
     * [Available Scripts](00.server/01.after-installation/02.available-scripts)
     * [Reverse Proxy](00.server/01.after-installation/03.reverse-proxy.md)
   * [Dockerized Applications](00.server/02.applications/0.index.md)
-    * _Code management_
-      * [Gitea](00.server/02.applications/00.gitea.md)
-      * [Gitlab](00.server/02.applications/01.gitlab.md)
-    * _Analytics_
-      * [Umami](00.server/02.applications/10.umami.md)
-    * _Content management_
-      * [NocoDB](00.server/02.applications/20.nocodb.md)
-      * [Outline](00.server/02.applications/21.outline.md)
-    * _Monitoring_
-      * [Uptime Kuma](00.server/02.applications/30.uptime-kuma.md)
-      * [Netdata](00.server/02.applications/31.netdata.md)
-      * [Portainer](00.server/02.applications/32.portainer.md)
   * Projects
     * [Create a new project](00.server/03.projects/00.create-new-project)
     * [Archive a project](00.server/03.projects/01.archive-a-project.md)

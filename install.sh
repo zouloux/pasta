@@ -35,10 +35,10 @@ fi
 
 # Ask for confirmation
 read -p "This script will :
-- install Pasta Server core dependencies
-- override /root/.bashrc ( you should do a backup before if needed )
-- create /root/containers/ directory
-- create $pastaDir directory
+- Install Pasta Server core dependencies with apt
+- Install Pasta Server in $pastaDir directory
+- Override /root/.bashrc and create a copy at /root/.bashrc.old
+- Create /root/containers/ directory to host dockerized application
 Are you sure to continue? (y/n) : " confirmation
 if [ "$confirmation" != "y" ]; then
   exit 1
@@ -145,18 +145,20 @@ cd /root
 echo "Cloning Pasta repo ..."
 git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
-# Set bash profile
-rm /root/.bashrc > /dev/null 2>&1
-cp /tmp/pasta/server/.bashrc /root/.bashrc
+echo "Installing pasta bin ..."
+mkdir -p "$pastaDir" > /dev/null 2>&1
+cp -r "/tmp/pasta/server/pasta/*" "$pastaDir" > /dev/null 2>&1
+
+echo "Configuring bashrc ..."
+mv /root/.bashrc /root/.bashrc.old > /dev/null 2>&1
+cp /tmp/pasta/server/.bashrc "$pastaDir" > /dev/null 2>&1
+chmod 0750 "$pastaDir/.bashrc" > /dev/null 2>&1
+echo "source $pastaDir/.bashrc" > /root/.bashrc
 source /root/.bashrc
 
 echo "Setting up nginx proxy ..."
 cp /tmp/pasta/server/containers/services/proxy/docker-compose.yaml /root/containers/services/proxy/
 cp -r /tmp/pasta/server/containers/services/proxy/config/ /root/containers/services/proxy/config/
-
-echo "Installing pasta bin ..."
-mkdir -p "$pastaDir" > /dev/null 2>&1
-cp -r "/tmp/pasta/server/pasta/*" "$pastaDir" > /dev/null 2>&1
 
 echo "Configuring deployment group..."
 groupadd pasta > /dev/null 2>&1

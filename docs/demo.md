@@ -2,13 +2,6 @@
 
 Deploy a new project in **less than 3 minutes**
 
-**Made before the video**
-- Choose a VPS
-- Prepare VPS
-- Install Pasta Server on VPS
-- Install Pasta CLI
-- Register server in Pasta CLI
-
 <div>
 	<video src="./pasta-demo.mp4" width="100%" controls muted></video>
 </div>
@@ -24,3 +17,10 @@ Deploy a new project in **less than 3 minutes**
 - `01:22` - Sync data from server to local
 - `01:34` - Sync data from local to server
 - `01:55` - Zero downtime deploy update
+
+**Made before the video**
+- [Choose a VPS](00.server/00.install/00.choose-a-vps.md)
+- [Prepare VPS](00.server/00.install/02.prepare-vps-ssh.md)
+- [Install Pasta Server on VPS](00.server/00.install/03.install-pasta-server.md)
+- Install Pasta CLI locally
+- Register server in Pasta CLI

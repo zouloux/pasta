@@ -1,0 +1,84 @@
+networks:
+  pasta:
+    external: true
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - ENV_FILE=.env
+    container_name: "app_namviek-backend"
+#    image: "namviek"
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: app_namviek-redis:6379
+      MONGODB_URL: mongodb://app_namviek-mongodb:27017/namviek?replicaSet=rs0&authSource=admin&directConnection=true
+      VIRTUAL_HOST: "namviek.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "namviek.$PASTA_DOMAIN"
+      VIRTUAL_PATH: "/api"
+      #VIRTUAL_DEST: "/api"
+      VIRTUAL_PORT: 3333
+    command: /bin/sh -c "./docker/be-entrypoint.sh && yarn backend"
+    healthcheck:
+      test: curl --fail http://localhost:3333 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - pasta
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        - ENV_FILE=.env
+    container_name: "app_namviek-frontend"
+#    image: "namviek"
+    env_file:
+      - .env
+    environment:
+      VIRTUAL_HOST: "namviek.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "namviek.$PASTA_DOMAIN"
+      VIRTUAL_PORT: 3000
+    command: /bin/sh -c "./docker/fe-entrypoint.sh && yarn prod:fe"
+    depends_on:
+      - backend
+    networks:
+      - pasta
+
+  redis:
+    container_name: "app_namviek-redis"
+    image: 'redis:alpine'
+    attach: false
+    networks:
+      - pasta
+
+  mongodb:
+    container_name: "app_namviek-mongodb"
+    image: 'mongo:latest'
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    environment:
+      MONGO_INITDB_DATABASE: namviek
+    volumes:
+      - ./data/mongodb/db:/data/db
+      - ./data/mongodb/configdb:/data/configdb
+    attach: false
+    networks:
+      - pasta

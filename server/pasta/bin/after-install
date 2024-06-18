@@ -16,9 +16,10 @@ chmod 0750 "$pastaBinDir/host-stats-json"
 chmod 0750 "$pastaBinDir/iterm-download"
 chmod 0750 "$pastaBinDir/pasta-help"
 chmod 0750 "$pastaBinDir/print-version"
+chmod 0750 "$pastaBinDir/print-alias"
 chmod 0750 "$pastaBinDir/project-branch-clean"
 chmod 0750 "$pastaBinDir/project-branch-remove"
-chmod 0750 "$pastaBinDir/project-deploy" # sudo
+chmod 0750 "$pastaBinDir/project-deploy" # needs sudo
 chmod 0750 "$pastaBinDir/rsync-download"
 chmod 0750 "$pastaBinDir/rsync-upload"
 
