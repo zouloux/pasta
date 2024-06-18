@@ -146,16 +146,19 @@ echo "" >> "$dotEnv"
 if [ -n "$domain" ]; then
   # If it's a dot, it's the main pasta domain
   if [[ "$domain" == "." ]]; then
+    if [ -n "$subBranch" ]; then
+      fatalError "domain" "Sub-branches are not compatible with root domain deployments."
+    fi
     domain="$PASTA_DOMAIN"
-  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
+  # No dot, it's a sub-domain of the main pasta domain
   elif [[ "$domain" != *"."* ]]; then
     if [ -n "$subBranch" ]; then
-      domain="${domain}__${subBranch}.$PASTA_DOMAIN"
+      domain="${domain}--${subBranch}.$PASTA_DOMAIN"
     else
       domain="$domain.$PASTA_DOMAIN"
     fi
   fi
-  # No dot, it's a sub-domain of the main pasta domain
+  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
 
 # No domain to set, but no domain in dot env, use auto mode
 else
