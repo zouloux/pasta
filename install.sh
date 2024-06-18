@@ -73,7 +73,7 @@ apt upgrade -y -qq > /dev/null 2>&1
 apt install git logrotate figlet openssl rsync htop acl -y -qq > /dev/null 2>&1
 
 # Create ASCII banner and remove figlet
-if [ "doBanner" != "y" ]; then
+if [ "doBanner" == "y" ]; then
   echo "Creating login banner ..."
   banner=$(echo $hostname | figlet -w 120)
   echo "$banner" > /etc/motd
