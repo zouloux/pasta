@@ -30,6 +30,12 @@ domain="$5"
 alias="$6"
 password="$7"
 
+if [ -n "$subBranch" ]; then
+  fullBranch="${branch}__${subBranch}"
+else
+  fullBranch=$branch
+fi
+
 # Check arguments
 if [[ ! "$projectName" =~ ^[a-zA-Z0-9_-]+$ ]]; then
   echo "Invalid project name [a-zA-Z0-9_-]"
@@ -37,6 +43,10 @@ if [[ ! "$projectName" =~ ^[a-zA-Z0-9_-]+$ ]]; then
 fi
 if [[ ! "$branch" =~ ^[a-zA-Z0-9_-]+$ ]]; then
   echo "Invalid branch name [a-zA-Z0-9_-]"
+  exit 1
+fi
+if [[ -n "$subBranch" && ! "$subBranch" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  echo "Invalid sub branch name [a-zA-Z0-9_-]"
   exit 1
 fi
 if [[ -n "$dataBucketName" && ! "$dataBucketName" =~ ^[a-zA-Z0-9_-]+$ ]]; then
@@ -62,8 +72,8 @@ userDir="/home/$username"
 baseDataDir="$userDir/data"
 tarFile="$userDir/artifacts/$branch.tar.gz"
 buildNumber=$(openssl rand -hex 8)
-destinationBuildDir="$userDir/builds/$branch-$buildNumber"
-destinationBranchLink="$userDir/branches/$branch"
+destinationBuildDir="$userDir/builds/$fullBranch-$buildNumber"
+destinationBranchLink="$userDir/branches/$fullBranch"
 group="pasta"
 
 # ------------------------------------------------------------------------------ TARGET ELEMENTS
@@ -149,11 +159,7 @@ if [ -n "$domain" ]; then
 
 # No domain to set, but no domain in dot env, use auto mode
 else
-  if [ -n "$subBranch" ]; then
-    domain="${projectName}-${branch}__${subBranch}.$PASTA_DOMAIN"
-  else
-    domain="$projectName-$branch.$PASTA_DOMAIN"
-  fi
+  domain="$projectName-$fullBranch.$PASTA_DOMAIN"
 fi
 
 
@@ -222,6 +228,8 @@ echo "PASTA_DATA=../../data/$dataBucketName" >> "$dotEnv"
 # Inject branch
 sed -i '/^PASTA_BRANCH=/d' "$dotEnv"
 echo "PASTA_BRANCH=$branch" >> "$dotEnv"
+sed -i '/^PASTA_SUB_BRANCH=/d' "$dotEnv"
+echo "PASTA_SUB_BRANCH=$subBranch" >> "$dotEnv"
 
 # Force https redirect
 sed -i '/^HTTPS_METHOD=/d' "$dotEnv"
@@ -349,7 +357,7 @@ rm -f "$tarFile"
 # ------------------------------------------------------------------------------ END
 
 echo ""
-echo "> Branch $branch of $projectName deployed successfully"
+echo "> Branch $fullBranch of $projectName deployed successfully"
 echo "> https://$domain"
 if [ -n "$password" ]; then
   login="${password%%:*}"
