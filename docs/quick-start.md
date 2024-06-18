@@ -22,7 +22,7 @@ project-create pasta-test
 6. Create a new directory on your computer
 7. Install `Pasta CLI` globally on your computer
 ```bash
-npm i -g pasta-cli
+npm i -g @zouloux/pasta-cli
 ```
 8. Create a new pasta project
 ```bash
