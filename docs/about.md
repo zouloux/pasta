@@ -2,7 +2,7 @@
 ## About
 
 **Pasta** is a minimalist set of scripts and conventions to self-host **Docker Applications** and **Git Projects** on **Debian based VPS servers**.
-In other words it's an headless **Open-source alternative to CloudFlare, Vercel or Heroku**. It can live on $1 / month VPS for simple projects hosting.
+In other words it's an headless **Open-source alternative to CloudFlare, Netlify, Vercel or Heroku**. It can live on $1 / month VPS for simple projects hosting.
 
 - **[One line server install script](https://zouloux.github.io/pasta/#/00.server/00.install/03.install-pasta-server)**
 - Has **sud-domains routing** and **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
@@ -13,18 +13,17 @@ In other words it's an headless **Open-source alternative to CloudFlare, Vercel 
 ## Features
 
 **Pasta Server** comes with :
-- A set of [scripts](https://zouloux.github.io/pasta/#/./00.server/01.after-installation/02.available-scripts)
+- A set of [scripts](https://zouloux.github.io/pasta/#/./00.server/01.after-installation/02.available-scripts) an tools ( `lazydocker` / `htop` / `l` / `ll` )
 - A nice preconfigured [.bashrc](./server/.bashrc) file
-- `lazydocker` / `htop` / `l` / `ll`
 
 With those script and conventions, you will be able to :
-- Host and run [Docker Applications](https://zouloux.github.io/pasta/#/./00.server/02.applications/0.index)
-- Host Git repositories ( with [Gitea](https://zouloux.github.io/pasta/#/./00.server/02.applications/00.gitea) or Gitlab )
-- Host and run projects in **staging phase** ( with an HTTP password for example )
-- Deploy to a **production server** with Git **CI** or directly
+- Host [Docker Applications](https://zouloux.github.io/pasta/#/./00.server/02.applications/0.index)
+- Host your projects in **staging phase** ( with an HTTP password for example )
+- Host your projects in **production phase** with **zero-downtime**
+- Host Git repositories and their CI ( with [Gitea](https://zouloux.github.io/pasta/#/./00.server/02.applications/00.gitea) or Gitlab )
 
 **But also :**
-- Create **secured workspaces** for any project to **work with other developers**
+- Create **secured workspaces** for any project to **work with other developers** and share data
 - **Sync** projects files between branches ( for example, `cms.sqlite` and `uploads` directories )
 - Deploy specific branches of your git projects with **zero-downtime**
 
@@ -33,4 +32,5 @@ With those script and conventions, you will be able to :
 - `pasta deploy` to deploy the current project on the server
 - `pasta connect` to connect with SSH to the server
 - `pasta sync` to sync data between servers and branches
+- `pasta server stats` to get stats of a server ( ram / cpu / disk )
 - and more

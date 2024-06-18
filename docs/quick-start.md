@@ -1,6 +1,6 @@
 # Quick start
 
-No time? **No problem**. Let's do it **Al dente** !
+You are an expert and have no time? **No problem**. Let's do it **Al dente** !
 
 ?> Follow those instructions to deploy a test project in **10 steps**.
 
@@ -34,5 +34,5 @@ pasta init
 ```bash
 pasta deploy preview
 ```
-> Visit `pasta-test.your-domain.com`
+> Visit `https://pasta-test.your-domain.com`
 
