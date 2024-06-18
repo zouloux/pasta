@@ -6,7 +6,6 @@ import { deployCommand } from "./commands/deploy.js";
 import { generateSSLCommand } from "./commands/generate-ssl.js";
 import { openCommand } from "./commands/open.js";
 import { syncCommand } from "./commands/sync.js";
-import { patchKeyCommand } from "./commands/patch-key.js";
 import { serverCommand } from "./commands/server.js";
 import { Directory } from "@zouloux/files";
 

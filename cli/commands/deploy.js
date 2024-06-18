@@ -3,12 +3,12 @@ import { File } from "@zouloux/files"
 import { filesize } from "filesize";
 import { getKeyCommand } from "./_common.js";
 
-export async function deployCommand ( config, branchName ) {
+export async function deployCommand ( config, branchName, subBranch ) {
 	// ------------------------------------------------------------------------- INIT
 	// Config and defaults
 	const archiveName = `${branchName}.tar.gz`
 	const files = (config.files ?? []).join(" ")
-	const { project, host, port, domain, user, password, data, key, alias } = config
+	let { project, host, port, domain, user, password, data, key, alias } = config
 	// Checks
 	if ( host.length === 0 )
 		nicePrint(`{r}Invalid {b/r}host{/}{r} in pasta config.`, { code: 1 })
@@ -62,7 +62,7 @@ export async function deployCommand ( config, branchName ) {
 	newLine()
 	nicePrint(`{b}Deploying branch ${branchName} ...`)
 	try {
-		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "sudo -n /usr/local/pasta/bin/project-deploy '${project}' '${branchName}' '${data}' '${domain}' '${alias}' '${password}'"`
+		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "sudo -n /usr/local/pasta/bin/project-deploy '${project}' '${branchName}' '${subBranch}' '${data}' '${domain}' '${alias}' '${password}'"`
 		nicePrint(`{d}$ ${command}`)
 		await execAsync(command, 3)
 	}
@@ -70,6 +70,7 @@ export async function deployCommand ( config, branchName ) {
 		await archiveFile.delete()
 		nicePrint(`{b/r}${e}`, { code: 1 })
 	}
+
 
 	// ------------------------------------------------------------------------- CLEAN
 	await archiveFile.delete()

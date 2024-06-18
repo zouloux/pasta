@@ -102,19 +102,34 @@ export async function processConfigBranch ( config, branch ) {
 
 export async function getPastaEnvNameFromCLI ( config, branch ) {
 	const branches = listConfigBranches( config )
-	if ( branch && !branches.includes(branch) )
-		nicePrint(`{r}Pasta branch {b/r}${branch}{/} not found.`, { code: 1 })
-	if ( !branch )
+	if ( typeof branch === "string" ) {
+		const hasSlash = branch.indexOf("/") >= 0
+		if ( !hasSlash && !branches.includes(branch) ) {
+			nicePrint(`{r}Branch {b/r}${branch}{/}{r} not found in {r/b}${pastaConfigFileName}{/}{r}.`, { code: 1 })
+		}
+		if ( hasSlash ) {
+			const splitBranch = branch.split("/")
+			const masterBranch = splitBranch[0]
+			const subBranch = splitBranch[1]
+			if ( !branches.includes(masterBranch) )
+				nicePrint(`{r}Branch {b/r}${branch}{/}{r} not found in {r/b}${pastaConfigFileName}{/}{r}.`, { code: 1 })
+			if ( !config.branches[ masterBranch ].allowSubBranches )
+				nicePrint(`{r}Branch {b/r}${branch}{/}{r} does not allow sub branches in {r/b}${pastaConfigFileName}{/}{r}.`, { code: 1 })
+			return [ masterBranch, subBranch ]
+		}
+	}
+	else
 		branch = await askList(`Which branch ?`, branches, { returnType: "value" })
-	return branch
+	return [ branch, "" ]
 }
 
-export async function targetBranchConfig ( branchName ) {
+export async function targetBranchConfig ( _branchName ) {
 	const config = await loadConfig()
-	branchName = await getPastaEnvNameFromCLI( config, branchName )
+	const [ branchName, subBranchName ] = await getPastaEnvNameFromCLI( config, _branchName )
 	const branchConfig = await processConfigBranch( config, branchName )
 	return {
 		branch: branchName,
+		subBranch: subBranchName,
 		config: {
 			domain: "",
 			port: 22,

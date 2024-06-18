@@ -80,8 +80,11 @@ export async function initCommand () {
 		  preview:
 		    # Domain to deploy to. You can use full domain, or a sub-domain
 		    domain: ${projectName}-preview
-		    # Setup an HTTP login / password on this branch
+		    # Add an HTTP login / password to protected this branch
 		    password: "login:pass"
+		    # Allow any branch matching preview/* to be deployed with those settings.
+		    # Domain will be ${projectName}-preview__$subBranch
+		    allowSubBranches: true
 		    # By default, data goes to branch directory, but it can be shared with other branches
 		    # data: main
 		    # Allow pull and push sync for preview branch
@@ -242,7 +245,7 @@ export async function initCommand () {
 	}
 
 	copyFileSync(
-		join(relativeDirname( import.meta.url ), "..", "bun-example.js"),
+		join(relativeDirname( import.meta.url ), "../templates/bun/", "bun-example.js"),
 		join(process.cwd(), "dist", "bun-example.js")
 	)
 
