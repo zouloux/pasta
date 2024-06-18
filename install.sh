@@ -25,7 +25,7 @@ fi
 
 # Check if docker is present
 if command -v docker &> /dev/null; then
-  echo "Docker seems already installed on this server. Docker installation will be skipped."
+  echo "Docker seems already installed on this server. Docker installation will be skipped. This is highly recommended to uninstall docker before continuing for better stability."
   read -p "Do you want to continue? (y/n): " choice
   if [ "$choice" != "y" ]; then
     exit 1
@@ -57,8 +57,7 @@ echo ""
 read -p "Admin email address :
 " adminEmail
 echo ""
-
-read -p "Enable ASCII banner with '$hostname' when you login ? (y/n)" doBanner
+read -p "Enable ASCII banner login showing '$hostname' ? (y/n)" doBanner
 
 # Set the hostname
 echo "Configuring hosts ..."
@@ -74,14 +73,15 @@ apt upgrade -y -qq > /dev/null 2>&1
 apt install git logrotate figlet openssl rsync htop acl -y -qq > /dev/null 2>&1
 
 # Create ASCII banner and remove figlet
-echo "Creating login banner ..."
-banner=$(echo $hostname | figlet -w 120)
-echo "$banner" > /etc/motd
+if [ "doBanner" != "y" ]; then
+  echo "Creating login banner ..."
+  banner=$(echo $hostname | figlet -w 120)
+  echo "$banner" > /etc/motd
+  # Enable banner for SSH login
+  echo "PrintMotd yes" >> /etc/ssh/sshd_config
+  systemctl restart sshd > /dev/null 2>&1
+fi
 apt remove figlet -y -qq > /dev/null 2>&1
-
-# Enable banner for SSH login
-echo "PrintMotd yes" >> /etc/ssh/sshd_config
-systemctl restart sshd > /dev/null 2>&1
 
 # Install Docker
 if ! command -v docker &> /dev/null; then

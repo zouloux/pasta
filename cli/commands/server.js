@@ -2,6 +2,7 @@ import { execSync, newLine, askInput, nicePrint, execAsync, askList, clearScreen
 import { getPreferences } from "./_common.js";
 import { spawn } from "node:child_process";
 import { delay } from "@zouloux/ecma-core";
+import { filesize, partial } from "filesize";
 
 function getServerStats ( endpoint ) {
 	const { user, host, port } = parseServerEndpoint( endpoint )
@@ -33,29 +34,39 @@ function generateRamUsageBar(usagePercent, width) {
 	return '[' + '█'.repeat(filledLength) + ' '.repeat(emptyLength) + ']';
 }
 
+const roundedFilesize = partial({ round: 0 })
+
 function showServerStats ( statsData, serverName ) {
 	if ( !statsData ) {
 		nicePrint(`{b/r}Unable to get stats from ${serverName}`)
 		return
 	}
 	const terminalWidth = process.stdout.columns;
-	const barWidth = terminalWidth - 30;
+	const barWidth = terminalWidth - 50;
 	// CPU
 	const cpuPercentage = statsData.cpuUsed / (statsData.cpuTotal * 100) * 100
 	const cpuUsageBar = generateRamUsageBar(cpuPercentage, barWidth);
-	console.log(` CPU usage: ${cpuUsageBar} ${cpuPercentage.toFixed(2)}%`);
+	let cpuText = cpuPercentage.toFixed(2)
+	if ( cpuText < 10 ) cpuText = `0${cpuText}`
+	console.log(` CPU usage: ${cpuUsageBar} ${cpuText}% - SWP: ${roundedFilesize(statsData.swapUsed ?? 0)}`);
 	// RAM
 	const ramPercentage = statsData.ramUsed / statsData.ramTotal * 100
 	const ramUsageBar = generateRamUsageBar(ramPercentage, barWidth);
-	console.log(` RAM usage: ${ramUsageBar} ${ramPercentage.toFixed(2)}%`);
+	const ramUsageText = roundedFilesize( statsData.ramUsed )
+	const ramTotalText = roundedFilesize( statsData.ramTotal )
+	const ramCombinedText = `${ramUsageText} / ${ramTotalText}`
+	console.log(` RAM usage: ${ramUsageBar} ${ramPercentage.toFixed(2)}% - ${ramCombinedText}`);
 	// SWAP
-	const swapPercentage = statsData.swapUsed / statsData.swapTotal * 100
-	const swapUsageBar = generateRamUsageBar(swapPercentage, barWidth);
-	console.log(` SWAP usage: ${swapUsageBar} ${swapPercentage.toFixed(2)}%`);
+	// const swapPercentage = statsData.swapUsed / statsData.swapTotal * 100
+	// const swapUsageBar = generateRamUsageBar(swapPercentage, barWidth);
+	// console.log(` SWAP usage: ${swapUsageBar} ${swapPercentage.toFixed(2)}%`);
 	// DISK
 	const diskPercentage = statsData.diskUsed / statsData.diskTotal * 100
 	const diskUsageBar = generateRamUsageBar(diskPercentage, barWidth);
-	console.log(` DSK usage: ${diskUsageBar} ${diskPercentage.toFixed(2)}%`);
+	const diskUsageText = filesize( statsData.diskUsed )
+	const diskTotalText = roundedFilesize( statsData.diskTotal )
+	const diskCombinedText = `${diskUsageText} / ${diskTotalText}`
+	console.log(` DSK usage: ${diskUsageBar} ${diskPercentage.toFixed(2)}% - ${diskCombinedText}`);
 	newLine()
 	newLine()
 }
