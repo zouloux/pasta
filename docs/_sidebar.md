@@ -9,22 +9,21 @@
 * **Install**
   * [Choose a VPS](00.server/00.install/00.choose-a-vps)
   * [Prepare VPS network](00.server/00.install/01.prepare-vps-network.md)
-  * [Prepare VPS SSH](00.server/00.install/02.prepare-vps-ssh.md)
-  * [Install Pasta Server](00.server/00.install/03.install-pasta-server.md)
-* **After installation**
-  * [File structure](00.server/01.after-installation/00.file-structure.md)
-  * [Available Variables](00.server/01.after-installation/01.available-variables)
-  * [Available Scripts](00.server/01.after-installation/02.available-scripts)
+  * [Install Pasta Server](00.server/00.install/02.install-pasta-server)
+* **Scripts**
+  * [Available Server Scripts](00.server/01.server-scripts/00.available-scripts)
 * **Applications**
-  * [Available Applications](00.server/02.applications/0.index.md)
-  * [Install your own](00.server/02.applications/0.your-own.md)
-* **Projects**
-  * [Create a new project](00.server/03.projects/00.create-new-project)
+  * [Available Applications](00.server/02.applications/00.list)
+  * [Install your own](00.server/02.applications/01.install-your-own)
+* **Projects workspaces**
+  * [Create a project](00.server/03.projects/00.create-new-project)
   * [Archive a project](00.server/03.projects/01.archive-a-project.md)
   * [Project Branches](00.server/03.projects/02.project-branches.md)
 * **More**
-  * [Update Pasta Server](00.server/04.more/00.update)
-  * [Uninstall Pasta Server](00.server/04.more/01.uninstall)
+  * [File structure](00.server/04.more/00.file-structure.md)
+  * [Available Variables](00.server/04.more/01.available-variables)
+  * [Update Pasta Server](00.server/04.more/02.update)
+  * [Uninstall Pasta Server](00.server/04.more/03.uninstall)
 
 # Client
 * [Install Pasta CLI](01.client/00.install-pasta-cli)

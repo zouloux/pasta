@@ -1,7 +1,6 @@
 # Things to know
 
-
-## Knowledge to have
+## Knowledge to have before installing a server
 
 - How to configure a DNS
 - Basic linux, shell and terminal usage

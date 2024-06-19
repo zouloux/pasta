@@ -1,38 +1,25 @@
 # Quick start
 
-You are an expert and have no time? **No problem**. Let's do it **Al dente** !
+No time? **No problem**. Let's do it **Al dente** !
 
-?> Follow those instructions to deploy a test project in **10 steps**.
+## I do not have a VPS
 
-1. Buy a cheap VPS and a domain name
-2. Points DNS `your-domain.com` and `*.your-domain.com` to VPS IP address
-3. Configure SSH on your VPS
-```bash
-bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/prepare.sh)
-```
-4. Install **Pasta Server** on your VPS
-```bash
-bash <(wget -qO- https://raw.githubusercontent.com/zouloux/pasta/main/install.sh)
-```
-5. Create your first project on the server
-```bash
-project-create pasta-test
-```
-> Copy the private key somewhere
-6. Create a new directory on your computer
-7. Install `Pasta CLI` globally on your computer
-```bash
-npm i -g @zouloux/pasta-cli
-```
-8. Create a new pasta project
-```bash
-pasta init
-```
-> And follow instructions
-9. Paste the private key in `.pasta.key`
-10. Deploy
-```bash
-pasta deploy preview
-```
-> Visit `https://pasta-test.your-domain.com`
+1. [Choose a VPS](00.server/00.install/00.choose-a-vps)
+2. [Prepare VPS network](00.server/00.install/01.prepare-vps-network)
 
+## I now have a VPS
+
+- [Install Pasta Server on your VPS](00.server/00.install/02.install-pasta-server)
+- [Check available scripts](00.server/01.server-scripts/00.available-scripts)
+
+## I want to self-host dockerized applications
+
+- [Available Applications](00.server/02.applications/00.list)
+- [Install my own application](00.server/02.applications/01.install-your-own)
+
+## I want to deploy projects
+
+1. [Create a project workspace on the server](00.server/03.projects/00.create-new-project)
+2. [Install Pasta CLI](01.client/00.install-pasta-cli.md)
+3. Create a new pasta project with `pasta init` and link it to the correct server and workspace
+4. Configure CI or deploy directly with `pasta deploy` 

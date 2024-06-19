@@ -15,7 +15,7 @@
 **Pasta** is a minimalist set of scripts and conventions to self-host **Docker Applications** and **Git Projects** on **Debian based VPS servers**.
 In other words it's an headless **Open-source alternative to CloudFlare, Netlify, Vercel or Heroku**. It can live on $1 / month VPS for simple projects hosting.
 
-- **[One line server install script](https://zouloux.github.io/pasta/#/00.server/00.install/03.install-pasta-server)**
+- **[One line server install script](https://zouloux.github.io/pasta/#/00.server/00.install/02.install-pasta-server)**
 - Has **sud-domains routing** and **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
 - Comes with a client **[node package](https://www.npmjs.com/package/@zouloux/pasta-cli)** for **Git Projects** deployments and **servers managements**.
 - Headless by default and **SSH based** for admin
@@ -24,11 +24,11 @@ In other words it's an headless **Open-source alternative to CloudFlare, Netlify
 ## Features
 
 **Pasta Server** comes with :
-- A set of [scripts](https://zouloux.github.io/pasta/#/./00.server/01.after-installation/02.available-scripts) an tools ( `lazydocker` / `htop` / `l` / `ll` )
-- A nice preconfigured [.bashrc](./server/.bashrc) file
+- A set of [scripts](https://zouloux.github.io/pasta/#/00.server/01.server-scripts/00.available-scripts) an tools ( `lazydocker` / `htop` / `l` / `ll` )
+- A nice preconfigured [.bashrc](https://github.com/zouloux/pasta/blob/main/server/.bashrc) file
 
 With those script and conventions, you will be able to :
-- Host [Docker Applications](https://zouloux.github.io/pasta/#/./00.server/02.applications/0.index)
+- Host [Docker Applications](https://zouloux.github.io/pasta/#/00.server/02.applications/00.list)
 - Host your projects in **staging phase** ( with an HTTP password for example )
 - Host your projects in **production phase** with **zero-downtime**
 - Host Git repositories and their CI ( with [Gitea](https://zouloux.github.io/pasta/#/./00.server/02.applications/00.gitea) or Gitlab )
@@ -49,7 +49,7 @@ With those script and conventions, you will be able to :
 
 ## Documentation
 
-## 💿 [Install Pasta Server](https://zouloux.github.io/pasta/#/00.server/00.install/03.install-pasta-server)
+## 💿 [Install Pasta Server](https://zouloux.github.io/pasta/#/00.server/00.install/02.install-pasta-server)
 ## 🚀 [Install Pasta CLI](https://zouloux.github.io/pasta/#/01.client/00.install-pasta-cli.md)
 ## ⚡️ [Quick start](https://zouloux.github.io/pasta/#/quick-start)
 ## 📺️ [Project Demo](https://zouloux.github.io/pasta/#/demo)

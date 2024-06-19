@@ -65,8 +65,8 @@ if [ ! -f "$authorizedKeys" ] || ! grep -q "ssh-" "$authorizedKeys"; then
     systemctl restart ssh > /dev/null 2>&1
     if [ "$sshPort" -ne 22 ]; then
       echo ""
-      echo "Please reconnect using the new port $sshPort with user root."
       echo "IMPORTANT : Do not forget to open the port $sshPort on firewall!"
+      echo ""
     fi
   fi
 fi
@@ -231,5 +231,6 @@ cd /root
 
 echo ""
 echo "> All done"
+echo "> Type 'pasta-help' to list all available commands."
 echo "> Add a shortcut to this server in your Pasta CLI :"
 /usr/local/pasta/bin/print-alias

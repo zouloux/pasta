@@ -21,6 +21,6 @@ Deploy a new project in **less than 3 minutes**
 **Made before the video**
 - [Choose a VPS](00.server/00.install/00.choose-a-vps.md)
 - [Prepare VPS](00.server/00.install/02.prepare-vps-ssh.md)
-- [Install Pasta Server on VPS](00.server/00.install/03.install-pasta-server.md)
+- [Install Pasta Server on VPS](00.server/00.install/02.install-pasta-server)
 - Install Pasta CLI locally
 - Register server in Pasta CLI
