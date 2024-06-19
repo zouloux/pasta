@@ -7,13 +7,15 @@
 	<img src="https://img.shields.io/badge/Pasta_CLI-v0.9-blue?style=flat-square" />
 	<img src="https://img.shields.io/badge/Debian-v12-Green?style=flat-square" />
 	<img src="https://img.shields.io/badge/Node-v18-Green?style=flat-square" />
+	<img src="https://img.shields.io/badge/Licence-MIT-Blue?style=flat-square" />
 </p>
 <br/>
 
 ## About
 
-**Pasta** is a minimalist set of scripts and conventions to self-host **Docker Applications** and **Git Projects** on **Debian based VPS servers**.
-In other words it's an headless **Open-source alternative to CloudFlare, Netlify, Vercel or Heroku**. It can live on $1 / month VPS for simple projects hosting.
+**Pasta** is a minimalist set of scripts and conventions to self-host **Docker Applications** and deploy **Web Projects** on **Debian based VPS servers**.
+
+In other words, it's an headless **Open-source alternative to CloudFlare, Netlify, Vercel or Heroku**. It can live on $1 / month VPS for simple projects hosting.
 
 - **[One line server install script](https://zouloux.github.io/pasta/#/00.server/00.install/02.install-pasta-server)**
 - Has **sud-domains routing** and **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
