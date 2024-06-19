@@ -57,8 +57,8 @@ if [[ -n "$domain" && ! "$domain" =~ ^[a-zA-Z0-9._-]+$ ]]; then
   echo "Invalid domain [a-zA-Z0-9._-]"
   exit 1
 fi
-if [[ -n "$alias" && ! "$alias" =~ ^[a-zA-Z0-9._-]+$ ]]; then
-  echo "Invalid alias [a-zA-Z0-9._-]"
+if [[ -n "$alias" && ! "$alias" =~ ^[a-zA-Z0-9,._-]+$ ]]; then
+  echo "Invalid alias [a-zA-Z0-9,._-]"
   exit 1
 fi
 if [[ -n "$password" && ! "$password" =~ ^[a-zA-Z0-9._:-]+$ ]]; then
