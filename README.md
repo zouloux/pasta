@@ -15,15 +15,15 @@
 
 **Pasta** is a minimalist set of scripts and conventions to self-host **Docker Applications** and deploy **Web Projects** on **Debian based VPS servers**.
 
-In other words, it's an headless **Open-source alternative to CloudFlare, Netlify, Vercel or Heroku**. It can live on $1 / month VPS for simple projects hosting.
+In other words, it's an **Open-source Self-Hosted alternative to CloudFlare, Netlify, Vercel or Heroku**.
+
+
+## Features
 
 - **[One line server install script](https://zouloux.github.io/pasta/#/00.server/00.install/02.install-pasta-server)**
 - Has **sud-domains routing** and **automatic SSL generation** thanks to [Nginx proxy](https://github.com/nginx-proxy/nginx-proxy) and [acme-companion](https://github.com/nginx-proxy/acme-companion).
 - Comes with a client **[node package](https://www.npmjs.com/package/@zouloux/pasta-cli)** for **Git Projects** deployments and **servers managements**.
 - Headless by default and **SSH based** for admin
-
-
-## Features
 
 **Pasta Server** comes with :
 - A set of [scripts](https://zouloux.github.io/pasta/#/00.server/01.server-scripts/00.available-scripts) an tools ( `lazydocker` / `htop` / `l` / `ll` )
