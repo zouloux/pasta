@@ -1,5 +1,5 @@
 import { execSync, newLine, askInput, nicePrint, execAsync, askList, clearScreen } from "@zouloux/cli";
-import { getPreferences } from "./_common.js";
+import { currentServerVersion, getPreferences } from "./_common.js";
 import { spawn } from "node:child_process";
 import { delay } from "@zouloux/ecma-core";
 import { filesize, partial } from "filesize";
@@ -36,11 +36,22 @@ function generateRamUsageBar(usagePercent, width) {
 
 const roundedFilesize = partial({ round: 0 })
 
-function showServerStats ( statsData, serverName ) {
+function showServerStats ( statsData, serverName, endpoint ) {
 	if ( !statsData ) {
 		nicePrint(`{b/r}Unable to get stats from ${serverName}`)
 		return
 	}
+	
+	const serverVersion = (statsData.version ?? "1.0").trim()
+	let serverVersionText = serverVersion
+	if ( serverVersion === currentServerVersion )
+		serverVersionText = nicePrint(`{/}{g/b}${serverVersionText}`, { output: "return" })
+	else
+		serverVersionText = nicePrint(`{/}{o/b}${serverVersionText} - update to ${currentServerVersion}`, { output: "return" })
+
+	nicePrint(`{b}ℹ️ ${serverName}{d} - ${endpoint} - ${serverVersionText}`)
+	newLine()
+
 	const terminalWidth = process.stdout.columns;
 	const barWidth = terminalWidth - 50;
 	// CPU
@@ -80,10 +91,9 @@ function showAllServerStats () {
 	})
 	clearScreen( false )
 	Object.keys( serverStats ).forEach( serverName => {
-		nicePrint(`{b}ℹ️ ${serverName}{d} - ${servers[serverName]}`)
-		newLine()
 		const statsData = serverStats[ serverName ]
-		showServerStats( statsData, serverName )
+		const endpoint = servers[ serverName ]
+		showServerStats( statsData, serverName, endpoint )
 	})
 }
 

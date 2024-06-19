@@ -38,6 +38,7 @@ json_output+="\"ramUsed\": $ram_used,"
 json_output+="\"swapUsed\": $swap_used,"
 json_output+="\"cpuTotal\": $cpu_total,"
 json_output+="\"cpuUsed\": $(printf "%.2f" $cpu_usage)"
+json_output+="\"version\": \"$(/usr/local/pasta/bin/print-version)\""
 json_output+="}"
 
 echo $json_output

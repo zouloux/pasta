@@ -4,7 +4,7 @@
 <h1 align="center">Pasta Devops</h1>
 <p align="center">
 	<img src="https://img.shields.io/badge/Pasta_Server-v1.0-blue?style=flat-square" />
-	<img src="https://img.shields.io/badge/Pasta_CLI-v0.8-blue?style=flat-square" />
+	<img src="https://img.shields.io/badge/Pasta_CLI-v0.9-blue?style=flat-square" />
 	<img src="https://img.shields.io/badge/Debian-v12-Green?style=flat-square" />
 	<img src="https://img.shields.io/badge/Node-v18-Green?style=flat-square" />
 </p>
