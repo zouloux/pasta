@@ -66,9 +66,9 @@ if [ ! -f "$authorizedKeys" ] || ! grep -q "ssh-" "$authorizedKeys"; then
     if [ "$sshPort" -ne 22 ]; then
       echo ""
       echo "IMPORTANT : Do not forget to open the port $sshPort on firewall!"
-      echo ""
     fi
   fi
+  echo ""
 fi
 
 # Check if docker is present

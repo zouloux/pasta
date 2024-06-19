@@ -1,0 +1,34 @@
+networks:
+  pasta:
+    external: true
+
+services:
+  matomo:
+    image: "matomo:latest"
+    container_name: "app_matomo-core"
+    volumes:
+      - ./data/matomo:/var/www/html
+    environment:
+      VIRTUAL_HOST: "matomo.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "matomo.$PASTA_DOMAIN"
+      MATOMO_DATABASE_HOST: "app_matomo-maria"
+      MATOMO_DATABASE_ADAPTER: "mysql"
+      MATOMO_DATABASE_TABLES_PREFIX: "matomo_"
+      MATOMO_DATABASE_USERNAME: "$MYSQL_USER"
+      MATOMO_DATABASE_PASSWORD: "$MYSQL_PASSWORD"
+      MATOMO_DATABASE_DBNAME: "matomo"
+    networks:
+      - pasta
+
+  maria:
+    image: "mariadb:latest"
+    container_name: "app_matomo-maria"
+    volumes:
+      - ./data/maria:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "$MYSQL_ROOT_PASSWORD"
+      MYSQL_DATABASE: "matomo"
+      MYSQL_USER: "$MYSQL_USER"
+      MYSQL_PASSWORD: "$MYSQL_PASSWORD"
+    networks:
+      - pasta
