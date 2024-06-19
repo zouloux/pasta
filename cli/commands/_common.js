@@ -9,8 +9,6 @@ import { patchKey } from "./patch-key.js";
 
 const dotEnvFileName = ".env"
 export const pastaConfigFileName = "pasta.yaml"
-
-
 export const currentServerVersion = "1.0"
 
 // ----------------------------------------------------------------------------- PACKAGE

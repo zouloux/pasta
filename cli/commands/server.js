@@ -41,7 +41,7 @@ function showServerStats ( statsData, serverName, endpoint ) {
 		nicePrint(`{b/r}Unable to get stats from ${serverName}`)
 		return
 	}
-	
+
 	const serverVersion = (statsData.version ?? "1.0").trim()
 	let serverVersionText = serverVersion
 	if ( serverVersion === currentServerVersion )
