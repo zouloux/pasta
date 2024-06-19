@@ -127,6 +127,8 @@ export async function targetBranchConfig ( _branchName ) {
 	const config = await loadConfig()
 	const [ branchName, subBranchName ] = await getPastaEnvNameFromCLI( config, _branchName )
 	const branchConfig = await processConfigBranch( config, branchName )
+	if ( Array.isArray(branchConfig.alias) )
+		branchConfig.alias = branchConfig.alias.join(",")
 	return {
 		branch: branchName,
 		subBranch: subBranchName,

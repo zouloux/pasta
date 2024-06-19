@@ -61,8 +61,8 @@ commands.add("deploy", async () => {
 })
 
 commands.add("ci", async () => {
-	const { config, branch } = await getDeployConfig()
-	await deployCommand( config, branch )
+	const { config, branch, subBranch } = await getDeployConfig()
+	await deployCommand( config, branch, subBranch )
 })
 
 commands.add("sync", async () => {

@@ -179,22 +179,34 @@ echo "$domain" > "$destinationBuildDir/domain.txt"
 
 # Add alias service if alias is detected
 if [ -n "$alias" ]; then
-  # If it's a dot, it's the main pasta domain
-  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
-  # No dot, it's a sub-domain of the main pasta domain
-  if [[ "$alias" == "." ]]; then
-    alias="$PASTA_DOMAIN"
-  elif [[ "$alias" != *"."* ]]; then
-    alias="$alias.$PASTA_DOMAIN"
-  fi
-  echo "> Alias is $alias"
+  echo "Building alias redirections ..."
+  # Aliases are comma separated
+  parsedAliases=()
+  IFS=',' read -ra aliases <<< "$alias"
+  for a in "${aliases[@]}"; do
+    # If it's a dot, it's the main pasta domain
+    if [[ "$a" == "." ]]; then
+      a="$PASTA_DOMAIN"
+    # No dot, it's a sub-domain of the main pasta domain
+    elif [[ "$a" != *"."* ]]; then
+      a="$a.$PASTA_DOMAIN"
+    fi
+    # Else if it has a dot, it's a full-domain ( can be external to main pasta domain )
+    # Check if this alias is already present
+    if [[ " ${parsedAliases[*]} " =~ " $a " ]]; then
+      fatalError "aliases" "Alias '$a' already present in list '$alias'"
+    fi
+    parsedAliases+=( "$a" )
+    echo "- $a"
+  done
+  allAliasesStr=$(IFS=','; echo "${parsedAliases[*]}")
   pasta_alias="
   pasta_alias:
     image: morbz/docker-web-redirect
     restart: unless-stopped
     environment:
-      VIRTUAL_HOST: $alias
-      LETSENCRYPT_HOST: $alias
+      VIRTUAL_HOST: $allAliasesStr
+      LETSENCRYPT_HOST: $allAliasesStr
       REDIRECT_TARGET: $domain
       # 302 redirects
       REDIRECT_TYPE: redirect
