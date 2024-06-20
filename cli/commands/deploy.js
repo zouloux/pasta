@@ -41,7 +41,9 @@ export async function deployCommand ( config, branchName, subBranch ) {
 	// ------------------------------------------------------------------------- CREATING ARTIFACT
 	newLine()
 	nicePrint(`{b}Creating artifact ${archiveName} ...`)
-	await execAsync(`tar -czf ${archiveName} ${files}`, 3)
+	const command = `COPYFILE_DISABLE=1 tar --exclude='.DS_Store' --exclude='__MACOSX' --exclude='._*' --exclude='.AppleDouble' -czf ${archiveName} ${files}`
+	nicePrint(`{d}$ ${command}`)
+	await execAsync(command, 3)
 	const archiveFile = await File.create(archiveName)
 	const byteCount = await archiveFile.size()
 	nicePrint(`{d}Artifact size {b}${filesize(byteCount ?? 0)}`)
