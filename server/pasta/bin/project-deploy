@@ -103,7 +103,8 @@ fatalError () {
     echo "$3"
   fi
   rm -f "$tarFile"
-  (cd "$destinationBuildDir" && docker compose down --volumes --remove-orphans ) > /dev/null 2>&1
+  (cd "$destinationBuildDir" && docker compose -f "docker-compose.pasta.yaml" down --volumes --remove-orphans ) > /dev/null 2>&1
+  (cd "$destinationBuildDir" && docker compose -f "docker-compose.yaml" down --volumes --remove-orphans ) > /dev/null 2>&1
   rm -rf "$destinationBuildDir"
   exit 1
 }
@@ -124,13 +125,10 @@ chown -R "$username:$group" "$destinationBuildDir" > /dev/null 2>&1
 # ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
 # Move pasta docker compose file
-if [ -f "$destinationBuildDir/docker-compose.pasta.yaml" ]; then
-  mv "$destinationBuildDir/docker-compose.pasta.yaml" "$destinationBuildDir/docker-compose.yaml"
-fi
-
-# No docker compose file
 dockerComposeFile="$destinationBuildDir/docker-compose.yaml"
-if [ ! -f "$dockerComposeFile" ]; then
+if [ -f "$destinationBuildDir/docker-compose.pasta.yaml" ]; then
+  dockerComposeFile="$destinationBuildDir/docker-compose.pasta.yaml"
+elif [ ! -f "$dockerComposeFile" ]; then
   fatalError "prepare" "No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
 fi
 
@@ -164,8 +162,6 @@ if [ -n "$domain" ]; then
 else
   domain="$projectName-$fullBranch.$PASTA_DOMAIN"
 fi
-
-
 
 # Save domain
 echo "> Domain is $domain"
@@ -256,11 +252,15 @@ composeProjectName="${projectName}_${branch}_${buildNumber}"
 sed -i '/^COMPOSE_PROJECT_NAME=/d' "$dotEnv"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
 
+# ------------------------------------------------------------------------------ PATCH DOCKER COMPOSE
+
+yq e 'del(.services.proxy)' -i $file
+
 # ------------------------------------------------------------------------------ PATCH DATA OWNING
 
 # Preparing data directories
 echo "Extracting data directories ..."
-dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose config)
+dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" config )
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Failed to get docker compose config. Check docker-compose.yaml file."
 fi
@@ -343,12 +343,12 @@ docker exec proxy-nginx nginx -s reload > /dev/null 2>&1
 # ------------------------------------------------------------------------------ STARTING NEW BUILD
 
 echo "Building containers ..."
-buildOutput=$(cd "$destinationBuildDir" && docker compose build 2>&1)
+buildOutput=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" build 2>&1)
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Unable to build docker stack" "$buildOutput"
 fi
 echo "Starting containers ..."
-startOutput=$(cd "$destinationBuildDir" && docker compose up -d 2>&1)
+startOutput=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" up -d 2>&1)
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Unable to start docker stack" "$startOutput"
 fi
@@ -359,7 +359,12 @@ sleep 1
 echo "Stopping and removing old containers ..."
 if [ -d "$destinationBranchLink" ]; then
   oldBranchDir=$(readlink -f "$destinationBranchLink")
-  (cd "$oldBranchDir" && docker compose down --volumes --remove-orphans) > /dev/null 2>&1
+  if [ -f "$oldBranchDir/docker-compose.pasta.yaml" ]; then
+    oldDockerComposeFile="$oldBranchDir/docker-compose.pasta.yaml"
+  else
+    oldDockerComposeFile="$oldBranchDir/docker-compose.yaml"
+  fi
+  (cd "$oldBranchDir" && docker compose -f "$oldDockerComposeFile" down --volumes --remove-orphans) > /dev/null 2>&1
   rm -rf "$oldBranchDir"
 fi
 
