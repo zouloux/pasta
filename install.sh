@@ -95,11 +95,11 @@ echo ""
 
 # Ask some questions
 read -p "On which root domain this server is installed ?
-Only DNS, no scheme. ( ex : my-domain.com ) :
+Only DNS, no scheme. (ex: my-domain.com) :
 " rootDomain
 echo ""
 read -p "Which server name to use for this instance ?
-It should be representative of its domain name, no special char [a-zA-Z0-9_-]. ( ex : my-domain ) :
+It should be representative of its domain name, no special char [a-zA-Z0-9_-]. (ex: my-domain) :
 " hostname
 echo ""
 read -p "Admin email address :

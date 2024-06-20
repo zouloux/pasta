@@ -35,14 +35,14 @@ export async function initCommand () {
 			pastaServer = servers[ serverNames[index] ]
 		}
 	}
-	const projectName = await askInput("Project name created on Pasta server", { defaultValue: "project-name" })
+	const projectName = await askInput("Project workspace name created on Pasta server", { defaultValue: "project-name" })
 	const { host, port } = parseServerEndpoint( pastaServer )
 
-	const createCI = await askList("Create CI file", {
-		gitea: "Gitea",
-		github: "Github",
-		gitlab: "Gitlab",
-		no: "No - Pasta Yolo",
+	const createCI = await askList("Do you need CI integration?", {
+		no: "No CI - Deploy directly from this machine 🫣",
+		gitea: "Gitea CI",
+		github: "Github CI",
+		gitlab: "Gitlab CI",
 	}, { returnType: "key" })
 
 	const localHostname = execSync('hostname').trim()
@@ -97,6 +97,9 @@ export async function initCommand () {
 		    domain: ${projectName}
 		    data: main
 		    sync: "pull"
+		    # List of aliases to redirect to this container
+		    #alias:
+		    #  - www
 		    noDirectDeploy: ${useCI}
 	`))
 	await pastaConfigFile.save()
