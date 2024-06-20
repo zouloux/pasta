@@ -255,12 +255,6 @@ echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
 # ------------------------------------------------------------------------------ PATCH DOCKER COMPOSE
 
 # Replace restart: "no" with restart: "always"
-yq w -i $dockerComposeFile 'services.proxy' --delete
-yq m -i -a $dockerComposeFile <(yq r $dockerComposeFile 'services' | yq p - 'services' | yq w - 'services.*.networks[+]' 'pasta')
-yq m -i -a $dockerComposeFile <(yq r $dockerComposeFile 'services' | yq p - 'services' | yq w - 'services.*.restart' 'always')
-if ! yq r $dockerComposeFile 'networks.pasta' > /dev/null; then
-  yq w -i $dockerComposeFile 'networks.pasta.external' true
-fi
 sed -i '/^[[:blank:]]*VIRTUAL_HOST/d' "$dockerComposeFile"
 sed -i '/^[[:blank:]]*LETSENCRYPT_HOST/d' "$dockerComposeFile"
 
