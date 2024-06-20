@@ -242,6 +242,9 @@ echo "PASTA_BRANCH=$branch" >> "$dotEnv"
 sed -i '/^PASTA_SUB_BRANCH=/d' "$dotEnv"
 echo "PASTA_SUB_BRANCH=$subBranch" >> "$dotEnv"
 
+# Remove hostname
+sed -i '/^PASTA_HOSTNAME=/d' "$dotEnv"
+
 # Force https redirect
 sed -i '/^HTTPS_METHOD=/d' "$dotEnv"
 echo "HTTPS_METHOD=redirect" >> "$dotEnv"
@@ -251,12 +254,6 @@ echo "HTTPS_METHOD=redirect" >> "$dotEnv"
 composeProjectName="${projectName}_${branch}_${buildNumber}"
 sed -i '/^COMPOSE_PROJECT_NAME=/d' "$dotEnv"
 echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
-
-# ------------------------------------------------------------------------------ PATCH DOCKER COMPOSE
-
-# Replace restart: "no" with restart: "always"
-sed -i '/^[[:blank:]]*VIRTUAL_HOST/d' "$dockerComposeFile"
-sed -i '/^[[:blank:]]*LETSENCRYPT_HOST/d' "$dockerComposeFile"
 
 # ------------------------------------------------------------------------------ PATCH DATA OWNING
 
