@@ -104,7 +104,6 @@ fatalError () {
   fi
   rm -f "$tarFile"
   (cd "$destinationBuildDir" && docker compose -f "docker-compose.pasta.yaml" down --volumes --remove-orphans ) > /dev/null 2>&1
-  (cd "$destinationBuildDir" && docker compose -f "docker-compose.yaml" down --volumes --remove-orphans ) > /dev/null 2>&1
   rm -rf "$destinationBuildDir"
   exit 1
 }
@@ -125,11 +124,48 @@ chown -R "$username:$group" "$destinationBuildDir" > /dev/null 2>&1
 # ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
 # Move pasta docker compose file
-dockerComposeFile="$destinationBuildDir/docker-compose.yaml"
-if [ -f "$destinationBuildDir/docker-compose.pasta.yaml" ]; then
-  dockerComposeFile="$destinationBuildDir/docker-compose.pasta.yaml"
-elif [ ! -f "$dockerComposeFile" ]; then
-  fatalError "prepare" "No docker-compose.yaml or docker-compose.pasta.yaml file found in $tarFile"
+echo "Searching for docker compose file..."
+originalComposeFile="$destinationBuildDir/docker-compose.yaml"
+dockerComposeFile="$destinationBuildDir/docker-compose.pasta.yaml"
+if [ -f "$dockerComposeFile" ]; then
+  if [ -f "$originalComposeFile" ]; then
+    fatalError "docker compose" "No docker-compose.pasta.yaml and no docker-compose.yaml file found in $tarFile"
+  fi
+
+  echo "" >> originalComposeFile
+  cat <<EOL > "$dockerComposeFile"
+networks:
+  pasta:
+    external: true
+services:
+EOL
+
+  inside_service_block=false
+  current_service_name=""
+  while IFS= read -r line; do
+    if [[ $line =~ ^[[:space:]]{2}([a-zA-Z0-9_]+): ]]; then
+      current_service_name="${BASH_REMATCH[1]}"
+      if [[ $current_service_name != "proxy" ]]; then
+        inside_service_block=true
+        {
+          echo "$line"
+          echo "    restart: always"
+          echo "    networks:"
+          echo "      - pasta"
+        } >> "$dockerComposeFile"
+      else
+        inside_service_block=false
+      fi
+    elif $inside_service_block; then
+      if [[ ! $line =~ ^[[:space:]]*(restart)[[:space:]]*:[[:space:]]* ]]; then
+        echo "$line" >> "$dockerComposeFile"
+      fi
+    fi
+  done < "originalComposeFile"
+
+  echo "> Using automatic docker-compose.pasta.yaml"
+else
+  echo "> Using docker-compose.pasta.yaml from artifact"
 fi
 
 # ------------------------------------------------------------------------------ DOT ENV INIT
@@ -165,10 +201,6 @@ fi
 
 # Save domain
 echo "> Domain is $domain"
-sed -i '/^VIRTUAL_HOST=/d' "$dotEnv"
-echo "VIRTUAL_HOST=$domain" >> "$dotEnv"
-
-# Save domain as text for later deletion
 echo "$domain" > "$destinationBuildDir/domain.txt"
 
 # ------------------------------------------------------------------------------ COMPUTE ALIAS
@@ -220,6 +252,12 @@ fi
 
 # ------------------------------------------------------------------------------ INJECT DOT ENV
 
+# Set the docker compose project name from the unique build number
+# With this, "docker compose" commands can be ran from the branch link and the build directory
+composeProjectName="${projectName}_${branch}_${buildNumber}"
+sed -i '/^COMPOSE_PROJECT_NAME=/d' "$dotEnv"
+echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
+
 # Force pasta project name
 sed -i '/^PASTA_PROJECT_NAME=/d' "$dotEnv"
 echo "PASTA_PROJECT_NAME=$projectName" >> "$dotEnv"
@@ -227,10 +265,6 @@ echo "PASTA_PROJECT_NAME=$projectName" >> "$dotEnv"
 # Inject build number
 sed -i '/^PASTA_BUILD=/d' "$dotEnv"
 echo "PASTA_BUILD=$buildNumber" >> "$dotEnv"
-
-# Save https host
-sed -i '/^LETSENCRYPT_HOST=/d' "$dotEnv"
-echo "LETSENCRYPT_HOST=$domain" >> "$dotEnv"
 
 # Remove pasta data from dot env and force it
 sed -i '/^PASTA_DATA=/d' "$dotEnv"
@@ -245,15 +279,15 @@ echo "PASTA_SUB_BRANCH=$subBranch" >> "$dotEnv"
 # Remove hostname
 sed -i '/^PASTA_HOSTNAME=/d' "$dotEnv"
 
+# Save virtual host and https host
+sed -i '/^VIRTUAL_HOST=/d' "$dotEnv"
+echo "VIRTUAL_HOST=$domain" >> "$dotEnv"
+sed -i '/^LETSENCRYPT_HOST=/d' "$dotEnv"
+echo "LETSENCRYPT_HOST=$domain" >> "$dotEnv"
+
 # Force https redirect
 sed -i '/^HTTPS_METHOD=/d' "$dotEnv"
 echo "HTTPS_METHOD=redirect" >> "$dotEnv"
-
-# Set the docker compose project name from the unique build number
-# With this, "docker compose" commands can be ran from the branch link and the build directory
-composeProjectName="${projectName}_${branch}_${buildNumber}"
-sed -i '/^COMPOSE_PROJECT_NAME=/d' "$dotEnv"
-echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
 
 # ------------------------------------------------------------------------------ PATCH DATA OWNING
 
@@ -261,7 +295,7 @@ echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
 echo "Checking docker compose file validity ..."
 dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" config )
 if [ $? -ne 0 ]; then
-  fatalError "docker compose" "Failed to get docker compose config. Check docker-compose.yaml file."
+  fatalError "docker compose" "Failed to get docker compose config. Check docker-compose.pasta.yaml file."
 fi
 
 # Read all mapped volumes of all services
@@ -359,11 +393,7 @@ sleep 1
 echo "Stopping and removing old containers ..."
 if [ -d "$destinationBranchLink" ]; then
   oldBranchDir=$(readlink -f "$destinationBranchLink")
-  if [ -f "$oldBranchDir/docker-compose.pasta.yaml" ]; then
-    oldDockerComposeFile="$oldBranchDir/docker-compose.pasta.yaml"
-  else
-    oldDockerComposeFile="$oldBranchDir/docker-compose.yaml"
-  fi
+  oldDockerComposeFile="$oldBranchDir/docker-compose.pasta.yaml"
   (cd "$oldBranchDir" && docker compose -f "$oldDockerComposeFile" down --volumes --remove-orphans) > /dev/null 2>&1
   rm -rf "$oldBranchDir"
 fi
