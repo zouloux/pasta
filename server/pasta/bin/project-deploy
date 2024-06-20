@@ -126,8 +126,8 @@ chown -R "$username:$group" "$destinationBuildDir" > /dev/null 2>&1
 echo "Searching for docker compose file..."
 originalComposeFile="$destinationBuildDir/docker-compose.yaml"
 dockerComposeFile="$destinationBuildDir/docker-compose.pasta.yaml"
-if [ -f "$dockerComposeFile" ]; then
-  if [ -f "$originalComposeFile" ]; then
+if [ ! -f "$dockerComposeFile" ]; then
+  if [ ! -f "$originalComposeFile" ]; then
     fatalError "docker compose" "No docker-compose.pasta.yaml and no docker-compose.yaml file found in $tarFile"
   fi
 
