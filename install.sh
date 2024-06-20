@@ -203,7 +203,7 @@ cp -r /tmp/pasta/server/pasta/* "$pastaDir" > /dev/null 2>&1
 echo "Configuring bashrc..."
 mv /root/.bashrc /root/.bashrc.old > /dev/null 2>&1
 cp /tmp/pasta/server/.bashrc "$pastaDir" > /dev/null 2>&1
-chmod 0750 "$pastaDir/.bashrc" > /dev/null 2>&1
+chmod 0755 "$pastaDir/.bashrc" > /dev/null 2>&1
 echo "source $pastaDir/.bashrc" > /root/.bashrc
 source /root/.bashrc
 
