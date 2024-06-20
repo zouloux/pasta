@@ -123,7 +123,6 @@ chown -R "$username:$group" "$destinationBuildDir" > /dev/null 2>&1
 
 # ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
-# Move pasta docker compose file
 echo "Searching for docker compose file..."
 originalComposeFile="$destinationBuildDir/docker-compose.yaml"
 dockerComposeFile="$destinationBuildDir/docker-compose.pasta.yaml"
@@ -132,36 +131,38 @@ if [ -f "$dockerComposeFile" ]; then
     fatalError "docker compose" "No docker-compose.pasta.yaml and no docker-compose.yaml file found in $tarFile"
   fi
 
-  echo "" >> originalComposeFile
-  cat <<EOL > "$dockerComposeFile"
-networks:
-  pasta:
-    external: true
-services:
-EOL
+  echo "networks:" > $dockerComposeFile
+  echo "  pasta:" >> $dockerComposeFile
+  echo "    external: true" >> $dockerComposeFile
+  echo "" >> $dockerComposeFile
+  echo "services:" >> $dockerComposeFile
 
-  inside_service_block=false
-  current_service_name=""
+  insideServiceBlock=false
+  currentServiceName=""
+
   while IFS= read -r line; do
     if [[ $line =~ ^[[:space:]]{2}([a-zA-Z0-9_]+): ]]; then
-      current_service_name="${BASH_REMATCH[1]}"
-      if [[ $current_service_name != "proxy" ]]; then
-        inside_service_block=true
+      currentServiceName="${BASH_REMATCH[1]}"
+      if [[ $currentServiceName != "proxy" ]]; then
+        insideServiceBlock=true
+        trimmedServiceName=$(echo "$currentServiceName" | sed 's/^[[:space:]]*//;s/:[[:space:]]*$//')
         {
           echo "$line"
+          echo "    extends:"
+          echo "      file: docker-compose.yaml"
+          echo "      service: $trimmedServiceName"
           echo "    restart: always"
           echo "    networks:"
           echo "      - pasta"
-        } >> "$dockerComposeFile"
+          echo "    environment:"
+          echo "      VIRTUAL_HOST: \"\$VIRTUAL_HOST\""
+          echo "      LETSENCRYPT_HOST: \"\$LETSENCRYPT_HOST\""
+        } >> $dockerComposeFile
       else
-        inside_service_block=false
-      fi
-    elif $inside_service_block; then
-      if [[ ! $line =~ ^[[:space:]]*(restart)[[:space:]]*:[[:space:]]* ]]; then
-        echo "$line" >> "$dockerComposeFile"
+        insideServiceBlock=false
       fi
     fi
-  done < "originalComposeFile"
+  done < "$originalComposeFile"
 
   echo "> Using automatic docker-compose.pasta.yaml"
 else
