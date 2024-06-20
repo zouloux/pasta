@@ -254,18 +254,27 @@ echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
 
 # ------------------------------------------------------------------------------ PATCH DOCKER COMPOSE
 
-yq e 'del(.services.proxy)' -i $file
+# Replace restart: "no" with restart: "always"
+yq e 'del(.services.proxy)' -i $dockerComposeFile
+yq e '.services |= with_entries(.value.networks += ["pasta"])' -i $dockerComposeFile
+yq e '.services |= with_entries(.value.restart = "always")' -i $file
+if ! yq e '.networks.pasta' $dockerComposeFile > /dev/null; then
+  yq e '.networks.pasta.external = true' -i $dockerComposeFile
+fi
+sed -i '/^[[:blank:]]*VIRTUAL_HOST/d' "$dockerComposeFile"
+sed -i '/^[[:blank:]]*LETSENCRYPT_HOST/d' "$dockerComposeFile"
 
 # ------------------------------------------------------------------------------ PATCH DATA OWNING
 
 # Preparing data directories
-echo "Extracting data directories ..."
+echo "Checking docker compose file validity ..."
 dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" config )
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Failed to get docker compose config. Check docker-compose.yaml file."
 fi
 
 # Read all mapped volumes of all services
+echo "Extracting data directories ..."
 dataVolumes=$(echo "$dockerComposeConfig" | grep "source:" | awk -F"source: " '{print $2}' | tr -d ' ')
 
 # Browse all mapped volumes and check if any tries to get out of the sandbox.
