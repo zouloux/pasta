@@ -111,9 +111,10 @@ fatalError () {
 # ------------------------------------------------------------------------------ EXTRACT
 
 mkdir -p "$destinationBuildDir"
-echo "Extracting $tarFile ..."
-if ! tar -xzf $tarFile -C $destinationBuildDir; then
-  fatalError "build" "Failed to extract $tarFile"
+echo "Extracting $tarFile..."
+output=$(tar -xzf "$tarFile" -C "$destinationBuildDir" 2>&1)
+if [ $? -ne 0 ]; then
+  fatalError "build" "Failed to extract $tarFile" "$output"
 fi
 
 # ------------------------------------------------------------------------------ PATCH BUILD OWNING
@@ -155,6 +156,7 @@ if [ ! -f "$dockerComposeFile" ]; then
           echo "    networks:"
           echo "      - pasta"
           echo "    environment:"
+          # Force VIRTUAL_HOST and LETSENCRYPT_HOST to use dot env
           echo "      VIRTUAL_HOST: \"\$VIRTUAL_HOST\""
           echo "      LETSENCRYPT_HOST: \"\$LETSENCRYPT_HOST\""
         } >> $dockerComposeFile
@@ -163,7 +165,6 @@ if [ ! -f "$dockerComposeFile" ]; then
       fi
     fi
   done < "$originalComposeFile"
-
   echo "> Using automatic docker-compose.pasta.yaml"
 else
   echo "> Using docker-compose.pasta.yaml from artifact"
@@ -171,9 +172,16 @@ fi
 
 # ------------------------------------------------------------------------------ DOT ENV INIT
 
-# Dot env
+# Move .env.$branch to .env if it exists
 dotEnv="$destinationBuildDir/.env"
+dotEnvBranch="$destinationBuildDir/.env.$branch"
+if [ -f "$dotEnvBranch" ]; then
+  mv -f "$dotEnvBranch" "$dotEnv" > /dev/null 2>&1
+fi
+
+# Init dot env pasta part
 echo "" >> "$dotEnv"
+echo "# --- PASTA" >> "$dotEnv"
 
 # ------------------------------------------------------------------------------ COMPUTE DOMAIN
 
@@ -208,7 +216,7 @@ echo "$domain" > "$destinationBuildDir/domain.txt"
 
 # Add alias service if alias is detected
 if [ -n "$alias" ]; then
-  echo "Building alias redirections ..."
+  echo "Building alias redirections..."
   # Aliases are comma separated
   parsedAliases=()
   IFS=',' read -ra aliases <<< "$alias"
@@ -293,14 +301,14 @@ echo "HTTPS_METHOD=redirect" >> "$dotEnv"
 # ------------------------------------------------------------------------------ PATCH DATA OWNING
 
 # Preparing data directories
-echo "Checking docker compose file validity ..."
+echo "Checking docker compose file validity..."
 dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" config )
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Failed to get docker compose config. Check docker-compose.pasta.yaml file."
 fi
 
 # Read all mapped volumes of all services
-echo "Extracting data directories ..."
+echo "Extracting data directories..."
 dataVolumes=$(echo "$dockerComposeConfig" | grep "source:" | awk -F"source: " '{print $2}' | tr -d ' ')
 
 # Browse all mapped volumes and check if any tries to get out of the sandbox.
@@ -318,7 +326,7 @@ for volume in $dataVolumes; do
 done
 
 # Create directories for each valid volume mapping to $userDir/data or children
-echo "Patching data directories ..."
+echo "Patching data directories..."
 for volume in $dataVolumes; do
   if [[ "$volume" == "$userDir/data"* ]]; then
     echo "- $volume"
@@ -364,7 +372,7 @@ fi
 proxyConfigSource="$destinationBuildDir/.proxy/nginx.conf"
 proxyConfigDestination="/etc/nginx/vhost.d/$domain"
 if [ -f "$proxyConfigSource" ]; then
-  echo "Setting nginx config ..."
+  echo "Setting nginx config..."
   mv -f "$proxyConfigSource" "$proxyConfigDestination" > /dev/null 2>&1
   rm -rf "$destinationBuildDir/.proxy"
 fi
@@ -372,17 +380,17 @@ fi
 # ------------------------------------------------------------------------------ RELOAD NGINX
 
 # Reload proxy config
-echo "Reloading proxy config ..."
+echo "Reloading proxy config..."
 docker exec proxy-nginx nginx -s reload > /dev/null 2>&1
 
 # ------------------------------------------------------------------------------ STARTING NEW BUILD
 
-echo "Building containers ..."
+echo "Building containers..."
 buildOutput=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" build 2>&1)
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Unable to build docker stack" "$buildOutput"
 fi
-echo "Starting containers ..."
+echo "Starting containers..."
 startOutput=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" up -d 2>&1)
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Unable to start docker stack" "$startOutput"
@@ -391,7 +399,7 @@ fi
 # ------------------------------------------------------------------------------ STOPPING PREVIOUS BUILD
 
 sleep 1
-echo "Stopping and removing old containers ..."
+echo "Stopping and removing old containers..."
 if [ -d "$destinationBranchLink" ]; then
   oldBranchDir=$(readlink -f "$destinationBranchLink")
   oldDockerComposeFile="$oldBranchDir/docker-compose.pasta.yaml"
@@ -401,7 +409,7 @@ fi
 
 # ------------------------------------------------------------------------------ BRANCH LINK TO BUILD
 
-echo "Linking new build directory ..."
+echo "Linking new build directory..."
 ln -sf "$destinationBuildDir" "$destinationBranchLink"
 rm -f "$tarFile"
 

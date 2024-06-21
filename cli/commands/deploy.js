@@ -7,8 +7,10 @@ export async function deployCommand ( config, branchName, subBranch ) {
 	// ------------------------------------------------------------------------- INIT
 	// Config and defaults
 	const archiveName = `${branchName}.tar.gz`
-	const files = (config.files ?? []).join(" ")
 	const { project, host, port, domain, user, password, data, key, alias } = config
+
+	// Patch $branch variable in files
+	const files = (config.files ?? []).map( f => f.replaceAll("$branch", branchName) ).join(" ")
 
 	// Checks
 	if ( host.length === 0 )
@@ -17,6 +19,7 @@ export async function deployCommand ( config, branchName, subBranch ) {
 		nicePrint(`{r}Missing {b/r}files{/}{r} list in pasta config.`, { code: 1 })
 	if ( project.length === 0 )
 		nicePrint(`{r}Invalid {b/r}project{/}{r} name in pasta config.`, { code: 1 })
+
 	// Try to load pasta key
 	const keyCommand = await getKeyCommand( key )
 
@@ -73,7 +76,6 @@ export async function deployCommand ( config, branchName, subBranch ) {
 		await archiveFile.delete()
 		nicePrint(`{b/r}${e}`, { code: 1 })
 	}
-
 
 	// ------------------------------------------------------------------------- CLEAN
 	await archiveFile.delete()

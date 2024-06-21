@@ -45,6 +45,14 @@ export async function initCommand () {
 		gitlab: "Gitlab CI",
 	}, { returnType: "key" })
 
+	const deployKeyContent = await askInput("Do you have a deploy key? (keep empty to use default ssh agent).")
+
+	if ( deployKeyContent !== "" ) {
+		const deployKey = await File.create(".pasta.key")
+		deployKey.content(`${deployKey}\n`)
+		await deployKey.save()
+	}
+
 	const localHostname = execSync('hostname').trim()
 
 	const proxyDir = await Directory.create(".proxy")
@@ -72,10 +80,10 @@ export async function initCommand () {
 		    #user: root
 		    # Files to transfer in the artefact
 		    files:
-		      - docker-compose.common.yaml
-		      - docker-compose.pasta.yaml
 		      - .proxy/nginx.conf
-		      - .env
+		      - docker-compose.yaml
+		      # Dot env is selected dynamically and renamed to .env on remote
+		      - .env.$branch
 		      - dist/
 		  preview:
 		    # Domain to deploy to. You can use full domain, or a sub-domain
@@ -123,8 +131,8 @@ export async function initCommand () {
 	`))
 	nginxConfFile.save()
 
-	const dockerComposeCommonFile = await File.create("docker-compose.common.yaml")
-	dockerComposeCommonFile.content(untab(`
+	const dockerComposeProxyFile = await File.create(".proxy/docker-compose.proxy.yaml")
+	dockerComposeProxyFile.content(untab(`
 		services:
 		  proxy:
 		    image: "nginxproxy/nginx-proxy"
@@ -139,9 +147,19 @@ export async function initCommand () {
 		      - "443:443"
 		    volumes:
 		      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-		      - "./.proxy/certs:/etc/nginx/certs"
-		      - "./.proxy/nginx.conf:/etc/nginx/conf.d/proxy.conf:ro"
+		      - "./certs:/etc/nginx/certs"
+		      - "./nginx.conf:/etc/nginx/conf.d/proxy.conf:ro"
 		    attach: false
+    `))
+	await dockerComposeProxyFile.save()
+
+	const dockerComposeFile = await File.create("docker-compose.yaml")
+	dockerComposeFile.content(untab(`
+		services:
+		  proxy:
+		    extends:
+		      file: ".proxy/docker-compose.proxy.yaml"
+		      service: proxy
 		  front:
 		    image: "oven/bun:alpine"
 		    working_dir: "/app"
@@ -152,41 +170,8 @@ export async function initCommand () {
 		      - "\${PASTA_DATA}/front:/root/data"
 		    environment:
 		      VIRTUAL_PORT: 3000
-    `))
-	await dockerComposeCommonFile.save()
-
-	const dockerComposePastaFile = await File.create("docker-compose.pasta.yaml")
-	dockerComposePastaFile.content(untab(`
-		networks:
-		  pasta:
-		    external: true
-		services:
-		  front:
-		    extends:
-		      file: "docker-compose.common.yaml"
-		      service: front
-		    restart: "unless-stopped"
-		    env_file: ".env"
-		    networks:
-		      - pasta
-	`))
-	await dockerComposePastaFile.save()
-
-	const dockerComposeFile = await File.create("docker-compose.yaml")
-	dockerComposeFile.content(untab(`
-		services:
-		  proxy:
-		    extends:
-		      file: "docker-compose.common.yaml"
-		      service: proxy
-		  front:
-		    extends:
-		      file: "docker-compose.common.yaml"
-		      service: front
-		    restart: "no"
-		    environment:
 		      VIRTUAL_HOST: "$PASTA_PROJECT_NAME.ssl.localhost,localhost,$PASTA_HOSTNAME.local"
-	`))
+    `))
 	await dockerComposeFile.save()
 
 	if ( createCI === "gitea" || createCI === "github" ) {
