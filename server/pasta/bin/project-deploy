@@ -172,11 +172,15 @@ fi
 
 # ------------------------------------------------------------------------------ DOT ENV INIT
 
+echo "Init env..."
 # Move .env.$branch to .env if it exists
 dotEnv="$destinationBuildDir/.env"
 dotEnvBranch="$destinationBuildDir/.env.$branch"
 if [ -f "$dotEnvBranch" ]; then
   mv -f "$dotEnvBranch" "$dotEnv" > /dev/null 2>&1
+  echo "> Using .env.$branch"
+else
+  echo "> Using .env"
 fi
 
 # Init dot env pasta part

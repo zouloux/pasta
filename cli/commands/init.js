@@ -45,13 +45,12 @@ export async function initCommand () {
 		gitlab: "Gitlab CI",
 	}, { returnType: "key" })
 
-	const deployKeyContent = await askInput("Do you have a deploy key? (keep empty to use default ssh agent).")
-
-	if ( deployKeyContent !== "" ) {
-		const deployKey = await File.create(".pasta.key")
-		deployKey.content(`${deployKey}\n`)
-		await deployKey.save()
-	}
+	// const deployKeyContent = await askInput("Do you have a deploy key? (keep empty to use default ssh agent).")
+	// if ( deployKeyContent !== "" ) {
+	// 	const deployKey = await File.create(".pasta.key")
+	// 	deployKey.content(`${deployKeyContent}\n`)
+	// 	await deployKey.save()
+	// }
 
 	const localHostname = execSync('hostname').trim()
 
@@ -121,15 +120,24 @@ export async function initCommand () {
 		PASTA_BUILD=0
 		PASTA_BRANCH=dev
 		# --- 
+		API_KEY=dev
 	`))
-	dotEnv.save()
+	await dotEnv.save()
+
+	const dotEnvPreview = await File.create(".env.preview")
+	dotEnvPreview.content(`API_KEY=preview`)
+	await dotEnvPreview.save()
+
+	const dotEnvMain = await File.create(".env.main")
+	dotEnvPreview.content(`API_KEY=main`)
+	await dotEnvMain.save()
 
 	const nginxConfFile = await File.create(".proxy/nginx.conf")
 	nginxConfFile.content(untab(`
 		# Enable big uploads
 		client_max_body_size 128m;
 	`))
-	nginxConfFile.save()
+	await nginxConfFile.save()
 
 	const dockerComposeProxyFile = await File.create(".proxy/docker-compose.proxy.yaml")
 	dockerComposeProxyFile.content(untab(`
@@ -197,9 +205,6 @@ export async function initCommand () {
 			          npm i -g @zouloux/pasta-cli
 			      - name: "Build"
 			        run: |
-			          branch=\${{ github.ref }}
-			          branch=\${branch#refs/heads/}
-			          mv ".env.$branch" .env || touch .env
 			          echo "TODO : implement build steps ..."
 			      - name: "Deploy to server"
 			        run: |
@@ -224,7 +229,6 @@ export async function initCommand () {
 			    - preview
 			    - main
 			  script:
-			    - mv ".env.$BRANCH" .env
 			    - echo "TODO : implement build steps ..."
 			    - echo SSH_PRIVATE | tr " " "\\n" > .pasta.key
 			    - pasta ci
