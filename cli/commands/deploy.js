@@ -25,7 +25,7 @@ export async function deployCommand ( config, branchName, subBranch ) {
 
 	// ------------------------------------------------------------------------- CONNECTING
 	newLine()
-	nicePrint(`{b}Connecting to ${user}@${host}:${port}/${project} ...`)
+	nicePrint(`{b}Connecting to ${user}@${host}:${port}/${project}...`)
 	try {
 		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "cd /home/${project}"`
 		nicePrint(`{d}$ ${command}`)
@@ -43,7 +43,7 @@ export async function deployCommand ( config, branchName, subBranch ) {
 
 	// ------------------------------------------------------------------------- CREATING ARTIFACT
 	newLine()
-	nicePrint(`{b}Creating artifact ${archiveName} ...`)
+	nicePrint(`{b}Creating artifact ${archiveName}...`)
 	const command = `COPYFILE_DISABLE=1 tar --exclude='.DS_Store' --exclude='__MACOSX' --exclude='._*' --exclude='.AppleDouble' -czf ${archiveName} ${files}`
 	nicePrint(`{d}$ ${command}`)
 	await execAsync(command, 3)
@@ -53,7 +53,7 @@ export async function deployCommand ( config, branchName, subBranch ) {
 
 	// ------------------------------------------------------------------------- SENDING ARTIFACT
 	newLine()
-	nicePrint(`{b}Sending artifact ${archiveName} ...`)
+	nicePrint(`{b}Sending artifact ${archiveName}...`)
 	try {
 		const command = `scp${keyCommand} -o StrictHostKeyChecking=no -P ${port} ${archiveName} ${user}@${host}:/home/${project}/artifacts/`
 		nicePrint(`{d}$ ${command}`)
@@ -66,7 +66,7 @@ export async function deployCommand ( config, branchName, subBranch ) {
 
 	// ------------------------------------------------------------------------- DEPLOY
 	newLine()
-	nicePrint(`{b}Deploying branch ${branchName} ...`)
+	nicePrint(`{b}Deploying branch ${branchName}...`)
 	try {
 		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "sudo -n /usr/local/pasta/bin/project-deploy '${project}' '${branchName}' '${subBranch}' '${data}' '${domain}' '${alias}' '${password}'"`
 		nicePrint(`{d}$ ${command}`)

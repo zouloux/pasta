@@ -61,7 +61,7 @@ if [ ! -f "$authorizedKeys" ] || ! grep -q "ssh-" "$authorizedKeys"; then
     needRestart=true
   fi
   if [ "$needRestart" = true ]; then
-    echo "Restarting SSH ..."
+    echo "Restarting SSH..."
     systemctl restart ssh > /dev/null 2>&1
     if [ "$sshPort" -ne 22 ]; then
       echo ""

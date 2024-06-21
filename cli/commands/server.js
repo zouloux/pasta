@@ -83,7 +83,7 @@ function showServerStats ( statsData, serverName, endpoint ) {
 }
 
 function showAllServerStats () {
-	nicePrint(`{d}Updating ...`)
+	nicePrint(`{d}Updating...`)
 	const serverStats = {}
 	const servers = listRegisteredServers()
 	Object.keys( servers ).forEach( serverName => {
@@ -189,7 +189,7 @@ export async function serverCommand ( action, serverName ) {
 		const { user, host, port } = parseServerEndpoint( server )
 		const sshCommand = 'ssh';
 		const sshArgs = [ '-p', port, `${user}@${host}` ];
-		nicePrint(`Opening SSH connexion to ${host} ...`)
+		nicePrint(`Opening SSH connexion to ${host}...`)
 		nicePrint(`{d}$ ${sshCommand} ${sshArgs.join(" ")}`)
 		spawn(sshCommand, sshArgs, { stdio: 'inherit' });
 	}

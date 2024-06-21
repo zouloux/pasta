@@ -11,6 +11,7 @@ export async function generateSSLCommand ( projectName, printSuccessMessage = tr
 			{w}Install it with {w/b}brew install mkcert
 		`), { code: 1 })
 	}
+	execSync(`mkcert -install`)
 	// Get hostname for .local domain
 	const hostName = execSync(`hostname`).trim()
 	// Empty and create proxy directory
@@ -21,7 +22,7 @@ export async function generateSSLCommand ( projectName, printSuccessMessage = tr
 	await certsDirectory.create()
 	// Generate and rename for nginx
 	const domains = [`${projectName}.ssl.localhost`, `${hostName}.local`]
-	nicePrint(`{b}Creating certificates ...`)
+	nicePrint(`{b}Creating certificates...`)
 	domains.forEach( domain => {
 		nicePrint(`{d}- {b}${domain}{/}`)
 		execSync(`mkcert ${domain}`, 0, { cwd: certsPath, stdio: "ignore" })
@@ -35,5 +36,5 @@ export async function generateSSLCommand ( projectName, printSuccessMessage = tr
 	dotEnvFile.content(dotEnvContent)
 	await dotEnvFile.save()
 	if ( printSuccessMessage )
-		nicePrint(`{b/g}SSL certificates saved in ${certsPath}`)
+		nicePrint(`{b/g}SSL certificates saved in ${certsPath}{/}{d}`)
 }

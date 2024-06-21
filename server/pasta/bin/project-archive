@@ -42,14 +42,14 @@ if [ "$confirm" != "archive" ]; then
 fi
 echo ""
 
-echo "Stopping running containers ..."
+echo "Stopping running containers..."
 find "$userProjectPath/builds" \( -name "docker-compose.yaml" -o -name "docker-compose.yml" \) | while read -r file; do
   dir=$(dirname "$file")
-  echo "- $dir ..."
+  echo "- $dir..."
   (cd "$dir" && docker compose down) > /dev/null 2>&1
 done
 
-echo "Archiving project data and keys ..."
+echo "Archiving project data and keys..."
 mkdir -p "/root/archives"
 tar -czvf "$archivePath" -C "$userProjectPath" data -C "$rootProjectPath" keys > /dev/null 2>&1
 if [ $? -ne 0 ]; then
@@ -57,11 +57,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo "Removing directories ..."
+echo "Removing directories..."
 rm -rf "$userProjectPath" > /dev/null 2>&1
 rm -rf "$rootProjectPath" > /dev/null 2>&1
 
-echo "Removing user $username ..."
+echo "Removing user $username..."
 loginctl terminate-user "$username"  > /dev/null 2>&1
 deluser --remove-home "$username" > /dev/null 2>&1
 if [ $? -ne 0 ]; then
