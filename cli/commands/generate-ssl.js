@@ -3,15 +3,24 @@ import { untab } from "@zouloux/ecma-core";
 import { Directory } from "@zouloux/files";
 import { loadDotEnv } from "./_common.js";
 
-export async function generateSSLCommand ( projectName, printSuccessMessage = true ) {
+export async function generateSSLCommand ( projectName, isFromInit = false ) {
 	// Test if mkcert is installed
 	if ( !execSync(`mkcert --version`, 0) ) {
-		nicePrint(untab(`
+		const message = untab(`
 			{r/b}mkcert{/r} is not installed :
 			{w}Install it with {w/b}brew install mkcert
-		`), { code: 1 })
+		`)
+		if ( isFromInit ) {
+			nicePrint(`{r/b}Unable to setup local SSL certificate.`)
+			nicePrint(message)
+			nicePrint(`{d}Then run {/}{w/b}$ pasta ssl`)
+			return
+		}
+		nicePrint(message, { code: 1 })
 	}
-	execSync(`mkcert -install`)
+	// Install certificate globally
+	nicePrint(`{b}Installing mkcert certificate...`)
+	execSync(`mkcert -install`, 0, { stdio: "ignore" })
 	// Get hostname for .local domain
 	const hostName = execSync(`hostname`).trim()
 	// Empty and create proxy directory
@@ -35,6 +44,6 @@ export async function generateSSLCommand ( projectName, printSuccessMessage = tr
 	dotEnvContent = dotEnvContent.replace(/^PASTA_HOSTNAME=.*$/gm, `PASTA_HOSTNAME=${hostName}`);
 	dotEnvFile.content(dotEnvContent)
 	await dotEnvFile.save()
-	if ( printSuccessMessage )
+	if ( !isFromInit )
 		nicePrint(`{b/g}SSL certificates saved in ${certsPath}{/}{d}`)
 }

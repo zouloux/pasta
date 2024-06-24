@@ -77,7 +77,7 @@ export async function initCommand () {
 		    key: .pasta.key
 		    # Use root user and not project user
 		    #user: root
-		    # Files to transfer in the artefact
+		    # Files to include in the artefact
 		    files:
 		      - .proxy/nginx.conf
 		      - docker-compose.yaml
@@ -87,8 +87,8 @@ export async function initCommand () {
 		  preview:
 		    # Domain to deploy to. You can use full domain, or a sub-domain
 		    domain: ${projectName}-preview
-		    # Add an HTTP login / password to protected this branch
-		    password: "login:pass"
+		    # Add an HTTP login / password to protect this branch
+		    password: "login:password"
 		    # Allow any branch matching preview/* to be deployed with those settings.
 		    # Domain will be ${projectName}-preview__$subBranch
 		    allowSubBranches: true
@@ -116,7 +116,7 @@ export async function initCommand () {
 		# --- Pasta config
 		PASTA_PROJECT_NAME=${projectName}
 		PASTA_HOSTNAME=${localHostname}
-		PASTA_DATA=./data/
+		PASTA_DATA=./data
 		PASTA_BUILD=0
 		PASTA_BRANCH=dev
 		# --- 

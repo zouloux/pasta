@@ -8,6 +8,9 @@ import { openCommand } from "./commands/open.js";
 import { syncCommand } from "./commands/sync.js";
 import { serverCommand } from "./commands/server.js";
 import { Directory } from "@zouloux/files";
+import { File } from "@zouloux/files"
+import { untab } from "@zouloux/ecma-core";
+
 
 const commands = new CLICommands({})
 
@@ -32,10 +35,6 @@ commands.add("ssl", async () => {
 	const projectName = await getProjectNameFromDotEnv()
 	await generateSSLCommand( projectName )
 })
-// commands.add("patch-key", async () => {
-// 	const { config } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
-// 	await patchKeyCommand( config )
-// })
 
 async function getDeployConfig () {
 	// Branch is given from argv
@@ -55,21 +54,36 @@ async function getDeployConfig () {
 
 commands.add("deploy", async () => {
 	const { config, branch, subBranch } = await getDeployConfig()
-	if ( config.noDirectDeploy )
-		nicePrint(`{b/r}Direct deployment is disabled for branch ${branch}. Use CI pipeline to deploy.`, { code: 1 })
+	if ( config.noDirectDeploy && !commands.parsedArgs.flags.ci )
+		nicePrint(untab(`
+			{b/r}Direct deployment is disabled for branch ${branch}.
+			Use CI pipeline to deploy with --ci option.
+		`), { code: 1 })
 	await deployCommand( config, branch, subBranch )
 })
 
-commands.add("ci", async () => {
+commands.add("env", async () => {
 	const { config, branch, subBranch } = await getDeployConfig()
-	await deployCommand( config, branch, subBranch )
+	// execSync(`mv .env.${branch} .env`)
+	const dotEnv = await File.create(`.env.${branch}`)
+	await dotEnv.load()
+	let content = dotEnv.content() + "\n# --- PASTA ENV\n"
+	content += [
+		`PASTA_PROJECT_NAME=${config.project}`,
+		`PASTA_HOSTNAME=ci`,
+		`PASTA_DATA=./data`,
+		`PASTA_BUILD=0`,
+		`PASTA_BRANCH=${branch ?? "ci"}`,
+		`PASTA_SUB_BRANCH=${subBranch ?? ""}`,
+	].join("\n")
+	dotEnv.content( content )
+	await dotEnv.save(".env")
 })
 
 commands.add("sync", async () => {
 	const { config, branch } = await targetBranchConfig( commands.parsedArgs.arguments[1] )
 	syncCommand( config, branch, commands.parsedArgs.arguments[2] )
 })
-
 
 commands.add("server", () => serverCommand( commands.parsedArgs.arguments[1], commands.parsedArgs.arguments[2] ))
 commands.add("connect", () => serverCommand( "connect", commands.parsedArgs.arguments[1] ))
