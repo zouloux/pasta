@@ -31,16 +31,17 @@ services:
       VIRTUAL_PORT: 3000
 
   runner:
-    image: "vegardit/gitea-act-runner:latest"
+    image: "vegardit/gitea-act-runner:dind-latest"
     container_name: "app_gitea-runner"
     restart: "always"
+    privileged: true
     networks:
       gitea:
         ipv4_address: 172.20.0.3
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
       - "./data/runner:/data"
     environment:
       GITEA_INSTANCE_URL: "http://172.20.0.2:3000"
       GITEA_RUNNER_REGISTRATION_TOKEN: "$GITEA_RUNNER_REGISTRATION_TOKEN"
       GITEA_RUNNER_JOB_CONTAINER_NETWORK: "host"
+      GITEA_RUNNER_VALID_VOLUME_1: "/workspace/build"
