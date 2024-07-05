@@ -1,3 +1,19 @@
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+### WIP
+
+# Trying to avoid the 777 by running rootless images with correct mapped users between host and container
+# I had issues with PHP + Apache that cannot link 1002 from host to www-data inside the container
+
 #!/bin/bash
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -75,6 +91,9 @@ buildNumber=$(openssl rand -hex 8)
 destinationBuildDir="$userDir/builds/$fullBranch-$buildNumber"
 destinationBranchLink="$userDir/branches/$fullBranch"
 group="pasta"
+userID="$(id -u $username)"
+#groupID="$(getent group $group | cut -d: -f3)"
+groupID="$(id -g $username)"
 
 # ------------------------------------------------------------------------------ TARGET ELEMENTS
 
@@ -120,7 +139,7 @@ fi
 # ------------------------------------------------------------------------------ PATCH BUILD OWNING
 
 # Patch destination directory
-chown -R "$username:$username" "$destinationBuildDir" > /dev/null 2>&1
+chown -R "$username:$group" "$destinationBuildDir" > /dev/null 2>&1
 
 # ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
@@ -153,7 +172,7 @@ if [ ! -f "$dockerComposeFile" ]; then
           echo "      file: docker-compose.yaml"
           echo "      service: $trimmedServiceName"
           echo "    restart: always"
-          echo "    privileged: false"
+	  echo "    user: \"$userID:$groupID\""
           echo "    networks:"
           echo "      - pasta"
           echo "    environment:"
@@ -336,13 +355,15 @@ for volume in $dataVolumes; do
   if [[ "$volume" == "$userDir/data"* ]]; then
     echo "- $volume"
     mkdir -p "$volume"
-    currentDir="$userDir/data"
-    IFS='/' read -ra ADDR <<< "${volume#$userDir/data}"
-    for part in "${ADDR[@]}"; do
-      currentDir="$currentDir/$part"
-      chown "$username:$username" "$currentDir"
-      chmod 0777 "$currentDir"
-    done
+    #chown -R "$username:$username" "$volume"
+    chown "$username:$username" "$volume"
+    chmod 0700 "$volume"
+    #setfacl -d -m u::rwx "$volume"
+    #setfacl -d -m g::rwx "$volume"
+    #setfacl -d -m o::rwx "$volume"
+    #setfacl -R -m u::rwx "$volume"
+    #setfacl -R -m g::rwx "$volume"
+    #setfacl -R -m o::rwx "$volume"
   fi
 done
 
