@@ -118,7 +118,7 @@ echo "127.0.0.1 $hostname" >> /etc/hosts
 echo "Installing core dependencies..."
 apt update -qq > /dev/null 2>&1
 apt upgrade -y -qq > /dev/null 2>&1
-apt install git logrotate figlet openssl rsync htop acl -y -qq > /dev/null 2>&1
+apt install git logrotate figlet openssl rsync htop -y -qq > /dev/null 2>&1
 
 # Create ASCII banner and remove figlet
 if [ "$doBanner" == "y" ]; then
