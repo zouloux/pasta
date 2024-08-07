@@ -6,6 +6,7 @@ import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { patchKey } from "./patch-key.js";
+import { networkInterfaces } from "node:os";
 
 const dotEnvFileName = ".env"
 export const pastaConfigFileName = "pasta.yaml"
@@ -168,3 +169,15 @@ export function getPreferences () {
 		encrypt: false
 	})
 }
+
+// ----------------------------------------------------------------------------- IP
+
+export function getMainIp () {
+	const interfaces = networkInterfaces();
+	for ( const interfaceName in interfaces )
+		for ( const iface of interfaces[interfaceName] )
+			if ( iface.family === 'IPv4' && !iface.internal )
+				return iface.address;
+	return null;
+}
+
