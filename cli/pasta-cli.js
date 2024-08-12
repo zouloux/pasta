@@ -16,7 +16,7 @@ const commands = new CLICommands({})
 
 commands.add("init", async () => {
 	if ( await hasConfig() ) {
-		const confirm = await askList(`{b/r}Pasta is already init in this directory. Files will be overridden.\nContinue?`, {
+		const confirm = await askList(`{b/r}Pasta is already init in this directory. Already existing files will be skipped.\nContinue?`, {
 			'n': 'No',
 			'y': 'Yes',
 		})

@@ -52,14 +52,25 @@ export async function initCommand () {
 	// 	await deployKey.save()
 	// }
 
+	const createdFiles = []
+
 	const localHostname = execSync('hostname').trim()
 
 	const proxyDir = await Directory.create(".proxy")
-	await proxyDir.create()
+	if ( !(await proxyDir.exists()) ) {
+		createdFiles.push( proxyDir )
+		await proxyDir.create()
+	}
 	const dataDir = await Directory.create("data")
-	await dataDir.create()
-	const distDir = await Directory.create("dist")
-	await distDir.create()
+	if ( !(await dataDir.exists()) ) {
+		createdFiles.push( dataDir )
+		await dataDir.create()
+	}
+
+	// const distDir = await Directory.create("dist")
+	// if ( !(await distDir.exists()) ) {
+	// 	await distDir.create()
+	// }
 
 	const useCI = createCI === "no" ? "false" : "true"
 
@@ -109,35 +120,58 @@ export async function initCommand () {
 		    #  - www
 		    noDirectDeploy: ${useCI}
 	`))
-	await pastaConfigFile.save()
+
+	if ( !(await pastaConfigFile.exists()) ) {
+		createdFiles.push( pastaConfigFile )
+		await pastaConfigFile.save()
+	}
 
 	const dotEnv = await File.create(".env")
-	dotEnv.content(untab(`
-		# --- Pasta config
-		PASTA_PROJECT_NAME=${projectName}
-		PASTA_HOSTNAME=${localHostname}
-		PASTA_DATA=./data
-		PASTA_BUILD=0
-		PASTA_BRANCH=dev
-		# --- 
-		API_KEY=dev
-	`))
+	await dotEnv.load()
+	dotEnv.dotEnv( lines => {
+		const newObject = {
+			'# --- Pasta config': '',
+			'PASTA_PROJECT_NAME': projectName,
+			'PASTA_HOSTNAME': localHostname,
+			'PASTA_DATA': "./data",
+			'PASTA_BUILD': "0",
+			'PASTA_BRANCH': "dev",
+		}
+		const newKeys = Object.keys( newObject )
+		Object.keys( lines ).forEach( k => {
+			if ( newKeys.indexOf( k ) === -1 )
+				newObject[ k ] = lines[ k ];
+		})
+		return newObject
+	})
+
+	// Save dot env
+	createdFiles.push( dotEnv )
 	await dotEnv.save()
 
 	const dotEnvPreview = await File.create(".env.preview")
-	dotEnvPreview.content(`API_KEY=preview`)
-	await dotEnvPreview.save()
+	dotEnvPreview.content(``)
+	if ( !(await dotEnvPreview.exists()) ) {
+		createdFiles.push( dotEnvPreview )
+		await dotEnvPreview.save()
+	}
 
 	const dotEnvMain = await File.create(".env.main")
-	dotEnvPreview.content(`API_KEY=main`)
-	await dotEnvMain.save()
+	dotEnvMain.content(``)
+	if ( !(await dotEnvMain.exists()) ) {
+		createdFiles.push( dotEnvMain )
+		await dotEnvMain.save()
+	}
 
 	const nginxConfFile = await File.create(".proxy/nginx.conf")
 	nginxConfFile.content(untab(`
 		# Enable big uploads
 		client_max_body_size 128m;
 	`))
-	await nginxConfFile.save()
+	if ( !(await nginxConfFile.exists()) ) {
+		createdFiles.push( nginxConfFile )
+		await nginxConfFile.save()
+	}
 
 	const dockerComposeProxyFile = await File.create(".proxy/docker-compose.proxy.yaml")
 	dockerComposeProxyFile.content(untab(`
@@ -159,7 +193,10 @@ export async function initCommand () {
 		      - "./nginx.conf:/etc/nginx/conf.d/proxy.conf:ro"
 		    attach: false
     `))
-	await dockerComposeProxyFile.save()
+	if ( !(await dockerComposeProxyFile.exists()) ) {
+		createdFiles.push( dockerComposeProxyFile )
+		await dockerComposeProxyFile.save()
+	}
 
 	const dockerComposeFile = await File.create("docker-compose.yaml")
 	dockerComposeFile.content(untab(`
@@ -168,19 +205,29 @@ export async function initCommand () {
 		    extends:
 		      file: ".proxy/docker-compose.proxy.yaml"
 		      service: proxy
-		  front:
-		    image: "oven/bun:alpine"
-		    working_dir: "/app"
-		    command: "bun --watch bun-example.js"
-		    env_file: ".env"
-		    volumes:
-		      - "./dist:/app"
-		      - "\${PASTA_DATA}/front:/root/data"
-		    environment:
-		      VIRTUAL_PORT: 3000
-		      VIRTUAL_HOST: "$PASTA_PROJECT_NAME.ssl.localhost,localhost,$PASTA_HOSTNAME.local"
     `))
-	await dockerComposeFile.save()
+	// dockerComposeFile.content(untab(`
+	// 	services:
+	// 	  proxy:
+	// 	    extends:
+	// 	      file: ".proxy/docker-compose.proxy.yaml"
+	// 	      service: proxy
+	// 	  front:
+	// 	    image: "oven/bun:alpine"
+	// 	    working_dir: "/app"
+	// 	    command: "bun --watch bun-example.js"
+	// 	    env_file: ".env"
+	// 	    volumes:
+	// 	      - "./dist:/app"
+	// 	      - "\${PASTA_DATA}/front:/root/data"
+	// 	    environment:
+	// 	      VIRTUAL_PORT: 3000
+	// 	      VIRTUAL_HOST: "$PASTA_PROJECT_NAME.ssl.localhost,localhost,$PASTA_HOSTNAME.local"
+    // `))
+	if ( !(await dockerComposeFile.exists()) ) {
+		createdFiles.push( dockerComposeFile )
+		await dockerComposeFile.save()
+	}
 
 	if ( createCI === "gitea" || createCI === "github" ) {
 		const giteaFile = await File.create(`.${createCI}/workflows/ci.yaml`)
@@ -236,10 +283,10 @@ export async function initCommand () {
 		await gitlabFile.save()
 	}
 
-	copyFileSync(
-		join(relativeDirname( import.meta.url ), "../templates/bun/", "bun-example.js"),
-		join(process.cwd(), "dist", "bun-example.js")
-	)
+	// copyFileSync(
+	// 	join(relativeDirname( import.meta.url ), "../templates/bun/", "bun-example.js"),
+	// 	join(process.cwd(), "dist", "bun-example.js")
+	// )
 
 	const gitignore = await File.create(".gitignore")
 	await gitignore.load()

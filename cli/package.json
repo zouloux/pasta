@@ -1,6 +1,6 @@
 {
 	"name": "@zouloux/pasta-cli",
-	"version": "0.9.5",
+	"version": "0.9.6",
 	"description": "Command line helper to manage Pasta Devops projects.",
 	"author": "Alexis Bouhet - ZoulouX",
 	"main": "./pasta-cli.js",
@@ -13,7 +13,7 @@
 	"dependencies": {
 		"@zouloux/cli": "^0.2.1",
 		"@zouloux/ecma-core": "^0.2.3",
-		"@zouloux/files": "^3.0.2",
+		"@zouloux/files": "^3.0.4",
 		"filesize": "^10.1.2",
 		"is-installed-globally": "^1.0.0",
 		"preferences": "^2.0.2",
