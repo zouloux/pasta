@@ -1,11 +1,9 @@
 import { Directory, File } from "@zouloux/files"
 import { askInput, askList, execSync, newLine, nicePrint, clearScreen } from "@zouloux/cli";
 import { untab } from "@zouloux/ecma-core";
-import { copyFileSync } from "node:fs";
-import { join } from "node:path";
 import { generateSSLCommand } from "./generate-ssl.js";
 import { openCommand } from "./open.js";
-import { pastaConfigFileName, relativeDirname } from "./_common.js";
+import { pastaConfigFileName } from "./_common.js";
 import { listRegisteredServers, parseServerEndpoint } from "./server.js";
 
 async function askForOtherServer () {
@@ -17,6 +15,7 @@ async function askForOtherServer () {
 export async function initCommand () {
 	clearScreen( false )
 
+	// ------------------------------------------------------------------------- ASK WHICH SERVER
 	const servers = listRegisteredServers()
 	const serverNames = Object.keys(servers)
 	let pastaServer
@@ -35,9 +34,12 @@ export async function initCommand () {
 			pastaServer = servers[ serverNames[index] ]
 		}
 	}
+
+	// ------------------------------------------------------------------------- ASK PROJECT
 	const projectName = await askInput("Project workspace name created on Pasta server", { defaultValue: "project-name" })
 	const { host, port } = parseServerEndpoint( pastaServer )
 
+	// ------------------------------------------------------------------------- ASK CI
 	const createCI = await askList("Do you need CI integration?", {
 		no: "No CI - Deploy directly from this machine 🫣",
 		gitea: "Gitea CI",
@@ -56,11 +58,13 @@ export async function initCommand () {
 
 	const localHostname = execSync('hostname').trim()
 
+	// ------------------------------------------------------------------------- FILE - .proxy/
 	const proxyDir = await Directory.create(".proxy")
 	if ( !(await proxyDir.exists()) ) {
 		createdFiles.push( proxyDir )
 		await proxyDir.create()
 	}
+	// ------------------------------------------------------------------------- FILE - data/
 	const dataDir = await Directory.create("data")
 	if ( !(await dataDir.exists()) ) {
 		createdFiles.push( dataDir )
@@ -72,8 +76,8 @@ export async function initCommand () {
 	// 	await distDir.create()
 	// }
 
+	// ------------------------------------------------------------------------- FILE - pasta.yaml
 	const useCI = createCI === "no" ? "false" : "true"
-
 	const pastaConfigFile = await File.create(pastaConfigFileName)
 	pastaConfigFile.content(untab(`
 		branches:
@@ -120,12 +124,12 @@ export async function initCommand () {
 		    #  - www
 		    noDirectDeploy: ${useCI}
 	`))
-
 	if ( !(await pastaConfigFile.exists()) ) {
 		createdFiles.push( pastaConfigFile )
 		await pastaConfigFile.save()
 	}
 
+	// ------------------------------------------------------------------------- FILE - .env
 	const dotEnv = await File.create(".env")
 	await dotEnv.load()
 	dotEnv.dotEnv( lines => {
@@ -144,11 +148,32 @@ export async function initCommand () {
 		})
 		return newObject
 	})
-
-	// Save dot env
 	createdFiles.push( dotEnv )
 	await dotEnv.save()
 
+	// ------------------------------------------------------------------------- FILE - .env.default
+	const dotEnvDefault = await File.create(".env.default")
+	await dotEnvDefault.load()
+	dotEnvDefault.dotEnv( lines => {
+		const newObject = {
+			'# --- Pasta config': '',
+			'PASTA_PROJECT_NAME': '',
+			'PASTA_HOSTNAME': '',
+			'PASTA_DATA': "./data",
+			'PASTA_BUILD': "0",
+			'PASTA_BRANCH': "dev",
+		}
+		const newKeys = Object.keys( newObject )
+		Object.keys( lines ).forEach( k => {
+			if ( newKeys.indexOf( k ) === -1 )
+				newObject[ k ] = lines[ k ];
+		})
+		return newObject
+	})
+	createdFiles.push( dotEnvDefault )
+	await dotEnvDefault.save()
+
+	// ------------------------------------------------------------------------- FILE - .env.preview
 	const dotEnvPreview = await File.create(".env.preview")
 	dotEnvPreview.content(``)
 	if ( !(await dotEnvPreview.exists()) ) {
@@ -156,6 +181,7 @@ export async function initCommand () {
 		await dotEnvPreview.save()
 	}
 
+	// ------------------------------------------------------------------------- FILE - .env.main
 	const dotEnvMain = await File.create(".env.main")
 	dotEnvMain.content(``)
 	if ( !(await dotEnvMain.exists()) ) {
@@ -163,6 +189,7 @@ export async function initCommand () {
 		await dotEnvMain.save()
 	}
 
+	// ------------------------------------------------------------------------- FILE - .proxy/nginx.conf
 	const nginxConfFile = await File.create(".proxy/nginx.conf")
 	nginxConfFile.content(untab(`
 		# Enable big uploads
@@ -173,6 +200,7 @@ export async function initCommand () {
 		await nginxConfFile.save()
 	}
 
+	// ------------------------------------------------------------------------- FILE - .proxy/docker-compose.proxy.yaml
 	const dockerComposeProxyFile = await File.create(".proxy/docker-compose.proxy.yaml")
 	dockerComposeProxyFile.content(untab(`
 		services:
@@ -198,6 +226,7 @@ export async function initCommand () {
 		await dockerComposeProxyFile.save()
 	}
 
+	// ------------------------------------------------------------------------- FILE - docker-compose.yaml
 	const dockerComposeFile = await File.create("docker-compose.yaml")
 	dockerComposeFile.content(untab(`
 		services:
@@ -206,6 +235,8 @@ export async function initCommand () {
 		      file: ".proxy/docker-compose.proxy.yaml"
 		      service: proxy
     `))
+
+	// BUN EXAMPLES
 	// dockerComposeFile.content(untab(`
 	// 	services:
 	// 	  proxy:
@@ -224,11 +255,17 @@ export async function initCommand () {
 	// 	      VIRTUAL_PORT: 3000
 	// 	      VIRTUAL_HOST: "$PASTA_PROJECT_NAME.ssl.localhost,localhost,$PASTA_HOSTNAME.local"
     // `))
+	// copyFileSync(
+	// 	join(relativeDirname( import.meta.url ), "../templates/bun/", "bun-example.js"),
+	// 	join(process.cwd(), "dist", "bun-example.js")
+	// )
+
 	if ( !(await dockerComposeFile.exists()) ) {
 		createdFiles.push( dockerComposeFile )
 		await dockerComposeFile.save()
 	}
 
+	// ------------------------------------------------------------------------- FILE - CI
 	if ( createCI === "gitea" || createCI === "github" ) {
 		const giteaFile = await File.create(`.${createCI}/workflows/ci.yaml`)
 		await giteaFile.ensureParents()
@@ -283,28 +320,30 @@ export async function initCommand () {
 		await gitlabFile.save()
 	}
 
-	// copyFileSync(
-	// 	join(relativeDirname( import.meta.url ), "../templates/bun/", "bun-example.js"),
-	// 	join(process.cwd(), "dist", "bun-example.js")
-	// )
-
+	// ------------------------------------------------------------------------- FILE - .gitignore
 	const gitignore = await File.create(".gitignore")
 	await gitignore.load()
-	if ( gitignore.content().indexOf("# Pasta ignore") === -1 ) {
-		gitignore.append(untab(`
-			# Common ignore
-			.idea
-			.DS_Store
-			node_modules
-			# Pasta ignore
-			.proxy/certs
-			.env
-			.pasta.key
-			/data/
-		`))
+	const pastaIgnoreSeparator = "# --- PASTA"
+	const ignored = [
+		".proxy/certs",
+		".env",
+		".pasta.key",
+		"/data/",
+	]
+	if ( gitignore.content().indexOf( pastaIgnoreSeparator ) === -1 ) {
+		// Add pasta ignore lines and filter out duplicates.
+		const lines = [
+			...new Set([
+				...gitignore.content().split("\n"),
+				pastaIgnoreSeparator, // add marker separator
+				...ignored,
+			])
+		]
+		gitignore.content( lines.join("\n") )
 		await gitignore.save()
 	}
 
+	// ------------------------------------------------------------------------- FILE - SSL
 	await generateSSLCommand( projectName, false )
 	newLine()
 	nicePrint(`{b/g}Pasta project created ✨`)
