@@ -70,12 +70,6 @@ chmod 600 "$userProjectRoot/.ssh/authorized_keys"
 # Data is from root for everybody
 chown "$username:$group" "$userProjectRoot/data"
 chmod 0770 "$userProjectRoot/data"
-#setfacl -d -m u::rwx "$userProjectRoot/data"
-#setfacl -d -m g::rwx "$userProjectRoot/data"
-#setfacl -d -m o::rwx "$userProjectRoot/data"
-#setfacl -R -m u::rwx "$userProjectRoot/data"
-#setfacl -R -m g::rwx "$userProjectRoot/data"
-#setfacl -R -m o::rwx "$userProjectRoot/data"
 
 echo "Creating shortcuts in containers directory ..."
 ln -s "$userProjectRoot/builds" "$rootProjectRoot/builds"

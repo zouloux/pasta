@@ -358,12 +358,6 @@ for volume in $dataVolumes; do
     #chown -R "$username:$username" "$volume"
     chown "$username:$username" "$volume"
     chmod 0700 "$volume"
-    #setfacl -d -m u::rwx "$volume"
-    #setfacl -d -m g::rwx "$volume"
-    #setfacl -d -m o::rwx "$volume"
-    #setfacl -R -m u::rwx "$volume"
-    #setfacl -R -m g::rwx "$volume"
-    #setfacl -R -m o::rwx "$volume"
   fi
 done
 

@@ -1,0 +1,33 @@
+networks:
+  pasta:
+    external: true
+
+services:
+  grafana:
+    image: "grafana/grafana"
+    container_name: "app_grafana"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "p4$$w0rd"
+      VIRTUAL_HOST: "graphana.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "graphana.$PASTA_DOMAIN"
+    volumes:
+      - "./data/graphana:/var/lib/grafana"
+    networks:
+      - "pasta"
+
+  loki:
+    image: "grafana/loki"
+    container_name: "app_graphana-loki"
+    networks:
+      - "pasta"
+
+  promtail:
+    image: "grafana/promtail"
+    container_name: "app_graphana-promtail"
+    volumes:
+      - "/var/log:/var/log"
+      - "/var/lib/docker/containers/:/var/lib/docker/containers/"
+      - "./config/promtail-config.yml:/etc/promtail/promtail-config.yml"
+    command: "-config.file=/etc/promtail/promtail-config.yml"
+    networks:
+      - "pasta"

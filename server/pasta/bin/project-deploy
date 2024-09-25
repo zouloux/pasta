@@ -331,12 +331,21 @@ for volume in $dataVolumes; do
 done
 
 # Create directories for each valid volume mapping to $userDir/data or children
-echo "Patching data directories..."
+echo "Patching data directory..."
+#for file in "$userDir/data"/*; do
+#  if [ -f "$file" ]; then
+#    echo "- $file"
+#    chown "$username:$username" "$file"
+#    chmod 0777 "$file"
+#  fi
+#done
 for volume in $dataVolumes; do
   if [[ "$volume" == "$userDir/data"* ]]; then
     echo "- $volume"
     mkdir -p "$volume"
     currentDir="$userDir/data"
+    # Browse recursively from the mapped volume to the data directory
+    # We do this to avoid recursive chmod which will impact files
     IFS='/' read -ra ADDR <<< "${volume#$userDir/data}"
     for part in "${ADDR[@]}"; do
       currentDir="$currentDir/$part"
