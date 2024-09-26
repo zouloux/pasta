@@ -32,7 +32,7 @@ fi
 
 # Go to branch directory
 link=$(readlink "$branchDir")
-cd $link
+cd $link || exit 1
 
 # Target main docker file
 dockerFile="$originalComposeFileName"
@@ -40,12 +40,14 @@ if [ -f "$pastaComposeFileName" ]; then
   dockerFile="$pastaComposeFileName"
 fi
 
+echo "> Docker file is $dockerFile"
+
 echo "Stopping $link..."
 docker compose -f $dockerFile down --volumes --remove-orphans > /dev/null 2>&1
 
-echo "Starting $link with $dockerFile..."
+echo "Starting $link..."
 docker compose -f $dockerFile up -d > /dev/null 2>&1
 
-cd -
+cd - > /dev/null 2>&1
 echo ""
 echo "> Branch $branch of project $projectName restarted"
