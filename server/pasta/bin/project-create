@@ -58,6 +58,7 @@ echo "Creating shortcuts in containers directory ..."
 ln -s "$userProjectRoot/builds" "$rootProjectRoot/builds"
 ln -s "$userProjectRoot/branches" "$rootProjectRoot/branches"
 ln -s "$userProjectRoot/data" "$rootProjectRoot/data"
+ln -s "$userProjectRoot/logs" "$rootProjectRoot/logs"
 
 echo "Create .bashrc for project user ..."
 rm -rf "$userProjectRoot/.bash_logout"
