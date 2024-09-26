@@ -115,10 +115,21 @@ echo "" >> /etc/hosts
 echo "127.0.0.1 $hostname" >> /etc/hosts
 
 # Update and install core dependencies
+#echo "Installing core dependencies..."
+#apt update -qq > /dev/null 2>&1
+#apt upgrade -y -qq > /dev/null 2>&1
+#apt install git logrotate figlet openssl rsync htop -y -qq > /dev/null 2>&1
 echo "Installing core dependencies..."
-apt update -qq > /dev/null 2>&1
-apt upgrade -y -qq > /dev/null 2>&1
-apt install git logrotate figlet openssl rsync htop -y -qq > /dev/null 2>&1
+echo -n "- update "
+apt update -qq > /dev/null 2>&1 && echo "[OK]"
+echo -n "- upgrade "
+apt upgrade -y -qq > /dev/null 2>&1 && echo "[OK]"
+install_packages=( "git" "logrotate" "figlet" "openssl" "rsync" "htop" )
+for package in "${install_packages[@]}"; do
+  echo -n "- install $package "
+  apt install "$package" -y -qq > /dev/null 2>&1 && echo "[OK]"
+done
+
 
 # Create ASCII banner and remove figlet
 if [ "$doBanner" == "y" ]; then
@@ -135,7 +146,8 @@ apt remove figlet -y -qq > /dev/null 2>&1
 if ! command -v docker &> /dev/null; then
   echo "Installing docker..."
   curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
-  sh get-docker.sh -y > /dev/null 2>&1
+#  sh get-docker.sh -y > /dev/null 2>&1
+  sh get-docker.sh -y
   rm get-docker.sh
 fi
 
@@ -225,6 +237,9 @@ docker compose build > /dev/null 2>&1
 echo "Starting proxy..."
 docker compose up -d > /dev/null 2>&1
 cd /root
+
+# Run migration installs
+/usr/local/pasta/bin/install-1.1.sh
 
 # After install script common
 /usr/local/pasta/bin/after-install

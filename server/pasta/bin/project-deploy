@@ -30,6 +30,9 @@ domain="$5"
 alias="$6"
 password="$7"
 
+originalComposeFileName="docker-compose.yaml"
+pastaComposeFileName="docker-compose.pasta.yaml"
+
 if [ -n "$subBranch" ]; then
   fullBranch="${branch}__${subBranch}"
 else
@@ -69,6 +72,7 @@ fi
 # Init variables
 username="$projectName"
 userDir="/home/$username"
+logDir="$userDir/logs"
 baseDataDir="$userDir/data"
 tarFile="$userDir/artifacts/$branch.tar.gz"
 buildNumber=$(openssl rand -hex 8)
@@ -94,6 +98,30 @@ cd "$userDir"
 
 echo "> Build number is $buildNumber"
 
+# ------------------------------------------------------------------------------ COPY LOGS
+
+saveLogs () {
+  local pastaComposeFilePath=$1
+  services=$(docker compose -f $pastaComposeFilePath config --services)
+  for service in $services; do
+    containerID=$(docker compose -f $pastaComposeFilePath ps -q $service)
+    if [ -z "$containerID" ]; then
+      echo "- Container ID not found for service $service."
+      continue
+    fi
+    logFile="/var/lib/docker/containers/$containerID/$containerID-json.log"
+    if [ ! -f "$logFile" ]; then
+      echo "- Unable to find $logFile."
+      continue
+    fi
+    timestamp=$(date +%s)
+    logDestination="$logDir/$fullBranch/${timestamp}_$containerID.log"
+    mkdir -p "$logDestination"
+    cp "$logFile" "$logDestination"
+    echo "- Saved $containerID logs to $logDir"
+  done
+}
+
 # ------------------------------------------------------------------------------ ERROR EXIT
 
 fatalError () {
@@ -103,7 +131,8 @@ fatalError () {
     echo "$3"
   fi
   rm -f "$tarFile"
-  (cd "$destinationBuildDir" && docker compose -f "docker-compose.pasta.yaml" down --volumes --remove-orphans ) > /dev/null 2>&1
+  saveLogs "$destinationBuildDir/$pastaComposeFileName"
+  ( cd $destinationBuildDir && docker compose -f "$pastaComposeFileName" down --volumes --remove-orphans ) > /dev/null 2>&1
   rm -rf "$destinationBuildDir"
   exit 1
 }
@@ -119,24 +148,24 @@ fi
 
 # ------------------------------------------------------------------------------ PATCH BUILD OWNING
 
-# Patch destination directory
+# Patch logDestination directory
 chown -R "$username:$username" "$destinationBuildDir" > /dev/null 2>&1
 
 # ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
 
 echo "Searching for docker compose file..."
-originalComposeFile="$destinationBuildDir/docker-compose.yaml"
-dockerComposeFile="$destinationBuildDir/docker-compose.pasta.yaml"
-if [ ! -f "$dockerComposeFile" ]; then
-  if [ ! -f "$originalComposeFile" ]; then
-    fatalError "docker compose" "No docker-compose.pasta.yaml and no docker-compose.yaml file found in $tarFile"
+originalComposeFilePath="$destinationBuildDir/$originalComposeFileName"
+pastaComposeFilePath="$destinationBuildDir/$pastaComposeFileName"
+if [ ! -f "$pastaComposeFilePath" ]; then
+  if [ ! -f "$originalComposeFilePath" ]; then
+    fatalError "docker compose" "No $pastaComposeFileName and no $originalComposeFileName file found in $tarFile"
   fi
 
-  echo "networks:" > $dockerComposeFile
-  echo "  pasta:" >> $dockerComposeFile
-  echo "    external: true" >> $dockerComposeFile
-  echo "" >> $dockerComposeFile
-  echo "services:" >> $dockerComposeFile
+  echo "networks:" > $pastaComposeFilePath
+  echo "  pasta:" >> $pastaComposeFilePath
+  echo "    external: true" >> $pastaComposeFilePath
+  echo "" >> $pastaComposeFilePath
+  echo "services:" >> $pastaComposeFilePath
 
   insideServiceBlock=false
   currentServiceName=""
@@ -150,7 +179,7 @@ if [ ! -f "$dockerComposeFile" ]; then
         {
           echo "$line"
           echo "    extends:"
-          echo "      file: docker-compose.yaml"
+          echo "      file: $originalComposeFileName"
           echo "      service: $trimmedServiceName"
           echo "    restart: always"
           echo "    privileged: false"
@@ -160,15 +189,15 @@ if [ ! -f "$dockerComposeFile" ]; then
           # Force VIRTUAL_HOST and LETSENCRYPT_HOST to use dot env
           echo "      VIRTUAL_HOST: \"\$VIRTUAL_HOST\""
           echo "      LETSENCRYPT_HOST: \"\$LETSENCRYPT_HOST\""
-        } >> $dockerComposeFile
+        } >> $pastaComposeFilePath
       else
         insideServiceBlock=false
       fi
     fi
-  done < "$originalComposeFile"
-  echo "> Using automatic docker-compose.pasta.yaml"
+  done < "$originalComposeFilePath"
+  echo "> Using automatic $pastaComposeFileName"
 else
-  echo "> Using docker-compose.pasta.yaml from artifact"
+  echo "> Using $pastaComposeFileName from artifact"
 fi
 
 # ------------------------------------------------------------------------------ DOT ENV INIT
@@ -256,12 +285,12 @@ if [ -n "$alias" ]; then
       - pasta
 "
   # Split docker compose around "services" declaration
-  before=$(sed '/^services\s*:/q' "$dockerComposeFile")
-  after=$(sed -n '/^services\s*:/,$p' "$dockerComposeFile" | tail -n +2)
+  before=$(sed '/^services\s*:/q' "$pastaComposeFilePath")
+  after=$(sed -n '/^services\s*:/,$p' "$pastaComposeFilePath" | tail -n +2)
   # Recreate the docker compose file with injected alias
-  echo "$before" > "$dockerComposeFile"
-  echo "$pasta_alias" >> "$dockerComposeFile"
-  echo "$after" >> "$dockerComposeFile"
+  echo "$before" > "$pastaComposeFilePath"
+  echo "$pasta_alias" >> "$pastaComposeFilePath"
+  echo "$after" >> "$pastaComposeFilePath"
 fi
 
 # ------------------------------------------------------------------------------ INJECT DOT ENV
@@ -307,9 +336,9 @@ echo "HTTPS_METHOD=redirect" >> "$dotEnv"
 
 # Preparing data directories
 echo "Checking docker compose file validity..."
-dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" config )
+dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose -f "$pastaComposeFilePath" config )
 if [ $? -ne 0 ]; then
-  fatalError "docker compose" "Failed to get docker compose config. Check docker-compose.pasta.yaml file."
+  fatalError "docker compose" "Failed to get docker compose config. Check $pastaComposeFileName file."
 fi
 
 # Read all mapped volumes of all services
@@ -399,12 +428,12 @@ docker exec proxy-nginx nginx -s reload > /dev/null 2>&1
 # ------------------------------------------------------------------------------ STARTING NEW BUILD
 
 echo "Building containers..."
-buildOutput=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" build 2>&1)
+buildOutput=$(cd "$destinationBuildDir" && docker compose -f "$pastaComposeFilePath" build 2>&1)
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Unable to build docker stack" "$buildOutput"
 fi
 echo "Starting containers..."
-startOutput=$(cd "$destinationBuildDir" && docker compose -f "$dockerComposeFile" up -d 2>&1)
+startOutput=$(cd "$destinationBuildDir" && docker compose -f "$pastaComposeFilePath" up -d 2>&1)
 if [ $? -ne 0 ]; then
   fatalError "docker compose" "Unable to start docker stack" "$startOutput"
 fi
@@ -415,8 +444,8 @@ sleep 1
 echo "Stopping and removing old containers..."
 if [ -d "$destinationBranchLink" ]; then
   oldBranchDir=$(readlink -f "$destinationBranchLink")
-  oldDockerComposeFile="$oldBranchDir/docker-compose.pasta.yaml"
-  (cd "$oldBranchDir" && docker compose -f "$oldDockerComposeFile" down --volumes --remove-orphans) > /dev/null 2>&1
+  saveLogs "$oldBranchDir/$pastaComposeFileName"
+  (cd "$oldBranchDir" && docker compose -f "$pastaComposeFileName" down --volumes --remove-orphans) > /dev/null 2>&1
   rm -rf "$oldBranchDir"
 fi
 

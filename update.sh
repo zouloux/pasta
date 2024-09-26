@@ -75,6 +75,9 @@ cd "$proxyDir"
 docker compose up -d > /dev/null 2>&1
 cd /root
 
+# Run migration installs
+/usr/local/pasta/bin/install-1.1.sh
+
 # After install script common
 /usr/local/pasta/bin/after-install
 
