@@ -38,6 +38,7 @@ Are you sure to continue? (y/n) " confirmation
 if [ "$confirmation" != "y" ]; then
   exit 1
 fi
+echo ""
 
 read -p "Do you want to update Docker ? ( you will have to wait 20s ) (y/n) " confirmation
 if [ "$confirmation" == "y" ]; then
@@ -97,9 +98,8 @@ cd /root
 /usr/local/pasta/bin/after-install
 
 # Print version
-echo -n "Current version is "
-/usr/local/pasta/bin/print-version
 echo ""
-
+echo -n "New version is "
+/usr/local/pasta/bin/print-version
 echo ""
 echo "> All done"

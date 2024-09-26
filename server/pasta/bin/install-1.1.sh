@@ -14,6 +14,4 @@ if [ ! -f "$configFilePath" ]; then
 EOF
   echo "Restarting docker..."
   systemctl restart docker
-#else
-#  echo "- Config file already exists. Delete $configFilePath and re-run this script to allow Pasta creating this file."
 fi
