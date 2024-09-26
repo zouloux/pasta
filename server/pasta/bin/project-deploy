@@ -119,12 +119,13 @@ saveLogs () {
       continue
     fi
     containerIDShort="${containerID:0:12}"
-    timestamp=$(date +%Y-%m-%d)
+    timestamp=$(date +%Y-%m-%d-%H-%M-%S)
     parentLogDirectory="$logDir/$fullBranch"
-    logDestination="$parentLogDirectory/$timestamp-$service-$containerIDShort.log"
+    logFileName="$timestamp-$service-$containerIDShort"
+    logDestination="$parentLogDirectory/$logFileName.log"
     mkdir -p "$parentLogDirectory"
     cp "$logFile" "$logDestination"
-    echo "- Saved $containerID logs to $logDir"
+    echo "- Saved $logFileName logs to $logDir"
   done
 }
 

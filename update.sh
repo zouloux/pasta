@@ -47,6 +47,7 @@ if [ "$confirmation" == "y" ]; then
   sh get-docker.sh -y
   rm get-docker.sh
 fi
+echo ""
 
 # Stop proxy
 echo "Stopping proxy..."
