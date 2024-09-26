@@ -1,0 +1,51 @@
+#!/bin/bash
+
+clear
+if [ -z "$1" ]; then
+  read -p "Enter the project name: " projectName
+else
+  projectName="$1"
+fi
+if [ -z "$2" ]; then
+  read -p "Enter branch name: " branch
+else
+  branch="$2"
+fi
+
+buildsDir="builds"
+branchesDir="branches"
+user="$projectName"
+userDir="/home/$user"
+branchDir="$userDir/$branchesDir/$branch"
+
+originalComposeFileName="docker-compose.yaml"
+pastaComposeFileName="docker-compose.pasta.yaml"
+
+if [[ ! -d $userDir ]]; then
+  echo "Project $projectName does not exist."
+  exit 1
+fi
+if [[ ! -d "$branchDir" ]]; then
+  echo "Branch $branch does not exist on project $projectName."
+  exit 1
+fi
+
+# Go to branch directory
+link=$(readlink "$branchDir")
+cd $link
+
+# Target main docker file
+dockerFile="$originalComposeFileName"
+if [ -f "$pastaComposeFileName" ]; then
+  dockerFile="$pastaComposeFileName"
+fi
+
+echo "Stopping $link..."
+docker compose -f $dockerFile down --volumes --remove-orphans > /dev/null 2>&1
+
+echo "Starting $link with $dockerFile..."
+docker compose -f $dockerFile up -d > /dev/null 2>&1
+
+cd -
+echo ""
+echo "> Branch $branch of project $projectName restarted"
