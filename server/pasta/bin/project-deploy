@@ -104,6 +104,10 @@ saveLogs () {
   local pastaComposeFilePath=$1
   services=$(docker compose -f $pastaComposeFilePath config --services)
   for service in $services; do
+    # Do not save log of pasta_alias service
+    if [ "$service" = "pasta_alias" ]; then
+        continue
+    fi
     containerID=$(docker compose -f $pastaComposeFilePath ps -q $service)
     if [ -z "$containerID" ]; then
       echo "- Container ID not found for service $service."
@@ -114,9 +118,10 @@ saveLogs () {
       echo "- Unable to find $logFile."
       continue
     fi
+    containerIDShort="${containerID:0:12}"
     timestamp=$(date +%s)
     parentLogDirectory="$logDir/$fullBranch"
-    logDestination="$parentLogDirectory/$timestamp-$service-$containerID.log"
+    logDestination="$parentLogDirectory/$timestamp-$service-$containerIDShort.log"
     mkdir -p "$parentLogDirectory"
     cp "$logFile" "$logDestination"
     echo "- Saved $containerID logs to $logDir"
