@@ -82,7 +82,7 @@ if command -v docker &> /dev/null; then
 fi
 
 # Ask for confirmation
-read -p "This script will :
+read -p "This script will:
 - Install Pasta Server core dependencies with apt
 - Install Pasta Server in $pastaDir directory
 - Override /root/.bashrc and create a copy at /root/.bashrc.old

@@ -25,12 +25,12 @@ if [ ! -d "$pastaDir" ]; then
 fi
 
 # Print version
-echo -n "Current version is:"
+echo -n "Current version is "
 /usr/local/pasta/bin/print-version
 echo ""
 
 # Ask for confirmation
-read -p "This script will update :
+read -p "This script will update:
 - ${pastaDir}/bin
 - ${pastaDir}/.bashrc
 - ${proxyDir}/docker-compose.yaml ( will create a .old backup if different )
@@ -97,7 +97,7 @@ cd /root
 /usr/local/pasta/bin/after-install
 
 # Print version
-echo -n "Current version is:"
+echo -n "Current version is "
 /usr/local/pasta/bin/print-version
 echo ""
 
