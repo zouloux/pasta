@@ -75,6 +75,7 @@ mkdir -p "$pastaDir/bin" > /dev/null 2>&1
 cp -f -r /tmp/pasta/server/pasta/bin/* "$pastaDir/bin" > /dev/null 2>&1
 
 # Updating lazydocker
+cd /root
 echo "Updating lazydocker..."
 curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh -o install-lazy-docker.sh > /dev/null 2>&1
 bash install-lazy-docker.sh > /dev/null 2>&1
