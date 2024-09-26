@@ -25,7 +25,7 @@ if [ ! -d "$pastaDir" ]; then
 fi
 
 # Print version
-echo "Current version is:"
+echo -n "Current version is:"
 /usr/local/pasta/bin/print-version
 echo ""
 
@@ -96,8 +96,9 @@ cd /root
 /usr/local/pasta/bin/after-install
 
 # Print version
-echo "Current version is:"
+echo -n "Current version is:"
 /usr/local/pasta/bin/print-version
+echo ""
 
 echo ""
 echo "> All done"
