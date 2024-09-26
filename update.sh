@@ -24,6 +24,11 @@ if [ ! -d "$pastaDir" ]; then
   exit 1
 fi
 
+# Print version
+echo "Current version is:"
+/usr/local/pasta/bin/print-version
+echo ""
+
 # Ask for confirmation
 read -p "This script will update :
 - ${pastaDir}/bin
@@ -36,41 +41,50 @@ fi
 
 read -p "Do you want to update Docker ? ( you will have to wait 20s ) (y/n) " confirmation
 if [ "$confirmation" == "y" ]; then
-  echo "Updating docker ..."
+  echo "Updating docker..."
   curl -fsSL https://get.docker.com -o get-docker.sh > /dev/null 2>&1
   sh get-docker.sh -y
   rm get-docker.sh
 fi
 
 # Stop proxy
-echo "Stopping proxy ..."
+echo "Stopping proxy..."
 cd "$proxyDir"
 docker compose stop > /dev/null 2>&1
 
 # Clone repo
-echo "Cloning Pasta repo ..."
+echo "Cloning Pasta repo..."
 rm -rf /tmp/pasta > /dev/null 2>&1
 git clone https://github.com/zouloux/pasta.git /tmp/pasta > /dev/null 2>&1
 
 # Set bash profile
-echo "Updating .bashrc ..."
+echo "Updating .bashrc..."
 cp -f /tmp/pasta/server/.bashrc "${pastaDir}/.bashrc" > /dev/null 2>&1
 source /root/.bashrc
 
 # Copy the proxy config and scripts
-echo "Updating proxy ..."
+echo "Updating proxy..."
 cd "$proxyDir"
 cp -f docker-compose.yaml docker-compose.yaml.old
 cp -f /tmp/pasta/server/containers/services/proxy/docker-compose.yaml $proxyDir
 if cmp -s docker-compose.yaml docker-compose.yaml.old; then rm docker-compose.yaml.old; fi
 
-echo "Updating pasta bin ..."
+echo "Updating pasta bin..."
 rm -rf "$pastaDir/bin" > /dev/null 2>&1
 mkdir -p "$pastaDir/bin" > /dev/null 2>&1
 cp -f -r /tmp/pasta/server/pasta/bin/* "$pastaDir/bin" > /dev/null 2>&1
 
+# Updating lazydocker
+echo "Updating lazydocker..."
+curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh -o install-lazy-docker.sh > /dev/null 2>&1
+bash install-lazy-docker.sh > /dev/null 2>&1
+rm install-lazy-docker.sh
+rm /usr/bin/lazydocker
+mv .local/bin/lazydocker /usr/bin
+rm -rf .local
+
 # Start the proxy
-echo "Starting proxy ..."
+echo "Starting proxy..."
 cd "$proxyDir"
 docker compose up -d > /dev/null 2>&1
 cd /root
@@ -80,6 +94,10 @@ cd /root
 
 # After install script common
 /usr/local/pasta/bin/after-install
+
+# Print version
+echo "Current version is:"
+/usr/local/pasta/bin/print-version
 
 echo ""
 echo "> All done"
