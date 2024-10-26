@@ -173,7 +173,10 @@ async function deployCommand2 ( config, branchName, subBranch ) {
 
 	// --- DEPLOY
 	newLine()
-	nicePrint(`{b}Deploying branch ${branchName}...`)
+	if ( subBranch )
+		nicePrint(`{b}Deploying branch ${branchName}/${subBranch}...`)
+	else
+		nicePrint(`{b}Deploying branch ${branchName}...`)
 	try {
 		const command = `ssh${keyCommand} -o StrictHostKeyChecking=no -p ${port} ${user}@${host} "sudo -n /usr/local/pasta/bin/project-deploy-2 '${verbose}' '${project}' '${branchName}' '${subBranch}' '${swapMethod}' '${data}' '${password}'"`
 		nicePrint(`{d}$ ${command}`)
