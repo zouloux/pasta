@@ -46,7 +46,7 @@ group="pasta"
 usermod -aG "$group" "$username"
 
 echo "Creating project directories ..."
-mkdir -p "$userProjectRoot/"{.config,artifacts,builds,branches,logs,data,.ssh}
+mkdir -p "$userProjectRoot/"{.config,artifacts,builds,branches,logs,data,services,.ssh}
 
 mkdir -p "$rootProjectRoot/keys"
 project-revoke-key "$projectName"
@@ -64,6 +64,7 @@ chmod 0777 "$userProjectRoot/data"
 #ln -s "$userProjectRoot/branches" "$rootProjectRoot/branches"
 #ln -s "$userProjectRoot/data" "$rootProjectRoot/data"
 #ln -s "$userProjectRoot/logs" "$rootProjectRoot/logs"
+#ln -s "$userProjectRoot/services" "$rootProjectRoot/services"
 
 echo "Create .bashrc for project user ..."
 rm -rf "$userProjectRoot/.bash_logout"
