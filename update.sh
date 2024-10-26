@@ -94,6 +94,7 @@ cd /root
 
 # Run migration installs
 /usr/local/pasta/bin/install-1.1.sh
+/usr/local/pasta/bin/install-1.2.sh
 
 # After install script common
 /usr/local/pasta/bin/after-install

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Configuring docker logs..."
+echo "[1.1] Configuring docker logs..."
 configFilePath="/etc/docker/daemon.json"
 if [ ! -f "$configFilePath" ]; then
   cat > $configFilePath <<EOF

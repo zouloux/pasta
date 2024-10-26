@@ -134,11 +134,14 @@ export async function targetBranchConfig ( _branchName ) {
 		branch: branchName,
 		subBranch: subBranchName,
 		config: {
+			version: (config.version + '' ?? '1.0'), // default + force string
 			domain: "",
 			port: 22,
 			data: branchName,
 			user: branchConfig.project,
+			swapMethod: "up-down",
 			password: "",
+			verbose: "0",
 			alias: "",
 			...branchConfig,
 		}

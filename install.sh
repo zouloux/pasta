@@ -225,7 +225,6 @@ cp -r /tmp/pasta/server/containers/services/proxy/config/ /root/containers/servi
 
 echo "Configuring deployment group..."
 groupadd pasta > /dev/null 2>&1
-echo "%pasta ALL=(ALL) NOPASSWD: /usr/local/pasta/bin/project-deploy" >> /etc/sudoers.d/pasta-deploy
 
 echo "Creating docker network..."
 docker network create pasta > /dev/null 2>&1
@@ -240,6 +239,7 @@ cd /root
 
 # Run migration installs
 /usr/local/pasta/bin/install-1.1.sh
+/usr/local/pasta/bin/install-1.2.sh
 
 # After install script common
 /usr/local/pasta/bin/after-install

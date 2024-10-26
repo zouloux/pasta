@@ -12,6 +12,14 @@ echo ""
 bold=$(tput bold)
 normal=$(tput sgr0)
 
+echo ""
+echo "${bold}--- VARIABLES ---${normal}"
+echo ""
+echo "\$PASTA_DOMAIN=$(cat /usr/local/pasta/config/domain.txt)"
+echo "\$PASTA_HOSTNAME=$(cat /usr/local/pasta/config/hostname.txt)"
+echo "\$PASTA_EMAIL=$(cat /usr/local/pasta/config/email.txt)"
+echo ""
+
 if [ "$(id -u)" -eq 0 ]; then
   echo ""
   echo "${bold}--- DOCKER ---${normal}"

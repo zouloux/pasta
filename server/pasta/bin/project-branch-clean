@@ -38,7 +38,7 @@ for build in "${allBuilds[@]}"; do
   buildId=$(echo "$build" | sed 's/^.*-//')
   if [ "$buildId" != "$linkedBuild" ]; then
     echo "Stopping and removing build $build ..."
-    (cd "$buildsDir/$build" && docker compose down --volumes --remove-orphans) > /dev/null 2>&1
+    (cd "$buildsDir/$build" && docker compose -f "docker-compose.pasta.yaml" down --volumes --remove-orphans) > /dev/null 2>&1
     rm -rf "$buildsDir/$build"
   fi
 done

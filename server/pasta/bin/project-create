@@ -18,6 +18,11 @@ else
   projectName="$1"
 fi
 
+if [[ ! "$projectName" =~ ^[a-z0-9_-]+$ ]]; then
+  echo "Invalid project name [a-z0-9_-]"
+  exit 1
+fi
+
 username="$projectName"
 userProjectRoot="/home/$username"
 rootProjectRoot="/root/containers/projects/$projectName"
@@ -53,12 +58,12 @@ chmod 600 "$userProjectRoot/.ssh/authorized_keys"
 
 # Data is from root for everybody
 chmod 0777 "$userProjectRoot/data"
-
-echo "Creating shortcuts in containers directory ..."
-ln -s "$userProjectRoot/builds" "$rootProjectRoot/builds"
-ln -s "$userProjectRoot/branches" "$rootProjectRoot/branches"
-ln -s "$userProjectRoot/data" "$rootProjectRoot/data"
-ln -s "$userProjectRoot/logs" "$rootProjectRoot/logs"
+#
+#echo "Creating shortcuts in containers directory ..."
+#ln -s "$userProjectRoot/builds" "$rootProjectRoot/builds"
+#ln -s "$userProjectRoot/branches" "$rootProjectRoot/branches"
+#ln -s "$userProjectRoot/data" "$rootProjectRoot/data"
+#ln -s "$userProjectRoot/logs" "$rootProjectRoot/logs"
 
 echo "Create .bashrc for project user ..."
 rm -rf "$userProjectRoot/.bash_logout"

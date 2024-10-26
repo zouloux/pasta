@@ -1,0 +1,532 @@
+#!/bin/bash
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "This script must be run as root"
+  exit 1
+fi
+if [ $# -lt 2 ] || [ $# -gt 7 ]; then
+  echo "Usage:"
+  echo "sudo $0 <project> <branch> <sub-branch?> <data-bucket?> <sub-domain|full-domain|service-to-domain-map?> <alias-domains?> <login:password?>"
+  exit 1
+fi
+
+# ------------------------------------------------------------------------------ INIT
+
+# Using sudo, bashrc is not read. We have to reload envs and path.
+# Pasta Server config
+export PASTA_DOMAIN=$(cat /usr/local/pasta/config/domain.txt)
+export PASTA_HOSTNAME=$(cat /usr/local/pasta/config/hostname.txt)
+export PASTA_EMAIL=$(cat /usr/local/pasta/config/email.txt)
+
+# Pasta Server scripts aliases
+export PATH="$PATH:/usr/local/pasta/bin"
+
+# Process arguments
+projectName="$1"
+branch="$2"
+subBranch="$3"
+dataBucketName="${4:-$branch}"
+domainString="$5"
+aliasDomains="$6"
+password="$7"
+
+if [ -n "$subBranch" ]; then
+  fullBranchPath="${branch}__${subBranch}"
+  fullBranchDomain="${branch}--${subBranch}"
+  fullBranchName="${branch}/${subBranch}"
+else
+  fullBranchPath=$branch
+  fullBranchDomain=$branch
+  fullBranchName=$branch
+fi
+
+# Function to validate a domain
+validateDomain() {
+  local domain="$1"
+  if [[ -n "$domain" && ! "$domain" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+    echo "Invalid domain [$domain]"
+    exit 1
+  fi
+}
+
+resolveDomain() {
+  local domain="$1"
+  # If it's a dot, it's the main pasta domain
+  if [[ "$domain" == "." ]]; then
+    if [ -n "$subBranch" ]; then
+      fatalError "domain" "Sub-branches are not compatible with root domain deployments."
+    fi
+    domain="$PASTA_DOMAIN"
+  # No dot, it's a sub-domain of the main pasta domain
+  elif [[ "$domain" != *"."* ]]; then
+    if [ -n "$subBranch" ]; then
+      domain="${domain}--${subBranch}.$PASTA_DOMAIN"
+    else
+      domain="$domain.$PASTA_DOMAIN"
+    fi
+  fi
+  # Else, if it contains a dot, it's a full-domain ( can be external to main pasta domain )
+  # Return the domain
+  echo "$domain"
+}
+
+# Parse the domain string into an associative array
+declare -A domainToServiceMap
+
+# Check if domainString contains a comma
+if [[ "$domainString" == *","* ]]; then
+  hasMultipleDomains=true
+  IFS=',' read -ra domainPairs <<< "$domainString"
+  for pair in "${domainPairs[@]}"; do
+    IFS='=' read -r key value <<< "$pair"
+    validateDomain "$value"
+    value=$(resolveDomain "$value")
+    if [ -z "$mainDomain" ]; then
+      mainDomain="$value"
+    fi
+    domainToServiceMap["$key"]="$value"
+  done
+elif [ -n "$domainString" ]; then
+  hasMultipleDomains=false
+  validateDomain "$domainString"
+  mainDomain=$(resolveDomain "$domainString")
+else
+  hasMultipleDomains=false
+  mainDomain="$projectName-$fullBranchDomain.$PASTA_DOMAIN"
+fi
+
+# ------------------------------------------------------------------------------ INIT VARIABLES AND CONST
+
+username="$projectName"
+userDir="/home/$username"
+logDir="$userDir/logs"
+baseDataDir="$userDir/data"
+tarFile="$userDir/artifacts/$branch.tar.gz"
+buildNumber=$(openssl rand -hex 8)
+destinationBuildDir="$userDir/builds/$fullBranchPath-$buildNumber"
+destinationBranchLink="$userDir/branches/$fullBranchPath"
+group="pasta"
+
+originalComposeFileName="docker-compose.yaml"
+pastaComposeFileName="docker-compose.pasta.yaml"
+
+# Set the docker compose project name from the unique build number
+# With this, "docker compose" commands can be ran from the branch link and the build directory
+composeProjectName="${projectName}_${branch}_${buildNumber}"
+
+# ------------------------------------------------------------------------------ TARGET ELEMENTS
+
+# Target user directory
+if [[ ! -d $userDir ]]; then
+  echo "Project $projectName does not exist."
+  exit 1
+fi
+
+# Target tar.gz file
+if [ ! -f "$tarFile" ]; then
+  echo "File $tarFile not found"
+  exit 1
+fi
+
+cd "$userDir"
+
+#echo "> Build number is $buildNumber"
+
+# ------------------------------------------------------------------------------ VARIABLES
+
+#echo "> Parameters"
+echo "Project Name: $projectName"
+echo "Branch: $branch"
+echo "Sub-Branch: ${subBranch:-N/A}"
+echo "Build number: $buildNumber"
+echo "Data Bucket: $dataBucketName"
+echo "Main Domain: $mainDomain"
+echo "Alias Domains: ${aliasDomains:-N/A}"
+echo "Has Multiple Domains: $hasMultipleDomains"
+echo "------------------"
+echo "Domain to Service Map:"
+for service in "${!domainToServiceMap[@]}"; do
+  echo "  $service: ${domainToServiceMap[$service]}"
+done
+
+# ------------------------------------------------------------------------------ COPY LOGS
+
+saveLogs () {
+  local pastaComposeFilePath=$1
+  services=$(docker compose -f $pastaComposeFilePath config --services)
+  for service in $services; do
+    # Do not save log of pasta_alias service
+    if [ "$service" = "pasta_alias" ]; then
+        continue
+    fi
+    containerID=$(docker compose -f $pastaComposeFilePath ps -q $service)
+    if [ -z "$containerID" ]; then
+      echo "- Container ID not found for service $service."
+      continue
+    fi
+    logFile="/var/lib/docker/containers/$containerID/$containerID-json.log"
+    if [ ! -f "$logFile" ]; then
+      echo "- Unable to find $logFile."
+      continue
+    fi
+    containerIDShort="${containerID:0:12}"
+    timestamp=$(date +%Y-%m-%d-%H-%M-%S)
+    parentLogDirectory="$logDir/$fullBranchPath"
+    logFileName="$timestamp-$service-$containerIDShort"
+    logDestination="$parentLogDirectory/$logFileName.log"
+    mkdir -p "$parentLogDirectory"
+    cp "$logFile" "$logDestination"
+    echo "- Saved $logFileName logs to $logDir"
+  done
+}
+
+# ------------------------------------------------------------------------------ ERROR EXIT
+
+fatalError () {
+  echo "⚠ $1 : $2"
+  if [ -n "$3" ]; then
+    echo "Error stack"
+    echo "$3"
+  fi
+  rm -f "$tarFile"
+  saveLogs "$destinationBuildDir/$pastaComposeFileName"
+  ( cd $destinationBuildDir && docker compose -f "$pastaComposeFileName" down --volumes --remove-orphans ) > /dev/null 2>&1
+  rm -rf "$destinationBuildDir"
+  exit 1
+}
+
+# ------------------------------------------------------------------------------ EXTRACT
+
+mkdir -p "$destinationBuildDir"
+echo "Extracting $tarFile..."
+output=$(tar -xzf "$tarFile" -C "$destinationBuildDir" 2>&1)
+if [ $? -ne 0 ]; then
+  fatalError "build" "Failed to extract $tarFile" "$output"
+fi
+
+# ------------------------------------------------------------------------------ PATCH BUILD OWNING
+
+# Patch logDestination directory
+chown -R "$username:$username" "$destinationBuildDir" > /dev/null 2>&1
+
+# ------------------------------------------------------------------------------ DOCKER COMPOSE INIT
+
+echo "Searching for docker compose file..."
+originalComposeFilePath="$destinationBuildDir/$originalComposeFileName"
+pastaComposeFilePath="$destinationBuildDir/$pastaComposeFileName"
+if [ ! -f "$pastaComposeFilePath" ]; then
+  if [ ! -f "$originalComposeFilePath" ]; then
+    fatalError "docker compose" "No $pastaComposeFileName and no $originalComposeFileName file found in $tarFile"
+  fi
+
+  echo "networks:" > $pastaComposeFilePath
+  echo "  pasta:" >> $pastaComposeFilePath
+  echo "    external: true" >> $pastaComposeFilePath
+  echo "" >> $pastaComposeFilePath
+  echo "services:" >> $pastaComposeFilePath
+
+  insideServiceBlock=false
+  currentServiceName=""
+
+  while IFS= read -r line; do
+    if [[ $line =~ ^[[:space:]]{2}([a-zA-Z0-9_]+): ]]; then
+      currentServiceName="${BASH_REMATCH[1]}"
+      if [[ $currentServiceName != "proxy" ]]; then
+        insideServiceBlock=true
+        trimmedServiceName=$(echo "$currentServiceName" | sed 's/^[[:space:]]*//;s/:[[:space:]]*$//')
+        containerName="$composeProjectName-$trimmedServiceName"
+        hostname="$composeProjectName-$trimmedServiceName"
+        {
+          echo "$line"
+          echo "    extends:"
+          echo "      file: $originalComposeFileName"
+          echo "      service: $trimmedServiceName"
+          # Force hostname and container names overrides
+          echo "    container_name: $containerName"
+          echo "    hostname: $hostname"
+          # Force restart always in case of crash
+          echo "    restart: always"
+          # Disable privileged containers
+          echo "    privileged: false"
+          # Connect to pasta network
+          echo "    networks:"
+          echo "      - pasta"
+          echo "    environment:"
+          # Force VIRTUAL_HOST and LETSENCRYPT_HOST to use dot env
+          echo "      VIRTUAL_HOST: \"\$VIRTUAL_HOST\""
+          echo "      LETSENCRYPT_HOST: \"\$LETSENCRYPT_HOST\""
+        } >> $pastaComposeFilePath
+      else
+        insideServiceBlock=false
+      fi
+    fi
+  done < "$originalComposeFilePath"
+  echo "> Using automatic $pastaComposeFileName"
+else
+  echo "> Using $pastaComposeFileName from artifact"
+fi
+
+# ------------------------------------------------------------------------------ DOT ENV INIT
+
+echo "Init env..."
+# Move .env.$branch to .env if it exists
+dotEnv="$destinationBuildDir/.env"
+dotEnvBranch="$destinationBuildDir/.env.$branch"
+if [ -f "$dotEnvBranch" ]; then
+  mv -f "$dotEnvBranch" "$dotEnv" > /dev/null 2>&1
+  echo "> Using .env.$branch"
+else
+  echo "> Using .env"
+fi
+
+# Init dot env pasta part
+echo "" >> "$dotEnv"
+echo "# --- PASTA" >> "$dotEnv"
+
+# ------------------------------------------------------------------------------ COMPUTE DOMAIN
+
+# If we have a domain to set
+if [ -n "$domain" ]; then
+  # If it's a dot, it's the main pasta domain
+  if [[ "$domain" == "." ]]; then
+    if [ -n "$subBranch" ]; then
+      fatalError "domain" "Sub-branches are not compatible with root domain deployments."
+    fi
+    domain="$PASTA_DOMAIN"
+  # No dot, it's a sub-domain of the main pasta domain
+  elif [[ "$domain" != *"."* ]]; then
+    if [ -n "$subBranch" ]; then
+      domain="${domain}--${subBranch}.$PASTA_DOMAIN"
+    else
+      domain="$domain.$PASTA_DOMAIN"
+    fi
+  fi
+  # If it has a dot, it's a full-domain ( can be external to main pasta domain )
+
+# No domain to set, but no domain in dot env, use auto mode
+else
+  domain="$projectName-$fullBranchPath.$PASTA_DOMAIN"
+fi
+
+# Save domain
+#echo "> Domain is $domain"
+#echo "$domain" > "$destinationBuildDir/domain.txt"
+
+# ------------------------------------------------------------------------------ COMPUTE ALIAS
+
+# Add aliasDomains service if aliasDomains is detected
+if [ -n "$aliasDomains" ]; then
+  echo "Building aliasDomains redirections..."
+  # Aliases are comma separated
+  parsedAliases=()
+  IFS=',' read -ra aliases <<< "$aliasDomains"
+  for a in "${aliases[@]}"; do
+    # If it's a dot, it's the main pasta domain
+    if [[ "$a" == "." ]]; then
+      a="$PASTA_DOMAIN"
+    # No dot, it's a sub-domain of the main pasta domain
+    elif [[ "$a" != *"."* ]]; then
+      a="$a.$PASTA_DOMAIN"
+    fi
+    # Else if it has a dot, it's a full-domain ( can be external to main pasta domain )
+    # Check if this aliasDomains is already present
+    if [[ " ${parsedAliases[*]} " =~ " $a " ]]; then
+      fatalError "aliases" "Alias '$a' already present in list '$aliasDomains'"
+    fi
+    parsedAliases+=( "$a" )
+    echo "- $a"
+  done
+  allAliasesStr=$(IFS=','; echo "${parsedAliases[*]}")
+  # TODO : Fork morbz image as pasta to avoid unwanted updates
+  pasta_alias="
+  pasta_alias:
+    image: morbz/docker-web-redirect
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: $allAliasesStr
+      LETSENCRYPT_HOST: $allAliasesStr
+      REDIRECT_TARGET: $domain
+      # 302 redirects
+      REDIRECT_TYPE: redirect
+    networks:
+      - pasta
+"
+  # Split docker compose around "services" declaration
+  before=$(sed '/^services\s*:/q' "$pastaComposeFilePath")
+  after=$(sed -n '/^services\s*:/,$p' "$pastaComposeFilePath" | tail -n +2)
+  # Recreate the docker compose file with injected aliasDomains
+  echo "$before" > "$pastaComposeFilePath"
+  echo "$pasta_alias" >> "$pastaComposeFilePath"
+  echo "$after" >> "$pastaComposeFilePath"
+fi
+
+# ------------------------------------------------------------------------------ INJECT DOT ENV
+
+sed -i '/^COMPOSE_PROJECT_NAME=/d' "$dotEnv"
+echo "COMPOSE_PROJECT_NAME=$composeProjectName" >> "$dotEnv"
+
+# Force pasta project name
+sed -i '/^PASTA_PROJECT_NAME=/d' "$dotEnv"
+echo "PASTA_PROJECT_NAME=$projectName" >> "$dotEnv"
+
+# Inject build number
+sed -i '/^PASTA_BUILD=/d' "$dotEnv"
+echo "PASTA_BUILD=$buildNumber" >> "$dotEnv"
+
+# Remove pasta data from dot env and force it
+sed -i '/^PASTA_DATA=/d' "$dotEnv"
+echo "PASTA_DATA=../../data/$dataBucketName" >> "$dotEnv"
+
+# Inject branch
+sed -i '/^PASTA_BRANCH=/d' "$dotEnv"
+echo "PASTA_BRANCH=$branch" >> "$dotEnv"
+sed -i '/^PASTA_SUB_BRANCH=/d' "$dotEnv"
+echo "PASTA_SUB_BRANCH=$subBranch" >> "$dotEnv"
+
+# Remove hostname
+sed -i '/^PASTA_HOSTNAME=/d' "$dotEnv"
+
+# Save virtual host and https host
+sed -i '/^VIRTUAL_HOST=/d' "$dotEnv"
+echo "VIRTUAL_HOST=$domain" >> "$dotEnv"
+sed -i '/^LETSENCRYPT_HOST=/d' "$dotEnv"
+echo "LETSENCRYPT_HOST=$domain" >> "$dotEnv"
+
+# Force https redirect
+sed -i '/^HTTPS_METHOD=/d' "$dotEnv"
+echo "HTTPS_METHOD=redirect" >> "$dotEnv"
+
+# ------------------------------------------------------------------------------ PATCH DATA OWNING
+
+# Preparing data directories
+echo "Checking docker compose file validity..."
+dockerComposeConfig=$(cd "$destinationBuildDir" && docker compose -f "$pastaComposeFilePath" config )
+if [ $? -ne 0 ]; then
+  fatalError "docker compose" "Failed to get docker compose config. Check $pastaComposeFileName file."
+fi
+
+# Read all mapped volumes of all services
+echo "Extracting data directories..."
+dataVolumes=$(echo "$dockerComposeConfig" | grep "source:" | awk -F"source: " '{print $2}' | tr -d ' ')
+
+# Browse all mapped volumes and check if any tries to get out of the sandbox.
+# - /home/$user/data/*
+# - /home/$user/branches/*
+# - /home/$user/builds/*
+# Anything else will be banned for security reasons
+for volume in $dataVolumes; do
+  if [[ "$volume" != "$userDir/data"* && "$volume" != "$userDir/branches"* && "$volume" != "$userDir/builds"* ]]; then
+    fatalError "docker compose" "Volume $volume is outside of sandbox ( mapping a directory outside $userDir is forbidden )"
+  fi
+  if [[ "$volume" =~ ^[a-zA-Z0-9._:-]+$ ]]; then
+    fatalError "docker compose" "Volume $volume is outside of sandbox ( docker volumes are forbidden )"
+  fi
+done
+
+# Create directories for each valid volume mapping to $userDir/data or children
+echo "Patching data directory..."
+#for file in "$userDir/data"/*; do
+#  if [ -f "$file" ]; then
+#    echo "- $file"
+#    chown "$username:$username" "$file"
+#    chmod 0777 "$file"
+#  fi
+#done
+for volume in $dataVolumes; do
+  if [[ "$volume" == "$userDir/data"* ]]; then
+    echo "- $volume"
+    mkdir -p "$volume"
+    currentDir="$userDir/data"
+    # Browse recursively from the mapped volume to the data directory
+    # We do this to avoid recursive chmod which will impact files
+    IFS='/' read -ra ADDR <<< "${volume#$userDir/data}"
+    for part in "${ADDR[@]}"; do
+      currentDir="$currentDir/$part"
+      chown "$username:$username" "$currentDir"
+      chmod 0777 "$currentDir"
+    done
+  fi
+done
+
+# ------------------------------------------------------------------------------ CHECK DOMAIN AVAILABILITY
+
+# TODO : Grab all used domains from all containers
+# TODO : Exclude current project with current branch
+# TODO : Check for $domain and $aliasDomains, should fail if any is already reserved
+# TODO : see grab-reserved-hostnames.sh
+# TODO : Maybe also remove VIRTUAL_HOST and LETSENCRYPT_HOST from docker-compose.yaml for better security ?
+# TODO : Or check from docker compose config !
+
+# ------------------------------------------------------------------------------ PASSWORD & PROXY CONFIG
+
+# Check if we had a domain in previous build
+oldDomainFile="$destinationBranchLink/domain.txt"
+if [ -f "$oldDomainFile" ]; then
+  oldDomain=$(cat "$oldDomainFile")
+  # Remove old password
+  proxy-password "$oldDomain"
+  # Remove old config
+  rm -f "/etc/nginx/vhost.d/$oldDomain" > /dev/null 2>&1
+fi
+
+# Setting password
+if [ -n "$password" ]; then
+  proxy-password "$domain" "$password"
+fi
+
+# Setting nginx config
+proxyConfigSource="$destinationBuildDir/.proxy/nginx.conf"
+proxyConfigDestination="/etc/nginx/vhost.d/$domain"
+if [ -f "$proxyConfigSource" ]; then
+  echo "Setting nginx config..."
+  mv -f "$proxyConfigSource" "$proxyConfigDestination" > /dev/null 2>&1
+  rm -rf "$destinationBuildDir/.proxy"
+fi
+
+# ------------------------------------------------------------------------------ RELOAD NGINX
+
+# Reload proxy config
+echo "Reloading proxy config..."
+docker exec proxy-nginx nginx -s reload > /dev/null 2>&1
+
+# ------------------------------------------------------------------------------ STARTING NEW BUILD
+
+echo "Building containers..."
+buildOutput=$(cd "$destinationBuildDir" && docker compose -f "$pastaComposeFilePath" build 2>&1)
+if [ $? -ne 0 ]; then
+  fatalError "docker compose" "Unable to build docker stack" "$buildOutput"
+fi
+echo "Starting containers..."
+startOutput=$(cd "$destinationBuildDir" && docker compose -f "$pastaComposeFilePath" up -d 2>&1)
+if [ $? -ne 0 ]; then
+  fatalError "docker compose" "Unable to start docker stack" "$startOutput"
+fi
+
+# ------------------------------------------------------------------------------ STOPPING PREVIOUS BUILD
+
+sleep 1
+echo "Stopping and removing old containers..."
+if [ -d "$destinationBranchLink" ]; then
+  oldBranchDir=$(readlink -f "$destinationBranchLink")
+  saveLogs "$oldBranchDir/$pastaComposeFileName"
+  (cd "$oldBranchDir" && docker compose -f "$pastaComposeFileName" down --volumes --remove-orphans) > /dev/null 2>&1
+  rm -rf "$oldBranchDir"
+fi
+
+# ------------------------------------------------------------------------------ BRANCH LINK TO BUILD
+
+echo "Linking new build directory..."
+ln -sf "$destinationBuildDir" "$destinationBranchLink"
+rm -f "$tarFile"
+
+# ------------------------------------------------------------------------------ END
+
+echo ""
+echo "> Branch $fullBranchPath of $projectName deployed successfully"
+echo "> https://$domain"
+if [ -n "$password" ]; then
+  login="${password%%:*}"
+  pass="${password#*:}"
+  stars=$(printf '%*s' "${#pass}" '' | tr ' ' '*')
+  echo "> Credentials are $login:$stars"
+fi
