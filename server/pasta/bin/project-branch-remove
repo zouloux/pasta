@@ -29,7 +29,7 @@ fi
 
 link=$(readlink "$branchDir")
 echo "Stopping and removing build $link ..."
-(cd $link && docker compose down --volumes --remove-orphans) > /dev/null 2>&1
+(cd $link && docker compose -f "docker-compose.pasta.yaml" down --volumes --remove-orphans) > /dev/null 2>&1
 rm -rf "$link"
 rm "$branchDir"
 

@@ -103,19 +103,16 @@ fi
 cd "$userDir"
 
 # ------------------------------------------------------------------------------ CHECK PARAMETERS
-
-if [[ "$verbose" == "2" ]]; then
-  echo ">> Arguments"
-  echo "- Project Name: $projectName"
-  echo "- Branch: $branch"
-  echo "- Sub-Branch: ${subBranch:-N/A}"
-  echo "- Swap method: $swapMethod"
-  echo "- Data Bucket: $dataBucketName"
-  echo "- Password: $loginPassword"
-  echo ">> Variables"
-  echo "- Build number: $buildNumber"
-  echo "- Compose project name: $composeProjectName"
+echo "Pasta deploy 1.2"
+echo "- Project: $projectName"
+echo "- Branch: $branch"
+if [ -n $subBranch ]; then
+  echo "- Sub-branch: ${subBranch}"
 fi
+echo "- Swap method: $swapMethod"
+echo "- Data bucket: $dataBucketName"
+echo "- Build number: $buildNumber"
+echo ""
 
 # ------------------------------------------------------------------------------ COPY LOGS
 
@@ -658,20 +655,20 @@ for serviceName in "${services[@]}"; do
     echo "${serviceName}"
   fi
 done
-echo ""
 for serviceName in "${!dockerRedirects[@]}"; do
   domains="${dockerRedirects[$serviceName]}"
   IFS=',' read -ra domainArray <<< "$domains"  # Split domains by comma
+  echo ""
   echo "Redirects to $serviceName:"
   for domain in "${domainArray[@]}"; do
       echo "- $domain"
   done
 done
 if [ -n "$loginPassword" ]; then
-#  login="${password%%:*}"
-#  pass="${password#*:}"
-#  stars=$(printf '%*s' "${#pass}" '' | tr ' ' '*')
+  login="${loginPassword%%:*}"
+  pass="${loginPassword#*:}"
+  stars=$(printf '%*s' "${#pass}" '' | tr ' ' '*')
   echo ""
-#  echo "- Credentials are $login:$stars"
-  echo "- Credentials are $loginPassword"
+  echo "Credentials are $login:$stars"
+#  echo "Credentials are $loginPassword"
 fi

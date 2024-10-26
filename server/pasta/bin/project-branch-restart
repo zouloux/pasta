@@ -18,9 +18,6 @@ user="$projectName"
 userDir="/home/$user"
 branchDir="$userDir/$branchesDir/$branch"
 
-originalComposeFileName="docker-compose.yaml"
-pastaComposeFileName="docker-compose.pasta.yaml"
-
 if [[ ! -d $userDir ]]; then
   echo "Project $projectName does not exist."
   exit 1
@@ -34,19 +31,11 @@ fi
 link=$(readlink "$branchDir")
 cd $link || exit 1
 
-# Target main docker file
-dockerFile="$originalComposeFileName"
-if [ -f "$pastaComposeFileName" ]; then
-  dockerFile="$pastaComposeFileName"
-fi
-
-echo "> Docker file is $dockerFile"
-
 echo "Stopping $link..."
-docker compose -f $dockerFile down --volumes --remove-orphans > /dev/null 2>&1
+docker compose -f "docker-compose.pasta.yaml" down --volumes --remove-orphans > /dev/null 2>&1
 
 echo "Starting $link..."
-docker compose -f $dockerFile up -d > /dev/null 2>&1
+docker compose -f "docker-compose.pasta.yaml" up -d > /dev/null 2>&1
 
 cd - > /dev/null 2>&1
 echo ""
