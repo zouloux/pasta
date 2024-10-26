@@ -453,6 +453,7 @@ done
 for serviceName in "${!dockerRedirects[@]}"; do
   #virtualHostString="${dockerRedirects[$serviceName]}"
   #redirectTo="${dockerExternalHosts[$serviceName]}"
+  containerName="$composeProjectName-redirect-$serviceName"
   {
     echo "  redirect-${serviceName}:"
     echo "    image: morbz/docker-web-redirect"
@@ -460,6 +461,7 @@ for serviceName in "${!dockerRedirects[@]}"; do
     echo "    privileged: false"
     echo "    networks:"
     echo "      - pasta"
+    echo "    container_name: $containerName"
     echo "    environment:"
     echo "      VIRTUAL_HOST: \"\${DOCKER_REDIRECT_$upperServiceName}\""
     echo "      LETSENCRYPT_HOST: \"\${DOCKER_REDIRECT_$upperServiceName}\""
