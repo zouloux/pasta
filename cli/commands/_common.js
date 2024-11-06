@@ -134,7 +134,7 @@ export async function targetBranchConfig ( _branchName ) {
 		branch: branchName,
 		subBranch: subBranchName,
 		config: {
-			version: (config.version + '' ?? '1.0'), // default + force string
+			version: (config.version ?? '1.0') + '', // default + force string
 			domain: "",
 			port: 22,
 			data: branchName,
