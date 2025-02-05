@@ -140,7 +140,7 @@ echo "Installing core dependencies..."
 echo -n "- update "
 apt update -qq > /dev/null 2>&1 && echo "[OK]"
 echo -n "- upgrade "
-apt upgrade -y -qq > /dev/null 2>&1 && echo "[OK]"
+apt upgrade -y > /dev/null 2>&1 && echo "[OK]"
 install_packages=( "git" "logrotate" "figlet" "openssl" "rsync" "htop" )
 for package in "${install_packages[@]}"; do
   echo -n "- install $package "
