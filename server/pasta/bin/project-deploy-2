@@ -432,6 +432,7 @@ for serviceName in "${services[@]}"; do
     echo "    privileged: false"
     echo "    attach: false"
     echo "    tty: false"
+    echo "    ports: !reset"
     echo "    networks:"
     echo "      - pasta"
 #    echo "    container_name: $containerName"
