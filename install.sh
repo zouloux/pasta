@@ -27,6 +27,15 @@ if [ -d "/usr/local/pasta/" ]; then
   exit 1
 fi
 
+# Check lock
+if fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
+  read -p "Lock detected. Do you want to remove it manually and proceed? (y/n) " answer
+  if [ "$answer" != "y" ]; then
+    echo "Exiting."
+    exit 1
+  fi
+fi
+
 # Ask to add SSH key
 if [ ! -f "$authorizedKeys" ] || ! grep -q "ssh-" "$authorizedKeys"; then
   echo ""
@@ -59,14 +68,23 @@ if [ ! -f "$authorizedKeys" ] || ! grep -q "ssh-" "$authorizedKeys"; then
     echo "Saving SSH config..."
     sed -i "s/^#Port 22/Port $sshPort/" $sshConfig
     needRestart=true
+    if command -v ufw >/dev/null 2>&1; then
+      ufw allow $port
+      echo "Port $port unlocked in local firewall."
+    else
+      echo "Firewall not found or not supported."
+    fi
   fi
   if [ "$needRestart" = true ]; then
     echo "Restarting SSH..."
-    systemctl restart ssh > /dev/null 2>&1
+    echo "Please reconnect with new parameters and restart the setup script."
     if [ "$sshPort" -ne 22 ]; then
       echo ""
-      echo "IMPORTANT : Do not forget to open the port $sshPort on firewall!"
+      echo "IMPORTANT : Do not forget to open the port $sshPort on network firewall!"
     fi
+    systemctl restart ssh > /dev/null 2>&1
+    echo "Done"
+    exit
   fi
   echo ""
 fi
@@ -111,8 +129,10 @@ read -p "Enable ASCII banner login showing '$hostname' ? (y/n)" doBanner
 echo "Configuring hosts..."
 echo "$hostname" > /etc/hostname
 hostnamectl set-hostname "$hostname" > /dev/null 2>&1
-echo "" >> /etc/hosts
-echo "127.0.0.1 $hostname" >> /etc/hosts
+if ! grep -qE "127\.0\.0\.1\s+$hostname" /etc/hosts; then
+  echo "" >> /etc/hosts
+  echo "127.0.0.1 $hostname" >> /etc/hosts
+fi
 
 # Update and install core dependencies
 #echo "Installing core dependencies..."

@@ -523,6 +523,7 @@ for volume in $dataVolumes; do
     # /data/preview/backend
     # /data/preview/backend/api
     # /data/preview/backend/api/uploads
+    # FIXME : There is a double / issue here, check on verbose 2, maybe nothing
     IFS='/' read -ra ADDR <<< "${volume#$userDir/data}"
     for part in "${ADDR[@]}"; do
       currentDir="${currentDir}/${part}"
