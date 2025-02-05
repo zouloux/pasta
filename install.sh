@@ -32,7 +32,9 @@ if fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
   read -p "Lock detected. Do you want to remove it manually and proceed? (y/n) " answer
   if [ "$answer" != "y" ]; then
     echo "Exiting."
-    exit 1
+  else
+    sudo rm /var/lib/dpkg/lock-frontend
+    echo "Lock removed."
   fi
 fi
 
