@@ -49,9 +49,10 @@ export async function syncCommand ( config, branch, direction ) {
 	// Get local data directory
 	const { dotEnvContent } = await loadDotEnv()
 	// Force trailing slash in push, this is important
-	const localData = trailing(dotEnvContent.PASTA_DATA, direction === "push")
-	if ( !localData )
-		nicePrint(`{r}Unable to read {b}PASTA_DATA{/r} from {b}.env{/r} file`, { code: 1 })
+	const dockerDataEnv = dotEnvContent.DOCKER_DATA ?? ""
+	const localData = trailing(dockerDataEnv, direction === "push")
+	if ( !dockerDataEnv )
+		nicePrint(`{r}Unable to read {b}DOCKER_DATA{/r} from {b}.env{/r} file`, { code: 1 })
 	// Load key
 	const keyCommand = await getKeyCommand( key )
 	// Generate rsync command
@@ -73,7 +74,7 @@ export async function syncCommand ( config, branch, direction ) {
 	nicePrint(`{d}$ ${command}`)
 	await oraTask(`${direction === "pull" ? "Pulling from" : "Pushing to"} ${branch}`, async () => {
 		try {
-			await execAsync( command, 0 )
+			await execAsync( command, 1 )
 		}
 		catch ( e ) {
 			console.error( e )
