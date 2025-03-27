@@ -49,7 +49,7 @@ export async function syncCommand ( config, branch, direction ) {
 	// Get local data directory
 	const { dotEnvContent } = await loadDotEnv()
 	// Force trailing slash in push, this is important
-	const dockerDataEnv = dotEnvContent.DOCKER_DATA ?? ""
+	const dockerDataEnv = dotEnvContent.DOCKER_DATA ?? dotEnvContent.PASTA_DATA ?? ""
 	const localData = trailing(dockerDataEnv, direction === "push")
 	if ( !dockerDataEnv )
 		nicePrint(`{r}Unable to read {b}DOCKER_DATA{/r} from {b}.env{/r} file`, { code: 1 })
