@@ -14,7 +14,7 @@ services:
       - /etc/nginx/htpasswd:/etc/nginx/htpasswd
       - /etc/nginx/vhost.d:/etc/nginx/vhost.d
       - ./data/html/:/usr/share/nginx/html
-      - ./data/certs/:/etc/nginx/certs
+      - ./data/certs/:/etc/nginx/certs:ro
       - ./config/nginx.conf:/etc/nginx/conf.d/proxy.conf:ro
     networks:
       - "pasta"
@@ -30,6 +30,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./data/acme:/etc/acme.sh
+      - ./data/certs/:/etc/nginx/certs:rw
     networks:
       - "pasta"
 
