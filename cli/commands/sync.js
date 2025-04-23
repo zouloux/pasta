@@ -29,7 +29,7 @@ function showConfirm (remoteName, localName, direction ) {
 }
 
 export async function syncCommand ( config, branch, direction ) {
-	const { sync, host, project, port, user, data, key } = config
+	const { sync, host, project, port, user, data, key, syncExclude } = config
 	// Get direction
 	const directions = ["pull", "push"]
 	if ( !directions.includes(direction) )
@@ -57,6 +57,7 @@ export async function syncCommand ( config, branch, direction ) {
 	const keyCommand = await getKeyCommand( key )
 	// Generate rsync command
 	let command = `rsync -az --delete --no-perms --omit-dir-times -e 'ssh${keyCommand} -p ${port}' `
+	command += syncExclude.map( e => `--exclude '${e}' `)
 	// Remove trailing slash in push, this is important
 	const remote = trailing(`"${user}@${host}:/home/${project}/data/${data}"`, direction === "pull")
 	const local = `"${localData}"`

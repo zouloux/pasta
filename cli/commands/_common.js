@@ -143,6 +143,7 @@ export async function targetBranchConfig ( _branchName ) {
 			password: "",
 			verbose: "0",
 			alias: "",
+			syncExclude: [],
 			...branchConfig,
 		}
 	}
