@@ -1,7 +1,6 @@
-import { askInput, askList, execAsync, newLine, nicePrint, oraTask } from "@zouloux/cli";
+import { askInput, askList, execAsync, execSync, newLine, nicePrint, oraTask } from "@zouloux/cli";
 import { getKeyCommand, loadDotEnv } from "./_common.js";
-import path from "node:path";
-import { repeat, trailing, untab } from "@zouloux/ecma-core";
+import { repeat, trailing } from "@zouloux/ecma-core";
 
 /**
  * ╔═══════╗
@@ -11,20 +10,24 @@ import { repeat, trailing, untab } from "@zouloux/ecma-core";
  * ╚═══════╝
  */
 
-function generateComputerASCII ( name ) {
-	let buffer = "╔" + repeat( name.length + 2, "═" ) + "╗\n"
-	buffer += "║ " + name + " ║\n"
-	buffer += "╚" + repeat( name.length + 2, "═" ) + "╝"
+function generateComputerASCII ( name, size, padding ) {
+	let buffer = `╔${ repeat( size + padding, "═" ) }╗\n`
+	const offset = size - name.length
+	const leftPadding = Math.floor( offset / 2 )
+	const rightPadding = Math.ceil( offset / 2 )
+	buffer += `║${ repeat( leftPadding + padding / 2, " " ) }${ name }${ repeat( rightPadding + padding / 2, " " ) }║\n`
+	buffer += `╚${ repeat( size + padding, "═" ) }╝`
 	return buffer
 }
 
 function showConfirm (remoteName, localName, direction ) {
+	const padding = 4;
 	const longest = Math.max( localName.length, remoteName.length )
-	let remote = generateComputerASCII( remoteName )
-	let arrow = direction === "pull" ? "↓" : "↑"
-	let local = generateComputerASCII( localName )
+	let remote = generateComputerASCII( remoteName, longest, padding )
+	let arrow = (direction === "pull" ? "↓" : "↑") + " ";
+	let local = generateComputerASCII( localName, longest, padding )
 	console.log( remote )
-	console.log(`  ${arrow.repeat(longest)}  `)
+	console.log(`${repeat( padding, " " )}${arrow.repeat(longest / 2)}`)
 	console.log( local )
 }
 
@@ -65,12 +68,12 @@ export async function syncCommand ( config, branch, direction ) {
 		command += `${remote} ${local}`
 	else
 		command += `${local} ${remote}`
-	// TODO : Finish confirm
-	// const hostname = dotEnvContent.PASTA_HOSTNAME
-	// showConfirm(`${host}/${data}`, `${hostname}`, direction)
-	// const selection = await askList(`Data can be lost. Do you confirm?`, [ 'Yes', 'No' ], { returnType: "index" })
-	// console.log( selection );
-	// process.exit()
+	const hostname = execSync(`hostname`).trim()
+	showConfirm(`${host}/${project}/${data}`, `${hostname}/${branch}`, direction)
+	const selection = await askList(`Data can be lost. Do you confirm?`, [ 'No', 'Yes' ], { returnType: "index" })
+	if ( selection === 0 ) {
+		process.exit(0);
+	}
 	// Show and run rsync command
 	nicePrint(`{d}$ ${command}`)
 	await oraTask(`${direction === "pull" ? "Pulling from" : "Pushing to"} ${branch}`, async () => {
