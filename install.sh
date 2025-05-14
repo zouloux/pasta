@@ -24,6 +24,8 @@ if [ -d "/usr/local/pasta/" ]; then
   echo "Pasta Server seems to be already installed on this server."
   echo "Please update with:"
   echo "\$ pasta-upgrade"
+  echo "Or uninstall with:"
+  echo "\$ rm -rf /usr/local/pasta/"
   exit 1
 fi
 
@@ -37,7 +39,7 @@ fi
 if [ ! -f "$authorizedKeys" ] || ! grep -q "ssh-" "$authorizedKeys"; then
   echo ""
   echo "You should add your public key to login to root."
-  echo "This is highly recommended."
+  echo "This is recommended only if you don't have access through another user."
   read -p "Enter your public SSH key: " sshKey
   needRestart=false
   if [ -n "$sshKey" ]; then
@@ -69,7 +71,7 @@ if [ ! -f "$authorizedKeys" ] || ! grep -q "ssh-" "$authorizedKeys"; then
       ufw allow $port
       echo "Port $port unlocked in local firewall."
     else
-      echo "Firewall not found or not supported."
+      echo "Software firewall not found or not supported."
     fi
   fi
   if [ "$needRestart" = true ]; then
