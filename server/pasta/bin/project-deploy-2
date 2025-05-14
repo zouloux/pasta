@@ -567,10 +567,7 @@ for serviceName in "${!dockerExternalHosts[@]}"; do
   fi
   # Setting password
   if [ -n "$loginPassword" ]; then
-    # Do not add password to service name if finishes by an underscore
-    if [[ $serviceName != *_ ]]; then
-      proxy-password "$domain" "$loginPassword"
-    fi
+    proxy-password "$domain" "$loginPassword"
   fi
   # Setting nginx config
   proxyConfigSource="$destinationBuildDir/.proxy/nginx.conf"
