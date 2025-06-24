@@ -1,0 +1,21 @@
+networks:
+  pasta:
+    external: true
+
+services:
+  ferdium-server:
+    image: "ferdium/ferdium-server"
+    container_name: "app_ferdium_server"
+    restart: "unless-stopped"
+    networks:
+      - "pasta"
+    environment:
+      VIRTUAL_HOST: "ferdium.$PASTA_DOMAIN"
+      LETSENCRYPT_HOST: "ferdium.$PASTA_DOMAIN"
+      APP_URL: "https://ferdium.$PASTA_DOMAIN"
+      VIRTUAL_PORT: 3333
+      NODE_ENV: "production"
+    volumes:
+      - "./data/ferdium-server/data:/data"
+    command: sh -c "yarn db:migrate && yarn start"
+
