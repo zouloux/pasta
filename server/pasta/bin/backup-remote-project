@@ -76,6 +76,7 @@ if [ $? -ne 0 ]; then
   echo "SSH output: $ssh_output"
   exit 1
 fi
+echo $ssh_output;
 echo "> Done"
 
 # Call backup-safe-sqlite on remote host
@@ -83,8 +84,8 @@ echo "> Running backup-safe-sqlite on remote host for $projectName $branch ..."
 sqlite_output=$(executeRemote "$host" "$port" "$projectName" "backup-safe-sqlite $projectName $branch")
 if [ $? -ne 0 ]; then
   echo "Warning: backup-safe-sqlite failed on remote host, continuing with rsync backup"
-  echo "Output: $sqlite_output"
 fi
+echo $sqlite_output;
 echo "> Done"
 
 # Create local backup directory

@@ -143,7 +143,7 @@ echo -n "- update "
 apt update -qq > /dev/null 2>&1 && echo "[OK]"
 echo -n "- upgrade "
 apt upgrade -y > /dev/null 2>&1 && echo "[OK]"
-install_packages=( "curl" "git" "logrotate" "figlet" "openssl" "rsync" "htop" )
+install_packages=( "curl" "git" "logrotate" "figlet" "openssl" "rsync" "htop" "sqlite3" )
 for package in "${install_packages[@]}"; do
   echo -n "- install $package "
   apt install "$package" -y -qq > /dev/null 2>&1 && echo "[OK]"
