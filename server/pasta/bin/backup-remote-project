@@ -60,7 +60,7 @@ fi
 if [ $# -eq 6 ]; then
   daysToKeep="$6"
   # Validate days to keep is a number between 1 and 365
-  if ! [[ "$daysToKeep" =~ ^[0-9]+$ ]] || [ "$daysToKeep" -lt 1 ] || [ "$daysToKeep" -gt 365 ]; then
+  if ! [[ "$daysToKeep" =~ ^[0-9]+$ ]] || [ "$daysToKeep" -lt 0 ] || [ "$daysToKeep" -gt 365 ]; then
     echo "Error: Days to keep must be a number between 1 and 365"
     exit 1
   fi
@@ -78,6 +78,7 @@ if [ $? -ne 0 ]; then
 fi
 echo $ssh_output;
 echo "> Done"
+echo ""
 
 # Call backup-safe-sqlite on remote host
 echo "> Running backup-safe-sqlite on remote host for $projectName $branch ..."
@@ -87,12 +88,14 @@ if [ $? -ne 0 ]; then
 fi
 echo $sqlite_output;
 echo "> Done"
+echo ""
 
 # Create local backup directory
 local_dir="$rootBackupDirectory/$host/projects/$projectName/$branch/repository"
 echo "> Creating local backup directory: $local_dir"
 mkdir -p "$local_dir"
 echo "> Done"
+echo ""
 
 # Rsync from remote to local
 echo "> Starting rsync from remote $projectName/data/$branch/ to local $local_dir ..."
@@ -104,6 +107,7 @@ else
 fi
 rsync -avz --no-owner --no-group --no-links --delete \
   -e "$ssh_command" \
+  --info=stats1 \
   "$projectName@$host:/home/$projectName/data/$branch/" \
   "$local_dir/"
 if [ $? -ne 0 ]; then
@@ -111,24 +115,30 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 echo "> Done"
+echo ""
 
-# Create timestamped tar-gz archive
-timestamp=$(date +"%Y-%m-%d-%H-%M")
-archive_file="$rootBackupDirectory/$host/projects/$projectName/$branch/$timestamp.tar.gz"
-echo "> Creating archive at $archive_file ..."
-tar -czf "$archive_file" -C "$rootBackupDirectory/$host/projects/$projectName/$branch" "repository"
-if [ $? -ne 0 ]; then
-  echo "Error: Failed to create timestamped tar-gz archive"
-  exit 1
-fi
-echo "> Timestamped tar-gz archive created successfully"
+# Create timestamped tar-gz archive and remove older archives only if daysToKeep is not 0
+if [ "$daysToKeep" -ne 0 ]; then
+  timestamp=$(date +"%Y-%m-%d-%H-%M")
+  archive_file="$rootBackupDirectory/$host/projects/$projectName/$branch/$timestamp.tar.gz"
+  echo "> Creating archive at $archive_file ..."
+  tar -czf "$archive_file" -C "$rootBackupDirectory/$host/projects/$projectName/$branch" "repository"
+  if [ $? -ne 0 ]; then
+    echo "Error: Failed to create a tar-gz archive"
+    exit 1
+  fi
+  echo "> Archive created successfully"
 
-# Remove older archives
-echo "> Removing backups older than $daysToKeep days ..."
-find "$rootBackupDirectory/$host/projects/$projectName/$branch/" -maxdepth 1 -type f -name "????-??-??-??-??.tar.gz" -mtime +$daysToKeep -exec rm -f {} \;
-if [ $? -ne 0 ]; then
-  echo "Warning: Failed to remove old backups"
+  # Remove older archives
+  echo "> Removing backups older than $daysToKeep days ..."
+  find "$rootBackupDirectory/$host/projects/$projectName/$branch/" -maxdepth 1 -type f -name "????-??-??-??-??.tar.gz" -mtime +$daysToKeep -exec rm -f {} \;
+  if [ $? -ne 0 ]; then
+    echo "Warning: Failed to remove old backups"
+  else
+    echo "> Done"
+    echo ""
+  fi
 else
-  echo "> Done"
+  echo "> Skipping archive creation and cleanup as daysToKeep is set to 0"
 fi
 
