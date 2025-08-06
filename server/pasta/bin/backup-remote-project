@@ -113,9 +113,9 @@ echo "> Done"
 
 # Create timestamped tar-gz archive
 timestamp=$(date +"%Y-%m-%d-%H-%M")
-archive_file="$rootBackupDirectory/$host/$projectName/$branch/$timestamp.tar.gz"
+archive_file="$rootBackupDirectory/$host/projects/$projectName/$branch/$timestamp.tar.gz"
 echo "> Creating archive at $archive_file ..."
-tar -czf "$archive_file" -C "$rootBackupDirectory/$host/$projectName/$branch" "repository"
+tar -czf "$archive_file" -C "$rootBackupDirectory/projects/$host/$projectName/$branch" "repository"
 if [ $? -ne 0 ]; then
   echo "Error: Failed to create timestamped tar-gz archive"
   exit 1
