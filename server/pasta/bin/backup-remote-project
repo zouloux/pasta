@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# This script will backup a remote project via SSH and rsync
+# It will download the project files to a local directory and create a timestamped copy
+# Usage:
+# backup-remote-project "host" "port" "project-name" "branch" ["private-key-file" ["days-to-keep"]]
+# days-to-keep: Number of days to keep backups (1-365, default: 7)
+
+#rootBackupDirectory="/root/backups"
+rootBackupDirectory="./backups"
+
+# Function to execute commands on remote host
+executeRemote() {
+  local host="$1"
+  local port="$2"
+  local user="$3"
+  local command="$4"
+
+  if [ -n "$privateKeyFile" ]; then
+    ssh -i "$privateKeyFile" -p "$port" "$user@$host" "$command" -o StrictHostKeyChecking=no 2>&1
+  else
+    ssh -p "$port" "$user@$host" "$command" -o StrictHostKeyChecking=no 2>&1
+  fi
+  return $?
+}
+
+# Check if user is root
+if [ "$EUID" -ne 0 ]; then
+  echo "Error: This script must be run as root"
+  exit 1
+fi
+
+# Check if parameters are provided
+if [ $# -lt 4 ] || [ $# -gt 6 ]; then
+  echo "Error: Invalid number of arguments"
+  echo "Usage: backup-remote-project <host> <port> <project-name> <branch> [private-key-file [days-to-keep]]"
+  exit 1
+fi
+
+# CLI Arguments
+host="$1"
+port="$2"
+projectName="$3"
+branch="$4"
+privateKeyFile=""
+daysToKeep=7 # Default value
+
+# Check if private key file is provided
+if [ $# -ge 5 ]; then
+  privateKeyFile="$5"
+  # Check if the private key file exists
+  if [ ! -f "$privateKeyFile" ]; then
+    echo "Error: Private key file does not exist: $privateKeyFile"
+    exit 1
+  fi
+  echo "Using private key file: $privateKeyFile"
+fi
+
+# Check if days to keep is provided
+if [ $# -eq 6 ]; then
+  daysToKeep="$6"
+  # Validate days to keep is a number between 1 and 365
+  if ! [[ "$daysToKeep" =~ ^[0-9]+$ ]] || [ "$daysToKeep" -lt 1 ] || [ "$daysToKeep" -gt 365 ]; then
+    echo "Error: Days to keep must be a number between 1 and 365"
+    exit 1
+  fi
+  echo "Using days to keep: $daysToKeep"
+fi
+
+echo "> Connecting to remote $host with user $projectName ..."
+
+# Check SSH connection
+ssh_output=$(executeRemote "$host" "$port" "$projectName" "print-version")
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to connect to remote host"
+  echo "SSH output: $ssh_output"
+  exit 1
+fi
+echo "> Done"
+
+# Call backup-save-sqlite on remote host
+echo "> Running backup-save-sqlite on remote host for $projectName $branch ..."
+sqlite_output=$(executeRemote "$host" "$port" "$projectName" "backup-save-sqlite $projectName $branch")
+if [ $? -ne 0 ]; then
+  echo "Warning: backup-save-sqlite failed on remote host, continuing with rsync backup"
+  echo "Output: $sqlite_output"
+fi
+echo "> Done"
+
+# Create local backup directory
+local_dir="$rootBackupDirectory/$host/$projectName/$branch/repository"
+echo "> Creating local backup directory: $local_dir"
+mkdir -p "$local_dir"
+echo "> Done"
+
+# Rsync from remote to local
+echo "> Starting rsync from remote $projectName/data/$branch/ to local $local_dir ..."
+ssh_command=""
+if [ -n "$privateKeyFile" ]; then
+  ssh_command="ssh -i '$privateKeyFile' -p $port -o StrictHostKeyChecking=no"
+else
+  ssh_command="ssh -p $port -o StrictHostKeyChecking=no"
+fi
+rsync -avz --no-owner --no-group --no-links --delete \
+  -e "$ssh_command" \
+  "$projectName@$host:/home/$projectName/data/$branch/" \
+  "$local_dir/"
+if [ $? -ne 0 ]; then
+  echo "Error: Rsync failed"
+  exit 1
+fi
+echo "> Done"
+
+# Create timestamped tar-gz archive
+timestamp=$(date +"%Y-%m-%d-%H-%M")
+archive_file="$rootBackupDirectory/$host/$projectName/$branch/$timestamp.tar.gz"
+echo "> Creating archive at $archive_file ..."
+tar -czf "$archive_file" -C "$rootBackupDirectory/$host/$projectName/$branch" "repository"
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to create timestamped tar-gz archive"
+  exit 1
+fi
+echo "> Timestamped tar-gz archive created successfully"
+
+# Remove older archives
+echo "> Removing backups older than $daysToKeep days ..."
+find "$rootBackupDirectory/$host/$projectName/$branch/" -maxdepth 1 -type f -name "????-??-??-??-??.tar.gz" -mtime +$daysToKeep -exec rm -f {} \;
+if [ $? -ne 0 ]; then
+  echo "Warning: Failed to remove old backups"
+else
+  echo "> Done"
+fi
+

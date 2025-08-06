@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# This script will backup all .db and .sqlite files (sqlite databases files)
+# safely with sqlite3 command (it prevent other process to write and corrupt the db while copying)
+# It keeps only 1 backup as "_backup" and do not browse dot directories.
+# Usage :
+# backup-safe-sqlite-copy $projectName $branch
+
+# Here add run as root detection and exit if not good
+#if [ "$EUID" -ne 0 ]; then
+#  echo "Error: This script must be run as root"
+#  exit 1
+#fi
+
+# Here, check arguments and exit if not good
+if [ $# -lt 2 ]; then
+  echo "Error: Missing arguments"
+  echo "Usage: backup-safe-sqlite-copy <projectName> <branch>"
+  exit 1
+fi
+
+# Check if sqlite3 is installed, install if not
+if ! command -v sqlite3 &> /dev/null; then
+  echo "sqlite3 not found, installing..."
+  sudo apt update
+  sudo apt install -y sqlite3
+  echo "sqlite3 installed."
+fi
+
+# CLI Arguments
+project="$1"
+branch="$2" # Single branch as string
+
+# Configuration
+sourceDir="/home/$project/data"
+
+# Process the single branch
+echo "Starting safe sqlite backup for branch: $branch"
+branchDir="$sourceDir/$branch"
+# Find all .db or .sqlite files recursively, excluding dot directories
+find "$branchDir" -type f \( -name "*.db" -o -name "*.sqlite" \) ! -path '*/.*/*' | while read -r targetFile; do
+  backupFile="${targetFile}_backup"
+  # Remove existing backup
+  if [ -f "$backupFile" ]; then
+    rm "$backupFile"
+  fi
+  if [ -f "${targetFile}-wal" ]; then
+    sqlite3 "$targetFile" "VACUUM INTO '$backupFile';"
+  else
+    sqlite3 "$targetFile" ".backup '$backupFile'"
+  fi
+  echo "- $targetFile backed up as $backupFile"
+done
