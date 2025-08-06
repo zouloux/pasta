@@ -12,6 +12,8 @@ pastaBinDir="/usr/local/pasta/bin"
 chmod -R 0700 $pastaBinDir
 chown -R "root:$group" $pastaBinDir
 chmod 0750 $pastaBinDir
+chmod 0750 "$pastaBinDir/backup-remote-project"
+chmod 0750 "$pastaBinDir/backup-safe-sqlite"
 chmod 0750 "$pastaBinDir/host-stats-json"
 chmod 0750 "$pastaBinDir/iterm-download"
 chmod 0750 "$pastaBinDir/pasta-help"
