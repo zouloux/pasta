@@ -116,7 +116,7 @@ echo "> Done"
 timestamp=$(date +"%Y-%m-%d-%H-%M")
 archive_file="$rootBackupDirectory/$host/projects/$projectName/$branch/$timestamp.tar.gz"
 echo "> Creating archive at $archive_file ..."
-tar -czf "$archive_file" -C "$rootBackupDirectory/projects/$host/$projectName/$branch" "repository"
+tar -czf "$archive_file" -C "$rootBackupDirectory/$host/projects/$projectName/$branch" "repository"
 if [ $? -ne 0 ]; then
   echo "Error: Failed to create timestamped tar-gz archive"
   exit 1
@@ -125,7 +125,7 @@ echo "> Timestamped tar-gz archive created successfully"
 
 # Remove older archives
 echo "> Removing backups older than $daysToKeep days ..."
-find "$rootBackupDirectory/$host/$projectName/$branch/" -maxdepth 1 -type f -name "????-??-??-??-??.tar.gz" -mtime +$daysToKeep -exec rm -f {} \;
+find "$rootBackupDirectory/$host/projects/$projectName/$branch/" -maxdepth 1 -type f -name "????-??-??-??-??.tar.gz" -mtime +$daysToKeep -exec rm -f {} \;
 if [ $? -ne 0 ]; then
   echo "Warning: Failed to remove old backups"
 else
