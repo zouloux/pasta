@@ -107,7 +107,7 @@ else
 fi
 rsync -avz --no-owner --no-group --no-links --delete \
   -e "$ssh_command" \
-  --info=stats1 \
+  --quiet --info=stats1 \
   "$projectName@$host:/home/$projectName/data/$branch/" \
   "$local_dir/"
 if [ $? -ne 0 ]; then
