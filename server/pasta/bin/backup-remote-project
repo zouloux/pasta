@@ -78,17 +78,17 @@ if [ $? -ne 0 ]; then
 fi
 echo "> Done"
 
-# Call backup-save-sqlite on remote host
-echo "> Running backup-save-sqlite on remote host for $projectName $branch ..."
-sqlite_output=$(executeRemote "$host" "$port" "$projectName" "backup-save-sqlite $projectName $branch")
+# Call backup-safe-sqlite on remote host
+echo "> Running backup-safe-sqlite on remote host for $projectName $branch ..."
+sqlite_output=$(executeRemote "$host" "$port" "$projectName" "backup-safe-sqlite $projectName $branch")
 if [ $? -ne 0 ]; then
-  echo "Warning: backup-save-sqlite failed on remote host, continuing with rsync backup"
+  echo "Warning: backup-safe-sqlite failed on remote host, continuing with rsync backup"
   echo "Output: $sqlite_output"
 fi
 echo "> Done"
 
 # Create local backup directory
-local_dir="$rootBackupDirectory/$host/$projectName/$branch/repository"
+local_dir="$rootBackupDirectory/$host/projects/$projectName/$branch/repository"
 echo "> Creating local backup directory: $local_dir"
 mkdir -p "$local_dir"
 echo "> Done"
