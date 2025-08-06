@@ -6,8 +6,8 @@
 # backup-remote-project "host" "port" "project-name" "branch" ["private-key-file" ["days-to-keep"]]
 # days-to-keep: Number of days to keep backups (1-365, default: 7)
 
-#rootBackupDirectory="/root/backups"
-rootBackupDirectory="./backups"
+rootBackupDirectory="/root/backups"
+#rootBackupDirectory="./backups"
 
 # Function to execute commands on remote host
 executeRemote() {
@@ -17,9 +17,9 @@ executeRemote() {
   local command="$4"
 
   if [ -n "$privateKeyFile" ]; then
-    ssh -i "$privateKeyFile" -p "$port" "$user@$host" "$command" -o StrictHostKeyChecking=no 2>&1
+    ssh -o StrictHostKeyChecking=no -i "$privateKeyFile" -p "$port" "$user@$host" "$command" 2>&1
   else
-    ssh -p "$port" "$user@$host" "$command" -o StrictHostKeyChecking=no 2>&1
+    ssh -o StrictHostKeyChecking=no -p "$port" "$user@$host" "$command" 2>&1
   fi
   return $?
 }
@@ -97,9 +97,9 @@ echo "> Done"
 echo "> Starting rsync from remote $projectName/data/$branch/ to local $local_dir ..."
 ssh_command=""
 if [ -n "$privateKeyFile" ]; then
-  ssh_command="ssh -i '$privateKeyFile' -p $port -o StrictHostKeyChecking=no"
+  ssh_command="ssh -o StrictHostKeyChecking=no -i '$privateKeyFile' -p $port"
 else
-  ssh_command="ssh -p $port -o StrictHostKeyChecking=no"
+  ssh_command="ssh -o StrictHostKeyChecking=no -p $port"
 fi
 rsync -avz --no-owner --no-group --no-links --delete \
   -e "$ssh_command" \
