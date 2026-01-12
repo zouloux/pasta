@@ -56,3 +56,14 @@ With those script and conventions, you will be able to :
 ## ⚡️ [Quick start](https://zouloux.github.io/pasta/#/quick-start)
 ## 📺️ [Project Demo](https://zouloux.github.io/pasta/#/demo)
 ## 📕 [Complete documentation](https://zouloux.github.io/pasta/)
+
+## Update lazydocker for version error
+
+With user root, in ~
+```bash
+curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh -o install-lazy-docker.sh > /dev/null 2>&1
+bash install-lazy-docker.sh > /dev/null 2>&1
+rm install-lazy-docker.sh
+mv .local/bin/lazydocker /usr/bin
+```
+> Check `.local` directory to remove it if empty
